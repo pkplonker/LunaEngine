@@ -6,7 +6,7 @@ namespace Engine;
 
 public class Shader : IDisposable
 {
-	private uint shaderID;
+	private uint handle;
 	private GL gl;
 	private Dictionary<string, int> uniformDict = new();
 
@@ -15,32 +15,32 @@ public class Shader : IDisposable
 		this.gl = gl;
 		uint vertex = LoadShader(ShaderType.VertexShader, vertexPath);
 		uint fragment = LoadShader(ShaderType.FragmentShader, fragmentPath);
-		shaderID = this.gl.CreateProgram();
-		this.gl.AttachShader(shaderID, vertex);
-		this.gl.AttachShader(shaderID, fragment);
-		this.gl.LinkProgram(shaderID);
-		this.gl.GetProgram(shaderID, GLEnum.LinkStatus, out var status);
+		handle = this.gl.CreateProgram();
+		this.gl.AttachShader(handle, vertex);
+		this.gl.AttachShader(handle, fragment);
+		this.gl.LinkProgram(handle);
+		this.gl.GetProgram(handle, GLEnum.LinkStatus, out var status);
 		if (status == 0)
 		{
-			throw new Exception($"Program failed to link with error: {this.gl.GetProgramInfoLog(shaderID)}");
+			throw new Exception($"Program failed to link with error: {this.gl.GetProgramInfoLog(handle)}");
 		}
 
-		this.gl.DetachShader(shaderID, vertex);
-		this.gl.DetachShader(shaderID, fragment);
+		this.gl.DetachShader(handle, vertex);
+		this.gl.DetachShader(handle, fragment);
 		this.gl.DeleteShader(vertex);
 		this.gl.DeleteShader(fragment);
 	}
 
 	public void Use()
 	{
-		gl.UseProgram(shaderID);
+		gl.UseProgram(handle);
 	}
 
 	private bool TryGetUniformLocation(string name, out int location)
 	{
 		if (!uniformDict.ContainsKey(name))
 		{
-			location = gl.GetUniformLocation(shaderID, name);
+			location = gl.GetUniformLocation(handle, name);
 			if (location == -1)
 			{
 				Debug.WriteLine($"{name} uniform not found on shader.");
@@ -84,9 +84,14 @@ public class Shader : IDisposable
 		gl.Uniform1(location, value);
 	}
 
-	public void Dispose()
+	public void SetUniform(string name, bool value)
 	{
-		gl.DeleteProgram(shaderID);
+		if (!TryGetUniformLocation(name, out var location))
+		{
+			throw new Exception($"{name} uniform not found on shader.");
+		}
+
+		gl.Uniform1(location, value ? 1 : 0);
 	}
 
 	private uint LoadShader(ShaderType type, string path)
@@ -103,5 +108,10 @@ public class Shader : IDisposable
 		}
 
 		return handle;
+	}
+
+	public void Dispose()
+	{
+		gl.DeleteProgram(handle);
 	}
 }

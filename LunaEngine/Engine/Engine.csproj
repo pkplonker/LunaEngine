@@ -13,6 +13,7 @@
       <PackageReference Include="Silk.NET.Core" Version="2.20.0" />
       <PackageReference Include="Silk.NET.Maths" Version="2.20.0" />
       <PackageReference Include="Silk.NET.OpenGL" Version="2.20.0" />
+      <PackageReference Include="StbImageSharp" Version="2.27.13" />
     </ItemGroup>
 
     <ItemGroup>
@@ -22,6 +23,13 @@
       <None Update="Resources\Shaders\UnlitVertex.glsl">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="Resources\Textures\test.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Resources\Textures\" />
     </ItemGroup>
 
 </Project>

@@ -9,21 +9,19 @@ public class Renderer
 {
 	private static GL gl;
 
-	private static uint Vbo;
-	private static uint Ebo;
-	private static uint Vao;
+	private static BufferObject<float> vbo;
+	private static BufferObject<uint> ebo;
+	private static VertexArrayObject<float, uint> vao;
 
-	//Vertex data, uploaded to the VBO.
 	private static readonly float[] Vertices =
 	{
-		//X    Y      Z
-		0.5f, 0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f,
-		-0.5f, 0.5f, 0.5f
+		//X    Y      Z     S    T
+		0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+		0.5f, -0.5f, 0.0f, 1.0f, 1.0f,
+		-0.5f, -0.5f, 0.0f, 0.0f, 1.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f, 0.0f
 	};
 
-	//Index data, uploaded to the EBO.
 	private static readonly uint[] Indices =
 	{
 		0, 1, 3,
@@ -32,6 +30,7 @@ public class Renderer
 
 	private Vector4D<int> clearColor = new(18, 18, 18, 255);
 	private Shader shader;
+	private texture texture;
 
 	public void Update(double deltaTime)
 	{
@@ -40,8 +39,13 @@ public class Renderer
 			gl.ClearColor(clearColor);
 			gl.Clear((uint) ClearBufferMask.ColorBufferBit);
 
-			gl.BindVertexArray(Vao);
+			vao.Bind();
 			shader.Use();
+			texture.Bind(TextureUnit.Texture0);
+
+			//Setting a uniform.
+			shader.SetUniform("Texture0", 0);
+			shader.SetUniform("UseTexture", true);
 
 			gl.DrawElements(PrimitiveType.Triangles, (uint) Indices.Length, DrawElementsType.UnsignedInt, null);
 		}
@@ -55,36 +59,26 @@ public class Renderer
 		{
 			gl = GL.GetApi(window);
 
-			Vao = gl.GenVertexArray();
-			gl.BindVertexArray(Vao);
+			//Instantiating our new abstractions
+			ebo = new BufferObject<uint>(gl, Indices, BufferTargetARB.ElementArrayBuffer);
+			vbo = new BufferObject<float>(gl, Vertices, BufferTargetARB.ArrayBuffer);
+			vao = new VertexArrayObject<float, uint>(gl, vbo, ebo);
 
-			Vbo = gl.GenBuffer();
-			gl.BindBuffer(BufferTargetARB.ArrayBuffer, Vbo);
-			fixed (void* v = &Vertices[0])
-			{
-				gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint) (Vertices.Length * sizeof(uint)), v,
-					BufferUsageARB.StaticDraw);
-			}
-
-			Ebo = gl.GenBuffer();
-			gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, Ebo);
-			fixed (void* i = &Indices[0])
-			{
-				gl.BufferData(BufferTargetARB.ElementArrayBuffer, (nuint) (Indices.Length * sizeof(uint)), i,
-					BufferUsageARB.StaticDraw); //Setting buffer data.
-			}
+			//Telling the VAO object how to lay out the attribute pointers
+			vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
+			vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
 
 			shader = new Shader(gl, @"/resources/shaders/unlitvertex.glsl", @"/resources/shaders/unlitfragment.glsl");
-
-			gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
-			gl.EnableVertexAttribArray(0);
+			texture = new texture(gl, @"/resources/textures/test.png");
 		}
 	}
 
 	public void Close()
 	{
-		gl.DeleteBuffer(Vbo);
-		gl.DeleteBuffer(Ebo);
-		gl.DeleteVertexArray(Vao);
+		vbo.Dispose();
+		ebo.Dispose();
+		vao.Dispose();
+		shader.Dispose();
+		texture.Dispose();
 	}
 }
