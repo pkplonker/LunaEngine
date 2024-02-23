@@ -50,7 +50,7 @@ public class Renderer
 	};
 
 	private Framebuffer framebuffer;
-	private Silk.NET.OpenGL.Texture renderTexture;
+	public Silk.NET.OpenGL.Texture renderTexture { get; private set; }
 
 	private const int colorVal = 50;
 	private Vector4D<int> clearColor = new(colorVal, colorVal, colorVal, 255);
@@ -74,23 +74,9 @@ public class Renderer
 			shader.SetUniform("Texture0", 0);
 			shader.SetUniform("UseTexture", false);
 
-			var framebufferStatus = Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
-			if (framebufferStatus != GLEnum.FramebufferComplete)
-			{
-				Console.WriteLine($"Framebuffer is not complete! Status: {framebufferStatus}");
-			}
 			Gl.DrawElements(PrimitiveType.Triangles, (uint) INDICES.Length, DrawElementsType.UnsignedInt, null);
 
-			ImGui.Begin("Viewport");
-			ImGui.Image((IntPtr) renderTexture.Handle, new Vector2(3840, 2160), Vector2.Zero, Vector2.One, Vector4.One,
-				Vector4.Zero);
-			ImGui.End();
-			
 			Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-			Gl.Enable(EnableCap.DepthTest);
-			Gl.ClearColor(clearColor);
-			Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
-
 		}
 
 		var difference = (float) (window.Time * 100);
@@ -125,15 +111,20 @@ public class Renderer
 			Gl.GenFramebuffers(1, out framebuffer);
 			Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer.Handle);
 
-			Gl.GenTextures(1, out renderTexture);
+			Gl.GenTextures(1, out Silk.NET.OpenGL.Texture rt);
+			renderTexture = rt;
 			Gl.BindTexture(TextureTarget.Texture2D, renderTexture.Handle);
-			Gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 3840, 2160, 0, PixelFormat.Rgba, PixelType.UnsignedByte, null);
+			Gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 3840, 2160, 0, PixelFormat.Rgba,
+				PixelType.UnsignedByte, null);
 
-			Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-			Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+			Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
+				(int) TextureMinFilter.Linear);
+			Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
+				(int) TextureMagFilter.Linear);
 
-			Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, renderTexture.Handle, 0);
-			
+			Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0,
+				TextureTarget.Texture2D, renderTexture.Handle, 0);
+
 			var status = Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
 			if (status != GLEnum.FramebufferComplete)
 			{
@@ -149,5 +140,15 @@ public class Renderer
 		vao.Dispose();
 		shader.Dispose();
 		texture.Dispose();
+	}
+
+
+	public void SetRenderTargetSize(Vector2D<float> size)
+	{
+		unsafe
+		{
+			Gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, (uint)size.X, (uint)size.Y, 0, PixelFormat.Rgba,
+				PixelType.UnsignedByte, null);
+		}
 	}
 }

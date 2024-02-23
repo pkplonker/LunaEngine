@@ -16,9 +16,9 @@ namespace Editor
 		private IWindow? window;
 		private Renderer? renderer;
 		private static EditorApplication application;
-		private EditorImGuiController imGuiController;
-		private IInputContext input;
-		private Camera camera;
+		private EditorImGuiController? imGuiController;
+		private IInputContext? input;
+		private Camera? camera;
 		private static Vector2 LastMousePosition;
 		private IKeyboard? primaryKeyboard;
 
@@ -33,15 +33,12 @@ namespace Editor
 			options.Size = new Vector2D<int>(WINDOW_SIZE_X, WINDOW_SIZE_Y);
 			options.Title = WINDOW_NAME;
 			window = Window.Create(options);
-
 			window.Load += OnLoad;
 			window.Update += OnUpdate;
 			window.Render += OnRender;
 			window.Resize += OnWindowResize;
 			window.Closing += OnClose;
 			renderer = new Renderer();
-			
-			
 		}
 
 		private void OnClose()
@@ -51,22 +48,33 @@ namespace Editor
 
 		public void Start()
 		{
-			window.Run();
-			window.Dispose();
-			imGuiController.Dispose();
+			if (window != null)
+			{
+				//window.WindowState = WindowState.Maximized;
+				window.Run();
+				window.Dispose();
+			}
+
+			imGuiController?.Dispose();
 		}
 
 		private void OnWindowResize(Vector2D<int> size)
 		{
-			renderer.Resize(size);
+			renderer?.Resize(size);
+			imGuiController.Resize(size);
 		}
 
 		private void OnLoad()
 		{
-			renderer.Load(window);
-			input = window.CreateInput();
-			camera = new Camera(Vector3.UnitZ * 6, Vector3.UnitZ * -1, Vector3.UnitY, (float)WINDOW_SIZE_X/(float)WINDOW_SIZE_Y);
-			imGuiController = new EditorImGuiController(renderer.Gl, window, input);
+			if (window != null)
+			{
+				renderer?.Load(window);
+				input = window.CreateInput();
+				camera = new Camera(Vector3.UnitZ * 6, Vector3.UnitZ * -1, Vector3.UnitY,
+					(float) WINDOW_SIZE_X / (float) WINDOW_SIZE_Y);
+				imGuiController = new EditorImGuiController(renderer.Gl, window, input, renderer);
+			}
+
 			primaryKeyboard = input.Keyboards.FirstOrDefault();
 			if (primaryKeyboard != null)
 			{
@@ -78,12 +86,15 @@ namespace Editor
 			// 	input.Mice[i].MouseMove += OnMouseMove;
 			// 	input.Mice[i].Scroll += OnMouseWheel;
 			// }
-
 		}
+
 		private void OnMouseMove(IMouse mouse, Vector2 position)
 		{
 			const float lookSensitivity = 0.1f;
-			if (LastMousePosition == default) { LastMousePosition = position; }
+			if (LastMousePosition == default)
+			{
+				LastMousePosition = position;
+			}
 			else
 			{
 				var xOffset = (position.X - LastMousePosition.X) * lookSensitivity;
@@ -94,10 +105,11 @@ namespace Editor
 			}
 		}
 
-		private  void OnMouseWheel(IMouse mouse, ScrollWheel scrollWheel)
+		private void OnMouseWheel(IMouse mouse, ScrollWheel scrollWheel)
 		{
 			camera.ModifyZoom(scrollWheel.Y);
 		}
+
 		private void OnRender(double deltaTime)
 		{
 			renderer?.Update(deltaTime, camera?.GetView(), camera?.GetProjection());
@@ -113,21 +125,25 @@ namespace Editor
 				//Move forwards
 				camera.Position += moveSpeed * camera.Front;
 			}
+
 			if (primaryKeyboard.IsKeyPressed(Key.S))
 			{
 				//Move backwards
 				camera.Position -= moveSpeed * camera.Front;
 			}
+
 			if (primaryKeyboard.IsKeyPressed(Key.A))
 			{
 				//Move left
 				camera.Position -= Vector3.Normalize(Vector3.Cross(camera.Front, camera.Up)) * moveSpeed;
 			}
+
 			if (primaryKeyboard.IsKeyPressed(Key.D))
 			{
 				//Move right
 				camera.Position += Vector3.Normalize(Vector3.Cross(camera.Front, camera.Up)) * moveSpeed;
 			}
+
 			imGuiController?.Update((float) deltaTime);
 		}
 

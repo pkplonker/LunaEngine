@@ -1,6 +1,6 @@
-﻿namespace Engine
+﻿namespace Game
 {
-	class Entry
+	class Game
 	{
 		private static void Main()
 		{
