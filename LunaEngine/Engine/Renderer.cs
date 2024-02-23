@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using ImGuiNET;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -16,15 +17,15 @@ public class Renderer
 	private readonly float[] VERTICES =
 	{
 		//X    Y      Z     U   V
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+		0.5f, 0.5f, -0.5f, 1.0f, 0.0f,
+		-0.5f, 0.5f, -0.5f, 0.0f, 0.0f,
 
-		-0.5f, -0.5f,  0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, 0.5f, 0.0f, 1.0f,
+		0.5f, -0.5f, 0.5f, 1.0f, 1.0f,
+		0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+		-0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
 	};
 
 	private readonly uint[] INDICES =
@@ -48,9 +49,11 @@ public class Renderer
 		7, 6, 2,
 	};
 
+	private Framebuffer framebuffer;
+	private Silk.NET.OpenGL.Texture renderTexture;
 
 	private const int colorVal = 50;
-	private Vector4D<int> clearColor = new(colorVal,colorVal,colorVal, 255);
+	private Vector4D<int> clearColor = new(colorVal, colorVal, colorVal, 255);
 	private Shader shader;
 	private Texture texture;
 	private IWindow window;
@@ -59,6 +62,8 @@ public class Renderer
 	{
 		unsafe
 		{
+			Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer.Handle);
+
 			Gl.Enable(EnableCap.DepthTest);
 			Gl.ClearColor(clearColor);
 			Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
@@ -66,23 +71,37 @@ public class Renderer
 			vao.Bind();
 			shader.Use();
 			texture.Bind(TextureUnit.Texture0);
-			
 			shader.SetUniform("Texture0", 0);
 			shader.SetUniform("UseTexture", false);
 
+			var framebufferStatus = Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+			if (framebufferStatus != GLEnum.FramebufferComplete)
+			{
+				Console.WriteLine($"Framebuffer is not complete! Status: {framebufferStatus}");
+			}
 			Gl.DrawElements(PrimitiveType.Triangles, (uint) INDICES.Length, DrawElementsType.UnsignedInt, null);
-		}
 
+			ImGui.Begin("Viewport");
+			ImGui.Image((IntPtr) renderTexture.Handle, new Vector2(3840, 2160), Vector2.Zero, Vector2.One, Vector4.One,
+				Vector4.Zero);
+			ImGui.End();
+			
+			Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+			Gl.Enable(EnableCap.DepthTest);
+			Gl.ClearColor(clearColor);
+			Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
+
+		}
 
 		var difference = (float) (window.Time * 100);
 
 		var model = Matrix4x4.CreateRotationY(MathExtensions.DegreesToRadians(difference)) *
 		            Matrix4x4.CreateRotationX(MathExtensions.DegreesToRadians(difference));
 		shader.SetUniform("uModel", model);
-		
-		if(view.HasValue)
+
+		if (view.HasValue)
 			shader.SetUniform("uView", view.Value);
-		if(projection.HasValue)
+		if (projection.HasValue)
 			shader.SetUniform("uProjection", projection.Value);
 	}
 
@@ -103,6 +122,23 @@ public class Renderer
 
 			shader = new Shader(Gl, @"/resources/shaders/unlitvertex.glsl", @"/resources/shaders/unlitfragment.glsl");
 			texture = new Texture(Gl, @"/resources/textures/test.png");
+			Gl.GenFramebuffers(1, out framebuffer);
+			Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer.Handle);
+
+			Gl.GenTextures(1, out renderTexture);
+			Gl.BindTexture(TextureTarget.Texture2D, renderTexture.Handle);
+			Gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 3840, 2160, 0, PixelFormat.Rgba, PixelType.UnsignedByte, null);
+
+			Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+			Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+
+			Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, renderTexture.Handle, 0);
+			
+			var status = Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+			if (status != GLEnum.FramebufferComplete)
+			{
+				Console.WriteLine($"Framebuffer is not complete! Status: {status}");
+			}
 		}
 	}
 

@@ -15,12 +15,15 @@ public class EditorImGuiController : IDisposable
 		imGuiController = new ImGuiController(gl, view, input);
 		var io = ImGui.GetIO();
 		ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+		ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
+
 	}
 
 	public void Update(float deltaTime)
 	{
 		imGuiController.Update(deltaTime);
-		ImGui.Begin("Dockable Window", ImGuiWindowFlags.DockNodeHost);
+		ImGui.DockSpaceOverViewport();
+		ImGui.Begin("Test", ImGuiWindowFlags.DockNodeHost);
 		ImGui.End();
 	}
 
