@@ -3,95 +3,51 @@ using Silk.NET.Input;
 
 namespace Engine;
 
-public class Camera
+public class Camera : ICamera
 {
-	private readonly IInputContext context;
-	private Vector3 CameraPosition = new Vector3(0.0f, 0.0f, 3.0f);
-	private Vector3 CameraFront = new Vector3(0.0f, 0.0f, -1.0f);
-	private Vector3 CameraUp = Vector3.UnitY;
-	private Vector3 CameraDirection = Vector3.Zero;
-	private float CameraYaw = -90f;
-	private float CameraPitch = 0f;
-	private float CameraZoom = 45f;
-	private static Vector2 LastMousePosition;
-	private readonly IKeyboard primaryKeyboard;
+	public Vector3 Position { get; set; }
+	public Vector3 Front { get; set; }
 
-	public Camera(IInputContext context)
+	public Vector3 Up { get; private set; }
+	public float AspectRatio { get; set; }
+
+	public float Yaw { get; set; } = -90f;
+	public float Pitch { get; set; }
+
+	private float Zoom = 45f;
+
+	public Camera(Vector3 position, Vector3 front, Vector3 up, float aspectRatio)
 	{
-		this.context = context;
-		primaryKeyboard = context.Keyboards?.FirstOrDefault();
+		Position = position;
+		AspectRatio = aspectRatio;
+		Front = front;
+		Up = up;
 	}
 
-	public void OnUpdate(double deltaTime)
+	public void ModifyZoom(float zoomAmount)
 	{
-		var moveSpeed = 2.5f * (float) deltaTime;
-
-		if (primaryKeyboard.IsKeyPressed(Key.W))
-		{
-			//Move forwards
-			CameraPosition += moveSpeed * CameraFront;
-		}
-
-		if (primaryKeyboard.IsKeyPressed(Key.S))
-		{
-			//Move backwards
-			CameraPosition -= moveSpeed * CameraFront;
-		}
-
-		if (primaryKeyboard.IsKeyPressed(Key.A))
-		{
-			//Move left
-			CameraPosition -= Vector3.Normalize(Vector3.Cross(CameraFront, CameraUp)) * moveSpeed;
-		}
-
-		if (primaryKeyboard.IsKeyPressed(Key.D))
-		{
-			//Move right
-			CameraPosition += Vector3.Normalize(Vector3.Cross(CameraFront, CameraUp)) * moveSpeed;
-		}
+		Zoom = Math.Clamp(Zoom - zoomAmount, 1.0f, 45f);
 	}
 
-	private void OnMouseMove(IMouse mouse, Vector2 position)
+	public void ModifyDirection(float xOffset, float yOffset)
 	{
-		var lookSensitivity = 0.1f;
-		if (LastMousePosition == default)
-		{
-			LastMousePosition = position;
-		}
-		else
-		{
-			var xOffset = (position.X - LastMousePosition.X) * lookSensitivity;
-			var yOffset = (position.Y - LastMousePosition.Y) * lookSensitivity;
-			LastMousePosition = position;
+		Yaw += xOffset;
+		Pitch -= yOffset;
 
-			CameraYaw += xOffset;
-			CameraPitch -= yOffset;
+		Pitch = Math.Clamp(Pitch, -89f, 89f);
 
-			CameraPitch = Math.Clamp(CameraPitch, -89.0f, 89.0f);
+		var cameraDirection = Vector3.Zero;
+		cameraDirection.X = MathF.Cos(MathExtensions.DegreesToRadians(Yaw)) *
+		                    MathF.Cos(MathExtensions.DegreesToRadians(Pitch));
+		cameraDirection.Y = MathF.Sin(MathExtensions.DegreesToRadians(Pitch));
+		cameraDirection.Z = MathF.Sin(MathExtensions.DegreesToRadians(Yaw)) *
+		                    MathF.Cos(MathExtensions.DegreesToRadians(Pitch));
 
-			CameraDirection.X = MathF.Cos(MathExtensions.DegreesToRadians(CameraYaw)) *
-			                    MathF.Cos(MathExtensions.DegreesToRadians(CameraPitch));
-			CameraDirection.Y = MathF.Sin(MathExtensions.DegreesToRadians(CameraPitch));
-			CameraDirection.Z = MathF.Sin(MathExtensions.DegreesToRadians(CameraYaw)) *
-			                    MathF.Cos(MathExtensions.DegreesToRadians(CameraPitch));
-			CameraFront = Vector3.Normalize(CameraDirection);
-		}
+		Front = Vector3.Normalize(cameraDirection);
 	}
 
-	private void OnMouseWheel(IMouse mouse, ScrollWheel scrollWheel)
-	{
-		//We don't want to be able to zoom in too close or too far away so clamp to these values
-		CameraZoom = Math.Clamp(CameraZoom - scrollWheel.Y, 1.0f, 45f);
-	}
+	public Matrix4x4 GetView() => Matrix4x4.CreateLookAt(Position, Position + Front, Up);
 
-	public Matrix4x4 GetView()
-	{
-		return Matrix4x4.CreateLookAt(CameraPosition, CameraPosition + CameraFront, CameraUp);
-	}
-
-	public Matrix4x4 GetProjection()
-	{
-		return Matrix4x4.CreatePerspectiveFieldOfView(MathExtensions.DegreesToRadians(CameraZoom),
-			Application.WINDOW_SIZE_X / Application.WINDOW_SIZE_Y, 0.1f, 100.0f);
-	}
+	public Matrix4x4 GetProjection() =>
+		Matrix4x4.CreatePerspectiveFieldOfView(MathExtensions.DegreesToRadians(Zoom), AspectRatio, 0.1f, 100.0f);
 }

@@ -1,4 +1,5 @@
-﻿using Silk.NET.Input;
+﻿using System.Numerics;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
 
@@ -13,6 +14,8 @@ namespace Engine
 		private IWindow? window;
 		private Renderer? renderer;
 		private static Application application;
+		private Camera camera;
+		private IInputContext input;
 
 		private Application()
 		{
@@ -31,6 +34,8 @@ namespace Engine
 			window.Render += OnRender;
 			window.Resize += OnWindowResize;
 			window.Closing += OnClose;
+			input = window.CreateInput();
+			camera = new Camera(Vector3.UnitZ * 6, Vector3.UnitZ * -1, Vector3.UnitY, (float)WINDOW_SIZE_X/(float)WINDOW_SIZE_Y);
 
 		}
 
@@ -64,7 +69,7 @@ namespace Engine
 
 		private void OnRender(double deltaTime)
 		{
-			renderer.Update(deltaTime);
+			renderer.Update(deltaTime, camera.GetView(), camera.GetProjection());
 		}
 
 		private void OnUpdate(double deltaTime)

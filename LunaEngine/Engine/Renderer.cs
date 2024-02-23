@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-using System.Numerics;
-using Silk.NET.Input;
+﻿using System.Numerics;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -55,10 +53,9 @@ public class Renderer
 	private Vector4D<int> clearColor = new(colorVal,colorVal,colorVal, 255);
 	private Shader shader;
 	private Texture texture;
-	private Camera camera;
 	private IWindow window;
 
-	public void Update(double deltaTime)
+	public void Update(double deltaTime, Matrix4x4? view, Matrix4x4? projection)
 	{
 		unsafe
 		{
@@ -76,17 +73,17 @@ public class Renderer
 			Gl.DrawElements(PrimitiveType.Triangles, (uint) INDICES.Length, DrawElementsType.UnsignedInt, null);
 		}
 
-		camera.OnUpdate(deltaTime);
 
 		var difference = (float) (window.Time * 100);
 
 		var model = Matrix4x4.CreateRotationY(MathExtensions.DegreesToRadians(difference)) *
 		            Matrix4x4.CreateRotationX(MathExtensions.DegreesToRadians(difference));
-		var view = camera.GetView();
-		var projection = camera.GetProjection();
 		shader.SetUniform("uModel", model);
-		shader.SetUniform("uView", view);
-		shader.SetUniform("uProjection", projection);
+		
+		if(view.HasValue)
+			shader.SetUniform("uView", view.Value);
+		if(projection.HasValue)
+			shader.SetUniform("uProjection", projection.Value);
 	}
 
 	public void Resize(Vector2D<int> size) { }
@@ -107,9 +104,6 @@ public class Renderer
 			shader = new Shader(Gl, @"/resources/shaders/unlitvertex.glsl", @"/resources/shaders/unlitfragment.glsl");
 			texture = new Texture(Gl, @"/resources/textures/test.png");
 		}
-
-		IInputContext input = window.CreateInput();
-		camera = new Camera(input);
 	}
 
 	public void Close()
