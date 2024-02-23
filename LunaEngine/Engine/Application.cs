@@ -6,8 +6,8 @@ namespace Engine
 {
 	class Application
 	{
-		private const int windowSizeX = 3840;
-		private const int windowSizeY = 2160;
+		public const int WINDOW_SIZE_X = 3840;
+		public const int WINDOW_SIZE_Y = 2160;
 		private const string windowName = "Luna Engine";
 
 		private IWindow window;
@@ -22,7 +22,7 @@ namespace Engine
 		private void SetupWindow()
 		{
 			var options = WindowOptions.Default;
-			options.Size = new Vector2D<int>(windowSizeX, windowSizeY);
+			options.Size = new Vector2D<int>(WINDOW_SIZE_X, WINDOW_SIZE_Y);
 			options.Title = windowName;
 			window = Window.Create(options);
 
