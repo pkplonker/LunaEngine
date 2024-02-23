@@ -9,13 +9,13 @@ namespace Engine;
 
 public class Renderer
 {
-	private static GL gl;
+	public GL Gl { get; private set; }
 
-	private static BufferObject<float> vbo;
-	private static BufferObject<uint> ebo;
-	private static VertexArrayObject<float, uint> vao;
+	private BufferObject<float> vbo;
+	private BufferObject<uint> ebo;
+	private VertexArrayObject<float, uint> vao;
 
-	private static readonly float[] VERTICES =
+	private readonly float[] VERTICES =
 	{
 		//X    Y      Z     U   V
 		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
@@ -29,7 +29,7 @@ public class Renderer
 		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 	};
 
-	private static readonly uint[] INDICES =
+	private readonly uint[] INDICES =
 	{
 		0, 1, 2,
 		2, 3, 0,
@@ -49,12 +49,12 @@ public class Renderer
 		2, 3, 7,
 		7, 6, 2,
 	};
-	
 
 
-	private Vector4D<int> clearColor = new(18, 18, 18, 255);
+	private const int colorVal = 50;
+	private Vector4D<int> clearColor = new(colorVal,colorVal,colorVal, 255);
 	private Shader shader;
-	private texture texture;
+	private Texture texture;
 	private Camera camera;
 	private IWindow window;
 
@@ -62,18 +62,18 @@ public class Renderer
 	{
 		unsafe
 		{
-			gl.Enable(EnableCap.DepthTest);
-			gl.ClearColor(clearColor);
-			gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
+			Gl.Enable(EnableCap.DepthTest);
+			Gl.ClearColor(clearColor);
+			Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 
 			vao.Bind();
 			shader.Use();
 			texture.Bind(TextureUnit.Texture0);
-
+			
 			shader.SetUniform("Texture0", 0);
 			shader.SetUniform("UseTexture", false);
 
-			gl.DrawElements(PrimitiveType.Triangles, (uint) INDICES.Length, DrawElementsType.UnsignedInt, null);
+			Gl.DrawElements(PrimitiveType.Triangles, (uint) INDICES.Length, DrawElementsType.UnsignedInt, null);
 		}
 
 		camera.OnUpdate(deltaTime);
@@ -95,17 +95,17 @@ public class Renderer
 	{
 		unsafe
 		{
-			gl = GL.GetApi(window);
+			Gl = GL.GetApi(window);
 			this.window = window;
-			ebo = new BufferObject<uint>(gl, INDICES, BufferTargetARB.ElementArrayBuffer);
-			vbo = new BufferObject<float>(gl, VERTICES, BufferTargetARB.ArrayBuffer);
-			vao = new VertexArrayObject<float, uint>(gl, vbo, ebo);
+			ebo = new BufferObject<uint>(Gl, INDICES, BufferTargetARB.ElementArrayBuffer);
+			vbo = new BufferObject<float>(Gl, VERTICES, BufferTargetARB.ArrayBuffer);
+			vao = new VertexArrayObject<float, uint>(Gl, vbo, ebo);
 
 			vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
 			vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
 
-			shader = new Shader(gl, @"/resources/shaders/unlitvertex.glsl", @"/resources/shaders/unlitfragment.glsl");
-			texture = new texture(gl, @"/resources/textures/test.png");
+			shader = new Shader(Gl, @"/resources/shaders/unlitvertex.glsl", @"/resources/shaders/unlitfragment.glsl");
+			texture = new Texture(Gl, @"/resources/textures/test.png");
 		}
 
 		IInputContext input = window.CreateInput();

@@ -4,12 +4,12 @@ using Silk.NET.OpenGL;
 using StbImageSharp;
 namespace Engine;
 
-public class texture : IDisposable
+public class Texture : IDisposable
     {
         private uint handle;
         private GL gl;
 
-        public unsafe texture(GL gl, string path)
+        public unsafe Texture(GL gl, string path)
         {
             this.gl = gl;
 

@@ -9,9 +9,10 @@ out vec4 FragColor;
 
 void main()
 {
-	if(UseTexture != 1)
+	if(UseTexture == 0)
 	{
-		FragColor = vec4(1.0f, 0.0f, 1.0f, 1.0f);
+		float val = 88.0f/255.0f;
+		FragColor = vec4(val,val,val, 1.0f);
 	}
 	else
 	{

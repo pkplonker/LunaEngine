@@ -1,20 +1,22 @@
-﻿using Silk.NET.Input;
+﻿using Engine;
+using ImGuiNET;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
-
-namespace Engine
+using Silk.NET.OpenGL.Extensions.ImGui;
+namespace Editor
 {
-	public class Application
+	public class EditorApplication
 	{
 		public const int WINDOW_SIZE_X = 3840;
 		public const int WINDOW_SIZE_Y = 2160;
 		private const string WINDOW_NAME = "Luna Engine";
-
 		private IWindow? window;
 		private Renderer? renderer;
-		private static Application application;
+		private static EditorApplication application;
+		private ImGuiController imGuiController;
 
-		private Application()
+		private EditorApplication()
 		{
 			SetupWindow();
 		}
@@ -31,7 +33,7 @@ namespace Engine
 			window.Render += OnRender;
 			window.Resize += OnWindowResize;
 			window.Closing += OnClose;
-
+			renderer = new Renderer();
 		}
 
 		private void OnClose()
@@ -42,8 +44,9 @@ namespace Engine
 		public void Start()
 		{
 			window.Run();
-			
+
 			window.Dispose();
+			imGuiController.Dispose();
 		}
 
 		private void OnWindowResize(Vector2D<int> size)
@@ -60,15 +63,22 @@ namespace Engine
 			}
 
 			renderer.Load(window);
+			imGuiController = new ImGuiController(renderer.Gl, window, input);
 		}
 
 		private void OnRender(double deltaTime)
 		{
 			renderer.Update(deltaTime);
+			ImGui.ShowDemoWindow();
+			ImGui.ShowAboutWindow();
+			ImGui.ShowDebugLogWindow();
+
+			imGuiController.Render();
 		}
 
 		private void OnUpdate(double deltaTime)
 		{
+			imGuiController.Update((float)deltaTime);
 		}
 
 		private void KeyDown(IKeyboard keyboard, Key key, int arg3)
@@ -79,6 +89,6 @@ namespace Engine
 			}
 		}
 
-		public static Application GetApplication() => application ??= new Application();
+		public static EditorApplication GetApplication() => application ??= new EditorApplication();
 	}
 }
