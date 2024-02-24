@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using ImGuiNET;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -57,11 +58,14 @@ public class Renderer
 	private Shader shader;
 	private Texture texture;
 	private IWindow window;
+	private Vector2D<float> imageSize;
+	private Vector2D<int> windowSize;
 
 	public void Update(double deltaTime, Matrix4x4? view, Matrix4x4? projection)
 	{
 		unsafe
 		{
+			Gl.Viewport(0, 0, (uint) imageSize.X, (uint) imageSize.Y);
 			Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer.Handle);
 
 			Gl.Enable(EnableCap.DepthTest);
@@ -75,6 +79,7 @@ public class Renderer
 			shader.SetUniform("UseTexture", false);
 
 			Gl.DrawElements(PrimitiveType.Triangles, (uint) INDICES.Length, DrawElementsType.UnsignedInt, null);
+			Gl.Viewport(0, 0, (uint) windowSize.X, (uint) windowSize.Y);
 
 			Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 		}
@@ -91,13 +96,16 @@ public class Renderer
 			shader.SetUniform("uProjection", projection.Value);
 	}
 
-	public void Resize(Vector2D<int> size) { }
+	public void Resize(Vector2D<int> size) => windowSize = size;
 
 	public void Load(IWindow window)
 	{
 		unsafe
 		{
 			Gl = GL.GetApi(window);
+			windowSize = window.Size;
+			imageSize = (Vector2D<float>) window.Size;
+
 			this.window = window;
 			ebo = new BufferObject<uint>(Gl, INDICES, BufferTargetARB.ElementArrayBuffer);
 			vbo = new BufferObject<float>(Gl, VERTICES, BufferTargetARB.ArrayBuffer);
@@ -114,7 +122,7 @@ public class Renderer
 			Gl.GenTextures(1, out Silk.NET.OpenGL.Texture rt);
 			renderTexture = rt;
 			Gl.BindTexture(TextureTarget.Texture2D, renderTexture.Handle);
-			Gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 3840, 2160, 0, PixelFormat.Rgba,
+			Gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, 3860, 2140, 0, PixelFormat.Rgba,
 				PixelType.UnsignedByte, null);
 
 			Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
@@ -142,13 +150,33 @@ public class Renderer
 		texture.Dispose();
 	}
 
-
 	public void SetRenderTargetSize(Vector2D<float> size)
 	{
+		imageSize = size;
 		unsafe
 		{
-			Gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, (uint)size.X, (uint)size.Y, 0, PixelFormat.Rgba,
+			if (framebuffer.Handle != 0)
+			{
+				Gl.DeleteFramebuffer(framebuffer.Handle);
+				Gl.DeleteTexture(renderTexture.Handle);
+			}
+
+			Gl.GenFramebuffers(1, out framebuffer);
+			Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer.Handle);
+
+			Gl.GenTextures(1, out Silk.NET.OpenGL.Texture rt);
+			renderTexture = rt;
+			Gl.BindTexture(TextureTarget.Texture2D, renderTexture.Handle);
+			Gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, (uint) size.X, (uint) size.Y, 0, PixelFormat.Rgba,
 				PixelType.UnsignedByte, null);
+
+			Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
+				(int) TextureMinFilter.Linear);
+			Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
+				(int) TextureMagFilter.Linear);
+
+			Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0,
+				TextureTarget.Texture2D, renderTexture.Handle, 0);
 		}
 	}
 }
