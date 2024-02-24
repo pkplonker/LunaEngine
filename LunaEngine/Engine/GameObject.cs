@@ -2,7 +2,7 @@
 
 public class GameObject
 {
-	private HashSet<Component> components = new ();
+	private HashSet<Component> components = new();
 	public Transform transform { get; private set; }
 
 	public GameObject()
@@ -14,7 +14,7 @@ public class GameObject
 	{
 		return components.First(x => x is T) as T ?? null;
 	}
-	
+
 	public bool TryGetComponent<T>(out Component? component) where T : Component
 	{
 		component = GetComponent<T>();
@@ -34,6 +34,24 @@ public class GameObject
 		if (component != null)
 		{
 			components.Add(component);
+		}
+	}
+
+	public void RemoveComponent<T>() where T : Component
+	{
+		var component = components.FirstOrDefault(c => c.GetType() == typeof(T));
+
+		if (component != null)
+		{
+			components.Remove(component);
+		}
+	}
+
+	public void RemoveComponent(Component? component)
+	{
+		if (components.Contains(component))
+		{
+			components.Remove(component);
 		}
 	}
 }

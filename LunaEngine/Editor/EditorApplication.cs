@@ -44,6 +44,10 @@ namespace Editor
 			go.AddComponent<TestComponent>();
 
 			var x = go.GetComponent<TestComponent>();
+			
+			//go.RemoveComponent<TestComponent>();
+			go.RemoveComponent(x);
+			Console.WriteLine(go);
 		}
 
 		private void OnClose()
