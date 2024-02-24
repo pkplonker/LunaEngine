@@ -23,6 +23,8 @@ public class Renderer
 	public int DrawCalls { get; private set; }
 	public int MaterialsUsed { get; private set; }
 	public int ShadersUsed { get; private set; }
+	public uint Triangles { get; set; }
+	public uint Vertices { get; set; }
 
 	public void RenderUpdate(Matrix4x4? view, Matrix4x4? projection)
 	{
@@ -31,6 +33,8 @@ public class Renderer
 			DrawCalls = 0;
 			ShadersUsed = 0;
 			MaterialsUsed = 0;
+			Triangles = 0;
+			Vertices = 0;
 			unsafe
 			{
 				Gl.Viewport(0, 0, (uint) ViewportSize.X, (uint) ViewportSize.Y);
@@ -124,8 +128,12 @@ public class Renderer
 	public unsafe void DrawElements(PrimitiveType primativeType, uint indicesLength, DrawElementsType elementsTyp)
 	{
 		DrawCalls++;
+		Triangles += indicesLength/3;
+		Vertices += indicesLength;
+
 		Gl.DrawElements(primativeType, indicesLength, elementsTyp, null);
 	}
+
 
 	public void UseShader(Shader shader)
 	{
@@ -141,7 +149,7 @@ public struct RenderPassData
 
 	public RenderPassData(Matrix4x4 view, Matrix4x4 projection)
 	{
-		this.View = view;
-		this.Projection = projection;
+		View = view;
+		Projection = projection;
 	}
 }

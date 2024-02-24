@@ -43,6 +43,8 @@ public class Stats : IControl
 		ImGui.Text($"FPS: {Time.FPS}");
 		ImGui.Separator();
 		ImGui.Text($"Draw Calls: {renderer.DrawCalls}");
+		ImGui.Text($"Triangles: {renderer.Triangles}");
+		ImGui.Text($"Vertices: {renderer.Vertices}");
 		ImGui.Text($"Materials: {renderer.MaterialsUsed}");
 		ImGui.Text($"Shaders: {renderer.ShadersUsed}");
 		ImGui.Separator();
