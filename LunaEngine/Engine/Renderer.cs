@@ -61,45 +61,49 @@ public class Renderer
 	private Vector2D<float> imageSize;
 	private Vector2D<int> windowSize;
 
-	public void Update(double deltaTime, Matrix4x4? view, Matrix4x4? projection)
+	public void RenderUpdate(double deltaTime, Matrix4x4? view, Matrix4x4? projection)
 	{
-		unsafe
+		using (var tracker = new PerformanceTracker(nameof(RenderUpdate)))
 		{
-			Gl.Viewport(0, 0, (uint) imageSize.X, (uint) imageSize.Y);
-			Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer.Handle);
+			unsafe
+			{
+				Gl.Viewport(0, 0, (uint) imageSize.X, (uint) imageSize.Y);
+				Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer.Handle);
 
-			Gl.Enable(EnableCap.DepthTest);
-			Gl.ClearColor(clearColor);
-			Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
+				Gl.Enable(EnableCap.DepthTest);
+				Gl.ClearColor(clearColor);
+				Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 
-			vao.Bind();
-			shader.Use();
-			texture.Bind(TextureUnit.Texture0);
-			shader.SetUniform("Texture0", 0);
-			shader.SetUniform("UseTexture", false);
+				vao.Bind();
+				shader.Use();
+				texture.Bind(TextureUnit.Texture0);
+				shader.SetUniform("Texture0", 0);
+				shader.SetUniform("UseTexture", false);
 
-			Gl.DrawElements(PrimitiveType.Triangles, (uint) INDICES.Length, DrawElementsType.UnsignedInt, null);
-			Gl.Viewport(0, 0, (uint) windowSize.X, (uint) windowSize.Y);
+				Gl.DrawElements(PrimitiveType.Triangles, (uint) INDICES.Length, DrawElementsType.UnsignedInt, null);
+				Gl.Viewport(0, 0, (uint) windowSize.X, (uint) windowSize.Y);
 
-			Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+				Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+			}
+
+			var difference = (float) (window.Time * 100);
+
+			var model = Matrix4x4.CreateRotationY(MathExtensions.DegreesToRadians(difference)) *
+			            Matrix4x4.CreateRotationX(MathExtensions.DegreesToRadians(difference));
+			shader.SetUniform("uModel", model);
+
+			if (view.HasValue)
+				shader.SetUniform("uView", view.Value);
+			if (projection.HasValue)
+				shader.SetUniform("uProjection", projection.Value);
 		}
-
-		var difference = (float) (window.Time * 100);
-
-		var model = Matrix4x4.CreateRotationY(MathExtensions.DegreesToRadians(difference)) *
-		            Matrix4x4.CreateRotationX(MathExtensions.DegreesToRadians(difference));
-		shader.SetUniform("uModel", model);
-
-		if (view.HasValue)
-			shader.SetUniform("uView", view.Value);
-		if (projection.HasValue)
-			shader.SetUniform("uProjection", projection.Value);
 	}
 
 	public void Resize(Vector2D<int> size) => windowSize = size;
 
 	public void Load(IWindow window)
 	{
+		using var tracker = new PerformanceTracker(nameof(RenderUpdate));
 		unsafe
 		{
 			Gl = GL.GetApi(window);
@@ -114,7 +118,8 @@ public class Renderer
 			vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
 			vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
 
-			shader = new Shader(Gl, @"/resources/shaders/unlitvertex.glsl", @"/resources/shaders/unlitfragment.glsl");
+			shader = new Shader(Gl, @"/resources/shaders/unlitvertex.glsl",
+				@"/resources/shaders/unlitfragment.glsl");
 			texture = new Texture(Gl, @"/resources/textures/test.png");
 			Gl.GenFramebuffers(1, out framebuffer);
 			Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer.Handle);
@@ -132,12 +137,6 @@ public class Renderer
 
 			Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0,
 				TextureTarget.Texture2D, renderTexture.Handle, 0);
-
-			var status = Gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
-			if (status != GLEnum.FramebufferComplete)
-			{
-				Console.WriteLine($"Framebuffer is not complete! Status: {status}");
-			}
 		}
 	}
 
@@ -167,7 +166,8 @@ public class Renderer
 			Gl.GenTextures(1, out Silk.NET.OpenGL.Texture rt);
 			renderTexture = rt;
 			Gl.BindTexture(TextureTarget.Texture2D, renderTexture.Handle);
-			Gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, (uint) size.X, (uint) size.Y, 0, PixelFormat.Rgba,
+			Gl.TexImage2D(GLEnum.Texture2D, 0, InternalFormat.Rgba, (uint) size.X, (uint) size.Y, 0,
+				PixelFormat.Rgba,
 				PixelType.UnsignedByte, null);
 
 			Gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,

@@ -22,13 +22,15 @@ public class EditorImGuiController : IDisposable
 		this.renderer = renderer;
 		imGuiController = new ImGuiController(gl, view, input);
 		var io = ImGui.GetIO();
-		ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
-		ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
+		io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
 		ImGuiTheme.ApplyTheme(0);
 	}
 
-	public void Update(float deltaTime)
+	public void ImGuiControllerUpdate(float deltaTime)
 	{
+		using var tracker = new PerformanceTracker(nameof(ImGuiControllerUpdate));
+
 		imGuiController.Update(deltaTime);
 		ImGui.DockSpaceOverViewport();
 		ImGui.Begin("Test", ImGuiWindowFlags.DockNodeHost);
@@ -36,7 +38,6 @@ public class EditorImGuiController : IDisposable
 		ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 0);
 		ImGui.Begin("Viewport", ImGuiWindowFlags.NoScrollbar);
 		var size = ImGui.GetContentRegionAvail();
-		Console.WriteLine(size);
 		if (size != previousSize)
 		{
 			renderer.SetRenderTargetSize(new Vector2D<float>(size.X, size.Y));
@@ -48,11 +49,11 @@ public class EditorImGuiController : IDisposable
 			Vector4.Zero);
 		ImGui.End();
 		ImGui.PopStyleVar();
+		ImGui.ShowDemoWindow();
 	}
 
 	public void Render()
 	{
-		ImGui.ShowDemoWindow();
 		imGuiController.Render();
 	}
 
