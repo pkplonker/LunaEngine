@@ -20,7 +20,6 @@ public class Renderer
 	private IWindow window;
 	private Vector2D<float> imageSize;
 	private Vector2D<int> windowSize;
-	private readonly Dictionary<Shader, HashSet<IRenderable>> renderables = new();
 
 	public void RenderUpdate(double deltaTime, Matrix4x4? view, Matrix4x4? projection)
 	{
@@ -34,27 +33,13 @@ public class Renderer
 				Gl.Enable(EnableCap.DepthTest);
 				Gl.ClearColor(clearColor);
 				Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
-				var difference = (float) (window.Time * 100);
-
-				foreach (KeyValuePair<Shader, HashSet<IRenderable>> kvp in renderables)
+				var renderPassData = new RenderPassData(view.Value, projection.Value);
+				foreach (var go in SceneController.ActiveScene.GameObjects)
 				{
-					var shader = kvp.Key;
-					shader.Use();
-					//texture.Bind(TextureUnit.Texture0);
-					shader.SetUniform("Texture0", 0);
-					//shader.SetUniform("UseTexture", false);
-					var model = Matrix4x4.CreateRotationY(MathExtensions.DegreesToRadians(difference)) *
-					            Matrix4x4.CreateRotationX(MathExtensions.DegreesToRadians(difference));
-					shader.SetUniform("uModel", model);
+					var component = go.GetComponent<IRenderableComponent>();
+					var shader = component.GetShader();
 
-					if (view.HasValue)
-						shader.SetUniform("uView", view.Value);
-					if (projection.HasValue)
-						shader.SetUniform("uProjection", projection.Value);
-					foreach (var renderable in kvp.Value)
-					{
-						renderable.Bind(Gl);
-					}
+					component?.Render(Gl, renderPassData);
 				}
 
 				Gl.Viewport(0, 0, (uint) windowSize.X, (uint) windowSize.Y);
@@ -98,11 +83,6 @@ public class Renderer
 
 	public void Close()
 	{
-		foreach (var kvp in renderables)
-		{
-			kvp.Key.Dispose();
-		}
-
 		texture?.Dispose();
 	}
 
@@ -136,20 +116,16 @@ public class Renderer
 				TextureTarget.Texture2D, renderTexture.Handle, 0);
 		}
 	}
+}
 
-	public void AddRenderable(Shader? shader, IRenderable? renderable)
+public struct RenderPassData
+{
+	public readonly Matrix4x4 View;
+	public readonly Matrix4x4 Projection;
+
+	public RenderPassData(Matrix4x4 view, Matrix4x4 projection)
 	{
-		if (shader == null || renderable == null)
-		{
-			Console.WriteLine("Shader or renderable is null when adding to renderer");
-			return;
-		}
-
-		if (!renderables.ContainsKey(shader))
-		{
-			renderables[shader] = new HashSet<IRenderable>();
-		}
-
-		renderables[shader].Add(renderable);
+		this.View = view;
+		this.Projection = projection;
 	}
 }

@@ -2,6 +2,7 @@
 using Silk.NET.OpenGL;
 using System;
 using System.Numerics;
+using File = Silk.NET.Assimp.File;
 
 namespace Engine;
 
@@ -11,6 +12,11 @@ public class ModelLoader
 	{
 		path = path.MakeAbsolute();
 		var assimp = Silk.NET.Assimp.Assimp.GetApi();
+		if (!System.IO.File.Exists(path))
+		{
+			Console.WriteLine($"Failed to find file {path}");
+			return null;
+		}
 		var scene = assimp.ImportFile(path, (uint) PostProcessSteps.Triangulate);
 
 		if (scene == null || scene->MFlags == Silk.NET.Assimp.Assimp.SceneFlagsIncomplete || scene->MRootNode == null)

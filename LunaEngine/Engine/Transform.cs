@@ -45,20 +45,30 @@ public class Transform
 		}
 	}
 
-	private Matrix4x4 viewMatrix;
+	public void RotateByEuler(Vector3 euler)
+	{
+		Quaternion deltaRotation = Quaternion.CreateFromYawPitchRoll(euler.Y, euler.X, euler.Z);
 
-	public Matrix4x4 ViewMatrix
+		rotation = Quaternion.Normalize(rotation * deltaRotation);
+
+		isDirty = true;
+	}
+
+	private Matrix4x4 modelMatrix;
+
+	public Matrix4x4 ModelMatrix
 	{
 		get
 		{
 			if (isDirty)
 			{
-				viewMatrix = Matrix4x4.Identity * Matrix4x4.CreateFromQuaternion(Rotation) *
-				             Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateTranslation(Position);
+				modelMatrix = Matrix4x4.Identity * Matrix4x4.CreateFromQuaternion(Rotation) *
+				              Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateTranslation(Position);
 				isDirty = false;
 			}
 
-			return viewMatrix;
+			return modelMatrix;
 		}
 	}
+
 }

@@ -39,11 +39,6 @@ namespace Editor
 			window.Render += OnRender;
 			window.Resize += OnWindowResize;
 			window.Closing += OnClose;
-
-			var go = new GameObject();
-			go.AddComponent<TestComponent>();
-
-			var x = go.GetComponent<TestComponent>();
 		}
 
 		private void OnClose()
@@ -91,6 +86,7 @@ namespace Editor
 
 		private void OnLoad()
 		{
+			SceneController.ActiveScene = new Scene();
 			if (window != null)
 			{
 				renderer?.Load(window);
@@ -112,14 +108,19 @@ namespace Editor
 				throw new NullReferenceException($"{nameof(window)} cannot be null");
 			}
 
+			ResourceManager.Init(renderer.Gl);
+
 			PerformTest();
 		}
 
 		private void PerformTest()
 		{
-			ResourceManager.Init(renderer.Gl);
-			renderer.AddRenderable(ResourceManager.GetShader(),
-				ResourceManager.GetMesh(@"/resources/models/TestCube.obj"));
+			var go = new GameObject();
+			//go.AddComponent<RotateComponent>();
+			go.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestSphere.obj"));
+			var mr = go.AddComponent<MeshRenderer>();
+			var shader =  ResourceManager.GetShader();
+			mr.Shader = shader;
 		}
 
 		private void OnRender(double deltaTime)

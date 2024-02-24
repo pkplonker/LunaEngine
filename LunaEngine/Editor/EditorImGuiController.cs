@@ -32,8 +32,6 @@ public class EditorImGuiController : IDisposable
 
 		imGuiController.Update(deltaTime);
 		ImGui.DockSpaceOverViewport();
-		ImGui.Begin("Test", ImGuiWindowFlags.DockNodeHost);
-		ImGui.End();
 		ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 0);
 		ImGui.Begin("Viewport", ImGuiWindowFlags.NoScrollbar);
 		var size = ImGui.GetContentRegionAvail();
@@ -48,7 +46,7 @@ public class EditorImGuiController : IDisposable
 			Vector4.Zero);
 		ImGui.End();
 		ImGui.PopStyleVar();
-		ImGui.ShowDemoWindow();
+		//ImGui.ShowDemoWindow();
 	}
 
 	public void Render()

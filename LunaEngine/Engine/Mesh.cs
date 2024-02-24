@@ -1,4 +1,5 @@
-﻿using Silk.NET.OpenGL;
+﻿using System.Numerics;
+using Silk.NET.OpenGL;
 
 namespace Engine;
 
@@ -27,12 +28,12 @@ public class Mesh : IDisposable, IRenderable
 		VAO.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
 		VAO.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
 	}
-
-	public unsafe void Bind(GL gl)
+	public unsafe void Render(GL gl, RenderPassData data)
 	{
 		VAO.Bind();
 		gl.DrawElements(PrimitiveType.Triangles, (uint) Indices.Length, DrawElementsType.UnsignedInt, null);
 	}
+
 
 	public void Dispose()
 	{
@@ -40,5 +41,4 @@ public class Mesh : IDisposable, IRenderable
 		VBO.Dispose();
 		EBO.Dispose();
 	}
-	
 }
