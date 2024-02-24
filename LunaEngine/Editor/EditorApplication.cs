@@ -39,6 +39,7 @@ namespace Editor
 			window.Render += OnRender;
 			window.Resize += OnWindowResize;
 			window.Closing += OnClose;
+
 			var go = new GameObject();
 			go.AddComponent<TestComponent>();
 

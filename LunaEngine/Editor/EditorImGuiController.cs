@@ -25,6 +25,7 @@ public class EditorImGuiController : IDisposable
 		io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
 		ImGuiTheme.ApplyTheme(0);
+		SetSize();
 	}
 
 	public void ImGuiControllerUpdate(float deltaTime)
@@ -66,5 +67,19 @@ public class EditorImGuiController : IDisposable
 	{
 		var io = ImGui.GetIO();
 		io.DisplaySize = (Vector2) size;
+		SetSize();
+	}
+
+	private void SetSize()
+	{
+		var screenSize = ImGui.GetIO().DisplaySize;
+		Vector2D<int> baseResolution = new Vector2D<int>(1920, 1080);
+
+		float scaleFactorX = screenSize.X / (float) baseResolution.X;
+		float scaleFactorY = screenSize.Y / (float) baseResolution.Y;
+		float scaleFactor =
+			Math.Min(scaleFactorX, scaleFactorY);
+
+		ImGui.GetIO().FontGlobalScale = scaleFactor;
 	}
 }
