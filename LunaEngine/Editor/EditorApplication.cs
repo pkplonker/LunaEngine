@@ -18,7 +18,7 @@ namespace Editor
 		private Renderer? renderer;
 		private static EditorApplication application;
 		private EditorImGuiController? imGuiController;
-		private Camera? camera;
+		private EditorCamera? camera;
 		private static Vector2 LastMousePosition;
 		private IKeyboard? primaryKeyboard;
 		private InputController inputController;
@@ -101,7 +101,7 @@ namespace Editor
 						window.Close();
 					}
 				};
-				camera = new Camera(Vector3.UnitZ * 6, Vector3.UnitZ * -1, Vector3.UnitY,
+				camera = new EditorCamera(Vector3.UnitZ * 6, Vector3.UnitZ * -1, Vector3.UnitY,
 					(float) WINDOW_SIZE_X / (float) WINDOW_SIZE_Y);
 				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer);
 			}
