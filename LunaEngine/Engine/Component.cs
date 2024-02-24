@@ -1,11 +1,12 @@
 ﻿namespace Engine;
 
-public abstract class Component
+public abstract class Component : IComponent
 {
-	private readonly GameObject gameObject;
-
+	public GameObject GameObject { get; set; }
 	public Component(GameObject gameObject)
 	{
-		this.gameObject = gameObject;
+		this.GameObject = gameObject;
 	}
+
+	public virtual void Update() { }
 }

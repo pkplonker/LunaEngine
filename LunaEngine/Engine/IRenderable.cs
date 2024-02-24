@@ -1,8 +1,9 @@
-﻿using Silk.NET.OpenGL;
+﻿using System.Numerics;
+using Silk.NET.OpenGL;
 
 namespace Engine;
 
 public interface IRenderable
 {
-	public void Bind(GL gl);
+	public void Render(Renderer renderer, RenderPassData data);
 }

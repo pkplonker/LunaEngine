@@ -1,10 +1,14 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
+using Editor.Controls;
 using Engine;
 using ImGuiNET;
+using Silk.NET.Core;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
+using StbImageSharp;
 
 namespace Editor
 {
@@ -12,12 +16,12 @@ namespace Editor
 	{
 		public const int WINDOW_SIZE_X = 3840;
 		public const int WINDOW_SIZE_Y = 2160;
-		private const string WINDOW_NAME = "Luna Engine";
+		private const string WINDOW_NAME = "Luna Engine - Stuart Heath - WIP";
 		private IWindow? window;
 		private Renderer? renderer;
 		private static EditorApplication application;
 		private EditorImGuiController? imGuiController;
-		private Camera? camera;
+		private EditorCamera? editorCamera;
 		private static Vector2 LastMousePosition;
 		private IKeyboard? primaryKeyboard;
 		private InputController inputController;
@@ -40,19 +44,25 @@ namespace Editor
 			window.Resize += OnWindowResize;
 			window.Closing += OnClose;
 
-			var go = new GameObject();
-			go.AddComponent<TestComponent>();
+			window.VSync = false;
+		}
 
-			var x = go.GetComponent<TestComponent>();
+		private RawImage LoadIcon(string filePath)
+		{
+			byte[] imageData = File.ReadAllBytes(filePath);
+			var imageResult = ImageResult.FromMemory(imageData, ColorComponents.RedGreenBlueAlpha);
+			return new RawImage(imageResult.Width, imageResult.Height, imageResult.Data);
 		}
 
 		private void OnClose()
 		{
+            imGuiController.Close();
 			renderer.Close();
 		}
 
 		public void Start()
 		{
+			Settings.Settings.LoadSettings();
 			if (window != null)
 			{
 				try
@@ -80,6 +90,8 @@ namespace Editor
 				{
 					window.Dispose();
 				}
+				Settings.Settings.SaveSettings();
+
 			}
 		}
 
@@ -91,6 +103,7 @@ namespace Editor
 
 		private void OnLoad()
 		{
+			SceneController.ActiveScene = new Scene();
 			if (window != null)
 			{
 				renderer?.Load(window);
@@ -100,36 +113,58 @@ namespace Editor
 				{
 					if (key == InputController.Key.Escape)
 					{
-						window.Close();
+						MessageBox.Show("Are you sure you want to do close?",
+							() => { window.Close(); });
 					}
 				};
-				camera = new Camera(Vector3.UnitZ * 6, Vector3.UnitZ * -1, Vector3.UnitY,
-					(float) WINDOW_SIZE_X / (float) WINDOW_SIZE_Y);
-				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer);
+				editorCamera = new EditorCamera(Vector3.UnitZ * 6, WINDOW_SIZE_X / (float) WINDOW_SIZE_Y);
+				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera);
+				try
+				{
+					window.SetWindowIcon(
+						new ReadOnlySpan<RawImage>(LoadIcon(@"/resources/core/TransparentLunaSmall.png"
+							.MakeAbsolute())));
+				}
+				catch (Exception e)
+				{
+					Console.Write(e);
+				}
 			}
 			else
 			{
 				throw new NullReferenceException($"{nameof(window)} cannot be null");
 			}
 
+			ResourceManager.Init(renderer.Gl);
+
 			PerformTest();
 		}
 
 		private void PerformTest()
 		{
-			ResourceManager.Init(renderer.Gl);
-			renderer.AddRenderable(ResourceManager.GetShader(),
-				ResourceManager.GetMesh(@"/resources/models/TestCube.obj"));
+			var go = new GameObject();
+			go.AddComponent<RotateComponent>();
+			go.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestSphere.obj"));
+			go.AddComponent<MeshRenderer>().Shader = ResourceManager.GetShader();
+
+			var go2 = new GameObject();
+			go2.AddComponent<RotateComponent>();
+			go2.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestCube.obj"));
+			go2.AddComponent<MeshRenderer>().Shader = ResourceManager.GetShader();
+			go2.Transform.Position += new Vector3(1, 0, 0);
 		}
 
 		private void OnRender(double deltaTime)
 		{
-			renderer?.RenderUpdate(deltaTime, camera?.GetView(), camera?.GetProjection());
+			renderer?.RenderUpdate(editorCamera?.GetView(), editorCamera?.GetProjection());
 			imGuiController?.Render();
 		}
 
 		private void OnUpdate(double deltaTime)
 		{
+			Time.Update((float) window.Time);
+			editorCamera.Update(inputController);
+			SceneController.ActiveScene?.Update();
 			imGuiController?.ImGuiControllerUpdate((float) deltaTime);
 			PerformanceTracker.ReportAverages();
 		}

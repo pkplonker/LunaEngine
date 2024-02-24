@@ -6,7 +6,7 @@ using System.Diagnostics;
 public class PerformanceTracker : IDisposable
 {
 	private static Dictionary<string, List<long>> recentElapsedTimes = new Dictionary<string, List<long>>();
-	private static int bufferSize = 60; // Adjust this to your desired buffer size
+	private static int bufferSize = 60;
 
 	private Stopwatch stopwatch = new Stopwatch();
 	private string functionName;

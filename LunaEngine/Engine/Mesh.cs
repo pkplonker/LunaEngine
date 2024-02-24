@@ -1,4 +1,5 @@
-﻿using Silk.NET.OpenGL;
+﻿using System.Numerics;
+using Silk.NET.OpenGL;
 
 namespace Engine;
 
@@ -18,20 +19,22 @@ public class Mesh : IDisposable, IRenderable
 	public BufferObject<float> VBO { get; set; }
 	public BufferObject<uint> EBO { get; set; }
 	public GL GL { get; }
+	private const int vertexSize = 5;
 
 	public unsafe void SetupMesh()
 	{
 		EBO = new BufferObject<uint>(GL, Indices, BufferTargetARB.ElementArrayBuffer);
 		VBO = new BufferObject<float>(GL, Vertices, BufferTargetARB.ArrayBuffer);
 		VAO = new VertexArrayObject<float, uint>(GL, VBO, EBO);
-		VAO.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
-		VAO.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
+		VAO.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, vertexSize, 0);
+		VAO.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, vertexSize, 3);
+		VAO.UnBind();
 	}
 
-	public unsafe void Bind(GL gl)
+	public void Render(Renderer renderer, RenderPassData data)
 	{
 		VAO.Bind();
-		gl.DrawElements(PrimitiveType.Triangles, (uint) Indices.Length, DrawElementsType.UnsignedInt, null);
+		renderer.DrawElements(PrimitiveType.Triangles, (uint) Indices.Length, DrawElementsType.UnsignedInt);
 	}
 
 	public void Dispose()
@@ -40,5 +43,4 @@ public class Mesh : IDisposable, IRenderable
 		VBO.Dispose();
 		EBO.Dispose();
 	}
-	
 }

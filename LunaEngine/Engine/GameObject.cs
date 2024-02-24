@@ -2,28 +2,37 @@
 
 public class GameObject
 {
-	private HashSet<Component> components = new();
-	public Transform transform { get; private set; }
+	public string Name = "DEFAULT_NAME";
+	public Guid Guid = System.Guid.NewGuid();
+	private HashSet<IComponent> components = new();
+	public Transform Transform { get; private set; }
+	public static event Action<GameObject> GameObjectCreated;
 
 	public GameObject()
 	{
-		transform = new Transform();
+		Transform = new Transform();
+		GameObjectCreated?.Invoke(this);
 	}
 
-	public Component? GetComponent<T>() where T : Component
+	public T? GetComponent<T>() where T : class?, IComponent
 	{
 		return components.First(x => x is T) as T ?? null;
 	}
 
-	public bool TryGetComponent<T>(out Component? component) where T : Component
+	public bool TryGetComponent<T>(out IComponent? component) where T : class?, IComponent
 	{
 		component = GetComponent<T>();
 		return component != null;
 	}
 
-	public void AddComponent<T>() where T : Component
+	public T? AddComponent<T>() where T : class?, IComponent
 	{
-		T component = null;
+		T component = default(T);
+
+		if (!typeof(T).GetInterfaces().Where(x=> x == typeof(IComponent)).Any())
+		{
+			return component;
+		}
 
 		var constructor = typeof(T).GetConstructor(new[] {typeof(GameObject)});
 		if (constructor != null)
@@ -35,6 +44,7 @@ public class GameObject
 		{
 			components.Add(component);
 		}
+		return component;
 	}
 
 	public void RemoveComponent<T>() where T : Component
@@ -52,6 +62,14 @@ public class GameObject
 		if (components.Contains(component))
 		{
 			components.Remove(component);
+		}
+	}
+
+	public void Update()
+	{
+		foreach (var component in components)
+		{
+			component.Update();
 		}
 	}
 }
