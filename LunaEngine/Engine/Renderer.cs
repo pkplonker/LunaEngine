@@ -11,19 +11,16 @@ public class Renderer
 {
 	public GL Gl { get; private set; }
 
-
-
 	private Framebuffer framebuffer;
 	public Silk.NET.OpenGL.Texture renderTexture { get; private set; }
 
 	private const int colorVal = 50;
 	private Vector4D<int> clearColor = new(colorVal, colorVal, colorVal, 255);
-	private Shader shader;
 	private Texture texture;
 	private IWindow window;
 	private Vector2D<float> imageSize;
 	private Vector2D<int> windowSize;
-	public List<IRenderable> renderables = new List<IRenderable>();
+	private readonly Dictionary<Shader, HashSet<IRenderable>> renderables = new();
 
 	public void RenderUpdate(double deltaTime, Matrix4x4? view, Matrix4x4? projection)
 	{
@@ -37,32 +34,33 @@ public class Renderer
 				Gl.Enable(EnableCap.DepthTest);
 				Gl.ClearColor(clearColor);
 				Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
-				
-				shader.Use();
-				texture.Bind(TextureUnit.Texture0);
-				shader.SetUniform("Texture0", 0);
-				shader.SetUniform("UseTexture", false);
-				foreach (var renderable in renderables)
+				var difference = (float) (window.Time * 100);
+
+				foreach (KeyValuePair<Shader, HashSet<IRenderable>> kvp in renderables)
 				{
-					renderable.Bind(Gl);
+					var shader = kvp.Key;
+					shader.Use();
+					//texture.Bind(TextureUnit.Texture0);
+					shader.SetUniform("Texture0", 0);
+					//shader.SetUniform("UseTexture", false);
+					var model = Matrix4x4.CreateRotationY(MathExtensions.DegreesToRadians(difference)) *
+					            Matrix4x4.CreateRotationX(MathExtensions.DegreesToRadians(difference));
+					shader.SetUniform("uModel", model);
+
+					if (view.HasValue)
+						shader.SetUniform("uView", view.Value);
+					if (projection.HasValue)
+						shader.SetUniform("uProjection", projection.Value);
+					foreach (var renderable in kvp.Value)
+					{
+						renderable.Bind(Gl);
+					}
 				}
-				
 
 				Gl.Viewport(0, 0, (uint) windowSize.X, (uint) windowSize.Y);
 
 				Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 			}
-
-			var difference = (float) (window.Time * 100);
-
-			var model = Matrix4x4.CreateRotationY(MathExtensions.DegreesToRadians(difference)) *
-			            Matrix4x4.CreateRotationX(MathExtensions.DegreesToRadians(difference));
-			shader.SetUniform("uModel", model);
-
-			if (view.HasValue)
-				shader.SetUniform("uView", view.Value);
-			if (projection.HasValue)
-				shader.SetUniform("uProjection", projection.Value);
 		}
 	}
 
@@ -79,9 +77,6 @@ public class Renderer
 
 			this.window = window;
 
-			shader = new Shader(Gl, @"/resources/shaders/unlitvertex.glsl",
-				@"/resources/shaders/unlitfragment.glsl");
-			texture = new Texture(Gl, @"/resources/textures/test.png");
 			Gl.GenFramebuffers(1, out framebuffer);
 			Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer.Handle);
 
@@ -103,8 +98,12 @@ public class Renderer
 
 	public void Close()
 	{
-		shader.Dispose();
-		texture.Dispose();
+		foreach (var kvp in renderables)
+		{
+			kvp.Key.Dispose();
+		}
+
+		texture?.Dispose();
 	}
 
 	public void SetRenderTargetSize(Vector2D<float> size)
@@ -136,5 +135,21 @@ public class Renderer
 			Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0,
 				TextureTarget.Texture2D, renderTexture.Handle, 0);
 		}
+	}
+
+	public void AddRenderable(Shader? shader, IRenderable? renderable)
+	{
+		if (shader == null || renderable == null)
+		{
+			Console.WriteLine("Shader or renderable is null when adding to renderer");
+			return;
+		}
+
+		if (!renderables.ContainsKey(shader))
+		{
+			renderables[shader] = new HashSet<IRenderable>();
+		}
+
+		renderables[shader].Add(renderable);
 	}
 }

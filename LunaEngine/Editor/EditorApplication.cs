@@ -44,10 +44,6 @@ namespace Editor
 			go.AddComponent<TestComponent>();
 
 			var x = go.GetComponent<TestComponent>();
-			
-			//go.RemoveComponent<TestComponent>();
-			go.RemoveComponent(x);
-			Console.WriteLine(go);
 		}
 
 		private void OnClose()
@@ -59,11 +55,32 @@ namespace Editor
 		{
 			if (window != null)
 			{
-				window.Run();
-				window.Dispose();
-			}
+				try
+				{
+					try
+					{
+						window.Run();
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine("An error occurred during window run: " + ex.Message);
+					}
 
-			imGuiController?.Dispose();
+					if (imGuiController != null)
+					{
+						imGuiController.Dispose();
+						imGuiController = null;
+					}
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine("An error occurred during shutdown: " + ex.Message);
+				}
+				finally
+				{
+					window.Dispose();
+				}
+			}
 		}
 
 		private void OnWindowResize(Vector2D<int> size)
@@ -94,7 +111,15 @@ namespace Editor
 			{
 				throw new NullReferenceException($"{nameof(window)} cannot be null");
 			}
-			renderer.renderables.Add(ModelLoader.LoadModel(renderer.Gl,@"/resources/models/TestSphere.obj"));
+
+			PerformTest();
+		}
+
+		private void PerformTest()
+		{
+			ResourceManager.Init(renderer.Gl);
+			renderer.AddRenderable(ResourceManager.GetShader(),
+				ResourceManager.GetMesh(@"/resources/models/TestCube.obj"));
 		}
 
 		private void OnRender(double deltaTime)

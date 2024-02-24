@@ -9,10 +9,16 @@ public class Shader : IDisposable
 	private uint handle;
 	private GL gl;
 	private Dictionary<string, int> uniformDict = new();
+	public string vertexPath { get; private set; }
+	public string fragmentPath { get; private set; }
+	public string GUID { get; private set; }
 
 	public Shader(GL gl, string vertexPath, string fragmentPath)
 	{
 		this.gl = gl;
+		this.fragmentPath = fragmentPath;
+		this.vertexPath = vertexPath;
+		this.GUID = vertexPath + fragmentPath;
 		uint vertex = LoadShader(ShaderType.VertexShader, vertexPath);
 		uint fragment = LoadShader(ShaderType.FragmentShader, fragmentPath);
 		handle = this.gl.CreateProgram();
