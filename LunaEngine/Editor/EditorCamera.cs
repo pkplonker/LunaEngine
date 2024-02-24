@@ -9,15 +9,25 @@ public class EditorCamera : ICamera
 	public float AspectRatio { get; set; }
 
 	private float zoom = 45f;
+	private readonly Vector3 startPosition;
+	private readonly float startAspectRatio;
+	public bool IsWindowFocused { get; set; }
 
-	public EditorCamera(Vector3 position, Vector3 front, Vector3 up, float aspectRatio)
+	public EditorCamera(Vector3 position, float aspectRatio)
+	{
+		startPosition = position;
+		startAspectRatio = aspectRatio;
+		Reset();
+	}
+
+	public void Reset()
 	{
 		Transform = new Transform
 		{
-			Position = position,
+			Position = startPosition,
 			Rotation = Quaternion.Identity
 		};
-		AspectRatio = aspectRatio;
+		AspectRatio = startAspectRatio;
 	}
 
 	public void ModifyZoom(float zoomAmount)
@@ -40,4 +50,39 @@ public class EditorCamera : ICamera
 
 	public Matrix4x4 GetProjection() =>
 		Matrix4x4.CreatePerspectiveFieldOfView(MathExtensions.DegreesToRadians(zoom), AspectRatio, 0.1f, 100.0f);
+
+	public void Update(InputController input)
+	{
+		if (!IsWindowFocused) return;
+		//todo settings
+		float speed = 5.0f;
+		float deltaTime = Time.DeltaTime;
+		float mouseSensitivityX = 0.1f;
+		float mouseSensitivityY = 0.5f;
+
+		if (input.IsKeyPressed(InputController.Key.W))
+		{
+			Transform.Position += Transform.Forward * speed * deltaTime;
+		}
+
+		if (input.IsKeyPressed(InputController.Key.S))
+		{
+			Transform.Position += Transform.Back * speed * deltaTime;
+		}
+
+		if (input.IsKeyPressed(InputController.Key.A))
+		{
+			Transform.Position += Transform.Right * speed * deltaTime;
+		}
+
+		if (input.IsKeyPressed(InputController.Key.D))
+		{
+			Transform.Position += Transform.Left * speed * deltaTime;
+		}
+
+		var mouseDelta = input.GetMouseDelta();
+		Transform.Rotate(mouseDelta.X * mouseSensitivityX * Time.DeltaTime,
+			mouseDelta.Y * mouseSensitivityY * Time.DeltaTime);
+	}
+	
 }

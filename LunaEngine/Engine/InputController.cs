@@ -387,21 +387,24 @@ public class InputController
 	public event Action<float, float> MouseMove;
 	public event Action<Key> KeyPress;
 	public event Action<Key> KeyReleased;
+	private Vector2 lastMousePosition;
+	private Vector2 currentMousePosition;
 
 	public InputController(IInputContext input)
 	{
-		 this.input = input;
-		
+		this.input = input;
+
 		foreach (var keyboard in input.Keyboards)
 		{
 			keyboard.KeyDown += KeyDown;
 			keyboard.KeyUp += KeyUp;
 		}
-		
+
 		foreach (var mouse in input.Mice)
 		{
 			mouse.MouseMove += OnMouseMove;
 			mouse.Scroll += OnMouseWheel;
+			lastMousePosition = new Vector2(mouse.Position.X, mouse.Position.Y);
 		}
 	}
 
@@ -412,7 +415,17 @@ public class InputController
 
 	private void OnMouseMove(IMouse device, Vector2 args)
 	{
+		currentMousePosition = new Vector2(args.X, args.Y);
 		MouseMove?.Invoke(args.X, args.Y);
+	}
+
+	public Vector2 GetMouseDelta()
+	{
+		Vector2 delta = currentMousePosition - lastMousePosition;
+
+		lastMousePosition = currentMousePosition;
+
+		return delta;
 	}
 
 	private void KeyDown(IKeyboard device, Silk.NET.Input.Key key, int arg3)
@@ -426,4 +439,5 @@ public class InputController
 	}
 
 	public bool IsKeyPressed(Key key) => input.Keyboards?.First()?.IsKeyPressed((Silk.NET.Input.Key) key) ?? false;
+	
 }

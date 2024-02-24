@@ -1,11 +1,14 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using Editor.Controls;
 using Engine;
 using ImGuiNET;
+using Silk.NET.Core;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
+using StbImageSharp;
 
 namespace Editor
 {
@@ -18,7 +21,7 @@ namespace Editor
 		private Renderer? renderer;
 		private static EditorApplication application;
 		private EditorImGuiController? imGuiController;
-		private EditorCamera? camera;
+		private EditorCamera? editorCamera;
 		private static Vector2 LastMousePosition;
 		private IKeyboard? primaryKeyboard;
 		private InputController inputController;
@@ -40,7 +43,15 @@ namespace Editor
 			window.Render += OnRender;
 			window.Resize += OnWindowResize;
 			window.Closing += OnClose;
+
 			window.VSync = false;
+		}
+
+		private RawImage LoadIcon(string filePath)
+		{
+			byte[] imageData = File.ReadAllBytes(filePath);
+			var imageResult = ImageResult.FromMemory(imageData, ColorComponents.RedGreenBlueAlpha);
+			return new RawImage(imageResult.Width, imageResult.Height, imageResult.Data);
 		}
 
 		private void OnClose()
@@ -98,12 +109,21 @@ namespace Editor
 				{
 					if (key == InputController.Key.Escape)
 					{
-						window.Close();
+						MessageBox.Show("Are you sure you want to do close?",
+							() => { window.Close(); });
 					}
 				};
-				camera = new EditorCamera(Vector3.UnitZ * 6, Vector3.UnitZ * -1, Vector3.UnitY,
-					(float) WINDOW_SIZE_X / (float) WINDOW_SIZE_Y);
-				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer);
+				editorCamera = new EditorCamera(Vector3.UnitZ * 6, WINDOW_SIZE_X / (float) WINDOW_SIZE_Y);
+				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera);
+				try
+				{
+					window.SetWindowIcon(
+						new ReadOnlySpan<RawImage>(LoadIcon(@"/resources/core/TransparentLunaSmall.png".MakeAbsolute())));
+				}
+				catch (Exception e)
+				{
+					Console.Write(e);
+				}
 			}
 			else
 			{
@@ -131,13 +151,14 @@ namespace Editor
 
 		private void OnRender(double deltaTime)
 		{
-			renderer?.RenderUpdate(camera?.GetView(), camera?.GetProjection());
+			renderer?.RenderUpdate(editorCamera?.GetView(), editorCamera?.GetProjection());
 			imGuiController?.Render();
 		}
 
 		private void OnUpdate(double deltaTime)
 		{
 			Time.Update((float) window.Time);
+			editorCamera.Update(inputController);
 			SceneController.ActiveScene?.Update();
 			imGuiController?.ImGuiControllerUpdate((float) deltaTime);
 			PerformanceTracker.ReportAverages();

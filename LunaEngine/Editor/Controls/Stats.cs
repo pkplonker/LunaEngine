@@ -4,14 +4,13 @@ using System;
 
 namespace Editor.Controls;
 
-public class Stats : IControl
+public class Stats : IPanel
 {
 	public string PanelName { get; set; } = "Stats";
 
-	public static event Action<IControl> RegisterPanel;
-
 	private double lastUpdateTime = 0;
 	private string formattedTotalTime = "00:00:00";
+	public static event Action<IPanel> RegisterPanel;
 
 	public Stats()
 	{
@@ -49,7 +48,7 @@ public class Stats : IControl
 		ImGui.Text($"Shaders: {renderer.ShadersUsed}");
 		ImGui.Separator();
 		ImGui.Text($"Window Size: {renderer.WindowSize.X} x {renderer.WindowSize.Y}");
-		ImGui.Text($"Viewport Size: {(int)renderer.ViewportSize.X} x {(int)renderer.ViewportSize.Y}");
+		ImGui.Text($"Viewport Size: {(int) renderer.ViewportSize.X} x {(int) renderer.ViewportSize.Y}");
 
 		ImGui.PlotLines(string.Empty, ref fpsBuffer[0], fpsBuffer.Length, 0, null, 0, fpsBuffer.Max(),
 			new System.Numerics.Vector2(-1, 80));

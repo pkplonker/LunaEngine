@@ -70,7 +70,13 @@ public class Transform
 	}
 
 	public Vector3 Forward => Vector3.Transform(-Vector3.UnitZ, Rotation);
+	public Vector3 Back => Vector3.Transform(Vector3.UnitZ, Rotation);
+
 	public Vector3 Up => Vector3.Transform(Vector3.UnitY, Rotation);
+	public Vector3 Down => Vector3.Transform(-Vector3.UnitY, Rotation);
+
+	public Vector3 Left => Vector3.Transform(Vector3.UnitX, Rotation);
+	public Vector3 Right => Vector3.Transform(-Vector3.UnitX, Rotation);
 
 	public void Rotate(float xOffset, float yOffset)
 	{

@@ -2,6 +2,7 @@
 using Editor.Controls;
 using Engine;
 using ImGuiNET;
+using Silk.NET.Assimp;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -15,9 +16,10 @@ public class EditorImGuiController : IDisposable
 	private readonly Renderer renderer;
 	private ImGuiController imGuiController;
 	private Vector2 previousSize;
-	private Dictionary<IControl, bool> controls = new();
+	private Dictionary<IPanel, bool> controls = new();
+	private readonly EditorCamera editorCamera;
 
-	public EditorImGuiController(GL gl, IView view, IInputContext input, Renderer renderer)
+	public EditorImGuiController(GL gl, IView view, IInputContext input, Renderer renderer, EditorCamera editorCamera)
 	{
 		this.renderer = renderer;
 		imGuiController = new ImGuiController(gl, view, input);
@@ -26,12 +28,15 @@ public class EditorImGuiController : IDisposable
 		io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
 		ImGuiTheme.ApplyTheme(0);
 		SetSize();
-		CreateControls();
+		CreateControls(editorCamera);
+		this.editorCamera = editorCamera;
 	}
 
-	private void CreateControls()
+	private void CreateControls(EditorCamera editorCamera)
 	{
 		controls.Add(new Stats(), true);
+		controls.Add(new EditorCameraPanel(editorCamera), true);
+		controls.Add(new UndoRedoPanel(), true);
 	}
 
 	public void ImGuiControllerUpdate(float deltaTime)
@@ -49,6 +54,8 @@ public class EditorImGuiController : IDisposable
 			previousSize = size;
 		}
 
+		editorCamera.IsWindowFocused = ImGui.IsWindowFocused();
+		
 		ImGui.Image((IntPtr) renderer.renderTexture.Handle, new Vector2(size.X, size.Y), Vector2.Zero, Vector2.One,
 			Vector4.One,
 			Vector4.Zero);
@@ -61,6 +68,7 @@ public class EditorImGuiController : IDisposable
 		}
 
 		ImGui.ShowDemoWindow();
+		MessageBox.Render();
 	}
 
 	public void Render()
