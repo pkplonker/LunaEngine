@@ -94,6 +94,7 @@ namespace Editor
 			{
 				throw new NullReferenceException($"{nameof(window)} cannot be null");
 			}
+			renderer.renderables.Add(ModelLoader.LoadModel(renderer.Gl,@"/resources/models/TestSphere.obj"));
 		}
 
 		private void OnRender(double deltaTime)

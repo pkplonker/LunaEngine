@@ -9,6 +9,7 @@
 
     <ItemGroup>
       <PackageReference Include="Silk.NET" Version="2.20.0" />
+      <PackageReference Include="Silk.NET.Assimp" Version="2.20.0" />
       <PackageReference Include="Silk.NET.Core" Version="2.20.0" />
       <PackageReference Include="Silk.NET.Maths" Version="2.20.0" />
       <PackageReference Include="Silk.NET.OpenGL" Version="2.20.0" />
@@ -24,6 +25,12 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
       <None Update="Resources\Textures\test.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Models\TestCube.obj">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Models\TestSphere.obj">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>

@@ -11,14 +11,12 @@ namespace Editor;
 
 public class EditorImGuiController : IDisposable
 {
-	private readonly GL gl;
 	private readonly Renderer renderer;
 	private ImGuiController imGuiController;
 	private Vector2 previousSize;
 
 	public EditorImGuiController(GL gl, IView view, IInputContext input, Renderer renderer)
 	{
-		this.gl = gl;
 		this.renderer = renderer;
 		imGuiController = new ImGuiController(gl, view, input);
 		var io = ImGui.GetIO();
@@ -60,7 +58,7 @@ public class EditorImGuiController : IDisposable
 
 	public void Dispose()
 	{
-		imGuiController.Dispose();
+		imGuiController?.Dispose();
 	}
 
 	public void Resize(Vector2D<int> size)

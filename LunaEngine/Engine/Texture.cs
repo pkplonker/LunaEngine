@@ -1,51 +1,53 @@
-﻿using System;
-using System.IO;
+﻿using Silk.NET.Assimp;
 using Silk.NET.OpenGL;
 using StbImageSharp;
+using File = System.IO.File;
+
 namespace Engine;
 
 public class Texture : IDisposable
-    {
-        private uint handle;
-        private GL gl;
+{
+	private uint handle;
+	private GL gl;
 
-        public unsafe Texture(GL gl, string path)
-        {
-            this.gl = gl;
+	public string Path { get; set; }
+	public TextureType Type { get; }
 
-            handle = this.gl.GenTexture();
-            Bind();
-            
-            ImageResult result = ImageResult.FromMemory(File.ReadAllBytes(path.MakeAbsolute()), ColorComponents.RedGreenBlueAlpha);
-            
-            fixed (byte* ptr = result.Data)
-            {
-                gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) result.Width, 
-                    (uint) result.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
-            }
+	public unsafe Texture(GL gl, string path, TextureType type = TextureType.None)
+	{
+		this.gl = gl;
+		Path = path;
+		Type = type;
+		handle = this.gl.GenTexture();
+		Bind();
 
-            SetParameters();
-        }
-        
-        private void SetParameters()
-        {
-            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int) GLEnum.ClampToEdge);
-            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int) GLEnum.ClampToEdge);
-            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int) GLEnum.LinearMipmapLinear);
-            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int) GLEnum.Linear);
-            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
-            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 8);
-            gl.GenerateMipmap(TextureTarget.Texture2D);
-        }
+		var img = ImageResult.FromMemory(File.ReadAllBytes(path.MakeAbsolute()), ColorComponents.RedGreenBlueAlpha);
+		gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, (uint) img.Width, (uint) img.Height, 0,
+			PixelFormat.Rgba, PixelType.UnsignedByte, null);
 
-        public void Bind(TextureUnit textureSlot = TextureUnit.Texture0)
-        {
-            gl.ActiveTexture(textureSlot);
-            gl.BindTexture(TextureTarget.Texture2D, handle);
-        }
+		SetParameters();
+	}
 
-        public void Dispose()
-        {
-            gl.DeleteTexture(handle);
-        }
-    }
+	private void SetParameters()
+	{
+		gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int) GLEnum.ClampToEdge);
+		gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int) GLEnum.ClampToEdge);
+		gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
+			(int) GLEnum.LinearMipmapLinear);
+		gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int) GLEnum.Linear);
+		gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
+		gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 8);
+		gl.GenerateMipmap(TextureTarget.Texture2D);
+	}
+
+	public void Bind(TextureUnit textureSlot = TextureUnit.Texture0)
+	{
+		gl.ActiveTexture(textureSlot);
+		gl.BindTexture(TextureTarget.Texture2D, handle);
+	}
+
+	public void Dispose()
+	{
+		gl.DeleteTexture(handle);
+	}
+}
