@@ -64,7 +64,6 @@ public class EditorImGuiController : IDisposable
 			previousSize = size;
 		}
 
-		editorCamera.IsWindowFocused = ImGui.IsWindowFocused();
 
 		ImGui.Image((IntPtr) renderer.renderTexture.Handle, new Vector2(size.X, size.Y), Vector2.Zero, Vector2.One,
 			Vector4.One,

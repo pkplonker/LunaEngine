@@ -1,4 +1,6 @@
 ﻿using System.Numerics;
+using Editor;
+using Editor.Settings;
 using Silk.NET.Input;
 
 namespace Engine;
@@ -11,8 +13,7 @@ public class EditorCamera : ICamera
 	private float zoom = 45f;
 	private readonly Vector3 startPosition;
 	private readonly float startAspectRatio;
-	public bool IsWindowFocused { get; set; }
-
+	private const string settingsCategory = "Editor Camera";
 	public EditorCamera(Vector3 position, float aspectRatio)
 	{
 		startPosition = position;
@@ -54,11 +55,11 @@ public class EditorCamera : ICamera
 	public void Update(InputController input)
 	{
 		if (!input.IsMousePressed(InputController.MouseButton.Right)) return;
-		//todo settings
-		float speed = 5.0f;
 		float deltaTime = Time.DeltaTime;
-		float mouseSensitivityX = 0.3f;
-		float mouseSensitivityY = 0.5f;
+
+		float speed = Settings.GetSetting("Key Speed", settingsCategory,true, 10f);
+		float mouseSensitivityX = Settings.GetSetting("Mouse Sensitivity X", settingsCategory,true, 0.3f);
+		float mouseSensitivityY = Settings.GetSetting("Mouse Sensitivity Y", settingsCategory,true, 0.5f);
 
 		if (input.IsKeyPressed(InputController.Key.W))
 		{
@@ -84,5 +85,4 @@ public class EditorCamera : ICamera
 		Transform.Rotate(-mouseDelta.X * mouseSensitivityX * Time.DeltaTime,
 			mouseDelta.Y * mouseSensitivityY * Time.DeltaTime);
 	}
-	
 }

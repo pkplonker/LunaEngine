@@ -7,7 +7,7 @@ namespace Editor.Controls;
 
 public class UndoRedoPanel : IPanel
 {
-	public string PanelName { get; set; } = "UndoRedo";
+	public string PanelName { get; set; } = "Undo Redo";
 
 	public static event Action<IPanel> RegisterPanel;
 

@@ -62,6 +62,7 @@ namespace Editor
 
 		public void Start()
 		{
+			Settings.Settings.LoadSettings();
 			if (window != null)
 			{
 				try
@@ -89,6 +90,8 @@ namespace Editor
 				{
 					window.Dispose();
 				}
+				Settings.Settings.SaveSettings();
+
 			}
 		}
 
