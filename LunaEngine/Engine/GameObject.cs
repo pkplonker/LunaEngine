@@ -3,7 +3,7 @@
 public class GameObject
 {
 	public string Name = "DEFAULT_NAME";
-	public Guid guid = new Guid();
+	public Guid Guid = System.Guid.NewGuid();
 	private HashSet<IComponent> components = new();
 	public Transform Transform { get; private set; }
 	public static event Action<GameObject> GameObjectCreated;

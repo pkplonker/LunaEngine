@@ -32,11 +32,16 @@ public class EditorImGuiController : IDisposable
 		this.editorCamera = editorCamera;
 	}
 
+	public GameObject SelectedGameObject { get; set; }
+
 	private void CreateControls(EditorCamera editorCamera)
 	{
 		controls.Add(new Stats(), true);
 		controls.Add(new EditorCameraPanel(editorCamera), true);
 		controls.Add(new UndoRedoPanel(), true);
+		controls.Add(new HierarchyPanel(this),true);
+		controls.Add(new InspectorPanel(this),true);
+
 	}
 
 	public void ImGuiControllerUpdate(float deltaTime)

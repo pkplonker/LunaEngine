@@ -118,7 +118,8 @@ namespace Editor
 				try
 				{
 					window.SetWindowIcon(
-						new ReadOnlySpan<RawImage>(LoadIcon(@"/resources/core/TransparentLunaSmall.png".MakeAbsolute())));
+						new ReadOnlySpan<RawImage>(LoadIcon(@"/resources/core/TransparentLunaSmall.png"
+							.MakeAbsolute())));
 				}
 				catch (Exception e)
 				{
