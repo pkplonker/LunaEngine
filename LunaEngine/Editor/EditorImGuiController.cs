@@ -18,6 +18,7 @@ public class EditorImGuiController : IDisposable
 	private Vector2 previousSize;
 	private Dictionary<IPanel, bool> controls = new();
 	private readonly EditorCamera editorCamera;
+	private const string iniSaveLocation = "imgui.ini";
 
 	public EditorImGuiController(GL gl, IView view, IInputContext input, Renderer renderer, EditorCamera editorCamera)
 	{
@@ -26,6 +27,10 @@ public class EditorImGuiController : IDisposable
 		var io = ImGui.GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
+		io.ConfigFlags |= ImGuiConfigFlags.DpiEnableScaleFonts;
+		io.ConfigFlags |= ImGuiConfigFlags.DpiEnableScaleViewports;
+		ImGui.LoadIniSettingsFromDisk(iniSaveLocation);
+
 		ImGuiTheme.ApplyTheme(0);
 		SetSize();
 		CreateControls(editorCamera);
@@ -39,9 +44,8 @@ public class EditorImGuiController : IDisposable
 		controls.Add(new Stats(), true);
 		controls.Add(new EditorCameraPanel(editorCamera), true);
 		controls.Add(new UndoRedoPanel(), true);
-		controls.Add(new HierarchyPanel(this),true);
-		controls.Add(new InspectorPanel(this),true);
-
+		controls.Add(new HierarchyPanel(this), true);
+		controls.Add(new InspectorPanel(this), true);
 	}
 
 	public void ImGuiControllerUpdate(float deltaTime)
@@ -49,9 +53,10 @@ public class EditorImGuiController : IDisposable
 		using var tracker = new PerformanceTracker(nameof(ImGuiControllerUpdate));
 
 		imGuiController.Update(deltaTime);
-		ImGui.DockSpaceOverViewport();
+		ImGui.DockSpaceOverViewport(ImGui.GetMainViewport());
 		ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 0);
-		ImGui.Begin("Viewport", ImGuiWindowFlags.NoScrollbar);
+		ImGui.Begin("Viewport",
+			ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
 		var size = ImGui.GetContentRegionAvail();
 		if (size != previousSize)
 		{
@@ -60,7 +65,7 @@ public class EditorImGuiController : IDisposable
 		}
 
 		editorCamera.IsWindowFocused = ImGui.IsWindowFocused();
-		
+
 		ImGui.Image((IntPtr) renderer.renderTexture.Handle, new Vector2(size.X, size.Y), Vector2.Zero, Vector2.One,
 			Vector4.One,
 			Vector4.Zero);
@@ -74,6 +79,61 @@ public class EditorImGuiController : IDisposable
 
 		ImGui.ShowDemoWindow();
 		MessageBox.Render();
+		DrawMenu();
+	}
+
+	private void DrawMenu()
+	{
+		if (ImGui.BeginMainMenuBar())
+		{
+			if (ImGui.BeginMenu("File"))
+			{
+				if (ImGui.MenuItem("New", "Ctrl+N"))
+				{
+					//New();
+				}
+
+				if (ImGui.MenuItem("Save", "Ctrl+S"))
+				{
+					//Save();
+				}
+
+				if (ImGui.MenuItem("Save As", "Ctrl+Shft+S"))
+				{
+					//SaveAs();
+				}
+
+				if (ImGui.MenuItem("Open", "Ctrl+O"))
+				{
+					//LoadScene();
+				}
+
+				ImGui.EndMenu();
+			}
+
+			if (ImGui.MenuItem("Settings"))
+			{
+				//openSettings = true;
+			}
+
+			if (ImGui.BeginMenu("Windows"))
+			{
+				foreach (var control in controls)
+				{
+					var isVisible = control.Value;
+					if (ImGui.MenuItem(control.Key.PanelName, null, isVisible))
+					{
+						controls[control.Key] = !isVisible;
+					}
+				}
+
+				ImGui.EndMenu();
+			}
+
+			if (ImGui.BeginMenu("Tools")) { }
+
+			ImGui.EndMainMenuBar();
+		}
 	}
 
 	public void Render()
@@ -81,8 +141,21 @@ public class EditorImGuiController : IDisposable
 		imGuiController.Render();
 	}
 
+	public void Close()
+	{
+		Save();
+	}
+
+	public void Save()
+	{
+		ImGui.UpdatePlatformWindows();
+		ImGui.RenderPlatformWindowsDefault();
+		ImGui.SaveIniSettingsToDisk(iniSaveLocation);
+	}
+
 	public void Dispose()
 	{
+		Save();
 		imGuiController?.Dispose();
 	}
 

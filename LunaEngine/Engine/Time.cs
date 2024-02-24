@@ -29,7 +29,6 @@ public static class Time
 			FPS = frameCount;
 			frameCount = 0;
 			timeSinceLastSecond -= 1.0f;
-			Console.WriteLine(FPS);
 		}
 	}
 }

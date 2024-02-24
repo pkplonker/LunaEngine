@@ -16,7 +16,7 @@ namespace Editor
 	{
 		public const int WINDOW_SIZE_X = 3840;
 		public const int WINDOW_SIZE_Y = 2160;
-		private const string WINDOW_NAME = "Luna Engine";
+		private const string WINDOW_NAME = "Luna Engine - Stuart Heath - WIP";
 		private IWindow? window;
 		private Renderer? renderer;
 		private static EditorApplication application;
@@ -56,6 +56,7 @@ namespace Editor
 
 		private void OnClose()
 		{
+            imGuiController.Close();
 			renderer.Close();
 		}
 

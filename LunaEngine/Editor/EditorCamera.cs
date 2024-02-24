@@ -53,11 +53,11 @@ public class EditorCamera : ICamera
 
 	public void Update(InputController input)
 	{
-		if (!IsWindowFocused) return;
+		if (!input.IsMousePressed(InputController.MouseButton.Right)) return;
 		//todo settings
 		float speed = 5.0f;
 		float deltaTime = Time.DeltaTime;
-		float mouseSensitivityX = 0.1f;
+		float mouseSensitivityX = 0.3f;
 		float mouseSensitivityY = 0.5f;
 
 		if (input.IsKeyPressed(InputController.Key.W))
@@ -81,7 +81,7 @@ public class EditorCamera : ICamera
 		}
 
 		var mouseDelta = input.GetMouseDelta();
-		Transform.Rotate(mouseDelta.X * mouseSensitivityX * Time.DeltaTime,
+		Transform.Rotate(-mouseDelta.X * mouseSensitivityX * Time.DeltaTime,
 			mouseDelta.Y * mouseSensitivityY * Time.DeltaTime);
 	}
 	

@@ -33,7 +33,7 @@ public class UndoRedoPanel : IPanel
 		ImGui.Separator();
 
 		ImGui.Text("Undo Stack:");
-		if (ImGui.BeginChild("UndoStack", new System.Numerics.Vector2(0, 150), true))
+		if (ImGui.BeginChild("UndoStack", new System.Numerics.Vector2(0, 150)))
 		{
 			foreach (var action in UndoManager.GetUndoActions().Reverse())
 			{
@@ -46,7 +46,7 @@ public class UndoRedoPanel : IPanel
 
 		// Scrollable box for Redo Stack
 		ImGui.Text("Redo Stack:");
-		if (ImGui.BeginChild("RedoStack", new System.Numerics.Vector2(0, 150), true))
+		if (ImGui.BeginChild("RedoStack", new System.Numerics.Vector2(0, 150)))
 		{
 			foreach (var action in UndoManager.GetRedoActions().Reverse())
 			{
