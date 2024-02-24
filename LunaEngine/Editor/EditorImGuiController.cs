@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Editor.Controls;
 using Engine;
 using ImGuiNET;
 using Silk.NET.Input;
@@ -14,6 +15,7 @@ public class EditorImGuiController : IDisposable
 	private readonly Renderer renderer;
 	private ImGuiController imGuiController;
 	private Vector2 previousSize;
+	private Dictionary<IControl, bool> controls = new();
 
 	public EditorImGuiController(GL gl, IView view, IInputContext input, Renderer renderer)
 	{
@@ -24,6 +26,12 @@ public class EditorImGuiController : IDisposable
 		io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
 		ImGuiTheme.ApplyTheme(0);
 		SetSize();
+		CreateControls();
+	}
+
+	private void CreateControls()
+	{
+		controls.Add(new Stats(), true);
 	}
 
 	public void ImGuiControllerUpdate(float deltaTime)
@@ -46,7 +54,13 @@ public class EditorImGuiController : IDisposable
 			Vector4.Zero);
 		ImGui.End();
 		ImGui.PopStyleVar();
-		//ImGui.ShowDemoWindow();
+
+		foreach (var control in controls.Where(x => x.Value).Select(x => x.Key))
+		{
+			control.Draw(renderer);
+		}
+
+		ImGui.ShowDemoWindow();
 	}
 
 	public void Render()

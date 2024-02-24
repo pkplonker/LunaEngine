@@ -20,4 +20,12 @@ public class Scene
 
 		GameObjects.Add(obj);
 	}
+
+	public void Update()
+	{
+		foreach (var go in GameObjects)
+		{
+			go?.Update();
+		}
+	}
 }

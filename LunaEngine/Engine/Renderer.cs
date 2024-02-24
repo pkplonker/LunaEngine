@@ -18,16 +18,22 @@ public class Renderer
 	private Vector4D<int> clearColor = new(colorVal, colorVal, colorVal, 255);
 	private Texture texture;
 	private IWindow window;
-	private Vector2D<float> imageSize;
-	private Vector2D<int> windowSize;
+	public Vector2D<float> ViewportSize;
+	public Vector2D<int> WindowSize;
+	public int DrawCalls { get; private set; }
+	public int MaterialsUsed { get; private set; }
+	public int ShadersUsed { get; private set; }
 
-	public void RenderUpdate(double deltaTime, Matrix4x4? view, Matrix4x4? projection)
+	public void RenderUpdate(Matrix4x4? view, Matrix4x4? projection)
 	{
 		using (var tracker = new PerformanceTracker(nameof(RenderUpdate)))
 		{
+			DrawCalls = 0;
+			ShadersUsed = 0;
+			MaterialsUsed = 0;
 			unsafe
 			{
-				Gl.Viewport(0, 0, (uint) imageSize.X, (uint) imageSize.Y);
+				Gl.Viewport(0, 0, (uint) ViewportSize.X, (uint) ViewportSize.Y);
 				Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer.Handle);
 
 				Gl.Enable(EnableCap.DepthTest);
@@ -37,19 +43,17 @@ public class Renderer
 				foreach (var go in SceneController.ActiveScene.GameObjects)
 				{
 					var component = go.GetComponent<IRenderableComponent>();
-					var shader = component.GetShader();
-
-					component?.Render(Gl, renderPassData);
+					component?.Render(this, renderPassData);
 				}
 
-				Gl.Viewport(0, 0, (uint) windowSize.X, (uint) windowSize.Y);
+				Gl.Viewport(0, 0, (uint) WindowSize.X, (uint) WindowSize.Y);
 
 				Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 			}
 		}
 	}
 
-	public void Resize(Vector2D<int> size) => windowSize = size;
+	public void Resize(Vector2D<int> size) => WindowSize = size;
 
 	public void Load(IWindow window)
 	{
@@ -57,8 +61,8 @@ public class Renderer
 		unsafe
 		{
 			Gl = GL.GetApi(window);
-			windowSize = window.Size;
-			imageSize = (Vector2D<float>) window.Size;
+			WindowSize = window.Size;
+			ViewportSize = (Vector2D<float>) window.Size;
 
 			this.window = window;
 
@@ -88,7 +92,7 @@ public class Renderer
 
 	public void SetRenderTargetSize(Vector2D<float> size)
 	{
-		imageSize = size;
+		ViewportSize = size;
 		unsafe
 		{
 			if (framebuffer.Handle != 0)
@@ -115,6 +119,18 @@ public class Renderer
 			Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0,
 				TextureTarget.Texture2D, renderTexture.Handle, 0);
 		}
+	}
+
+	public unsafe void DrawElements(PrimitiveType primativeType, uint indicesLength, DrawElementsType elementsTyp)
+	{
+		DrawCalls++;
+		Gl.DrawElements(primativeType, indicesLength, elementsTyp, null);
+	}
+
+	public void UseShader(Shader shader)
+	{
+		ShadersUsed++;
+		shader?.Use();
 	}
 }
 

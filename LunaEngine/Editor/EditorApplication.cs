@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using Engine;
 using ImGuiNET;
 using Silk.NET.Input;
@@ -39,6 +40,7 @@ namespace Editor
 			window.Render += OnRender;
 			window.Resize += OnWindowResize;
 			window.Closing += OnClose;
+			window.VSync = false;
 		}
 
 		private void OnClose()
@@ -116,21 +118,27 @@ namespace Editor
 		private void PerformTest()
 		{
 			var go = new GameObject();
-			//go.AddComponent<RotateComponent>();
+			go.AddComponent<RotateComponent>();
 			go.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestSphere.obj"));
-			var mr = go.AddComponent<MeshRenderer>();
-			var shader =  ResourceManager.GetShader();
-			mr.Shader = shader;
+			go.AddComponent<MeshRenderer>().Shader = ResourceManager.GetShader();
+
+			var go2 = new GameObject();
+			go2.AddComponent<RotateComponent>();
+			go2.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestCube.obj"));
+			go2.AddComponent<MeshRenderer>().Shader = ResourceManager.GetShader();
+			go2.Transform.Position += new Vector3(1, 0, 0);
 		}
 
 		private void OnRender(double deltaTime)
 		{
-			renderer?.RenderUpdate(deltaTime, camera?.GetView(), camera?.GetProjection());
+			renderer?.RenderUpdate(camera?.GetView(), camera?.GetProjection());
 			imGuiController?.Render();
 		}
 
 		private void OnUpdate(double deltaTime)
 		{
+			Time.Update((float) window.Time);
+			SceneController.ActiveScene?.Update();
 			imGuiController?.ImGuiControllerUpdate((float) deltaTime);
 			PerformanceTracker.ReportAverages();
 		}

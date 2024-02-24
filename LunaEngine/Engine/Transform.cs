@@ -49,9 +49,7 @@ public class Transform
 	{
 		Quaternion deltaRotation = Quaternion.CreateFromYawPitchRoll(euler.Y, euler.X, euler.Z);
 
-		rotation = Quaternion.Normalize(rotation * deltaRotation);
-
-		isDirty = true;
+		Rotation = Quaternion.Normalize(Rotation * deltaRotation);
 	}
 
 	private Matrix4x4 modelMatrix;

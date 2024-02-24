@@ -44,7 +44,6 @@ public class GameObject
 		{
 			components.Add(component);
 		}
-
 		return component;
 	}
 
@@ -63,6 +62,14 @@ public class GameObject
 		if (components.Contains(component))
 		{
 			components.Remove(component);
+		}
+	}
+
+	public void Update()
+	{
+		foreach (var component in components)
+		{
+			component.Update();
 		}
 	}
 }

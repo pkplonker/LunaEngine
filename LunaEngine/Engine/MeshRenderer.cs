@@ -12,22 +12,24 @@ public class MeshRenderer : IRenderableComponent
 		this.GameObject = gameObject;
 	}
 
-	public void Render(GL gl, RenderPassData data)
+	public void Render(Renderer renderer, RenderPassData data)
 	{
-		this.Shader?.Use();
+		renderer.UseShader(Shader);
+		
 		this.Shader.SetUniform("uView", data.View);
 		this.Shader.SetUniform("uProjection", data.Projection);
-		this.Shader.SetUniform("uProjection", GameObject.Transform.ModelMatrix);
+		this.Shader.SetUniform("uModel", GameObject.Transform.ModelMatrix);
 
 		var mf = GameObject.GetComponent<MeshFilter>();
 		if (mf != null)
 		{
 			foreach (var mesh in mf.meshes)
 			{
-				mesh?.Render(gl, data);
+				mesh?.Render(renderer, data);
 			}
 		}
 	}
+
 	public GameObject GameObject { get; set; }
-	public Shader GetShader() => Shader;
+	public void Update() { }
 }

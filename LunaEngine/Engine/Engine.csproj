@@ -39,6 +39,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Components\" />
       <Folder Include="Resources\Textures\" />
     </ItemGroup>
 

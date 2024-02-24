@@ -28,10 +28,10 @@ public class Mesh : IDisposable, IRenderable
 		VAO.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
 		VAO.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
 	}
-	public unsafe void Render(GL gl, RenderPassData data)
+	public unsafe void Render(Renderer renderer, RenderPassData data)
 	{
 		VAO.Bind();
-		gl.DrawElements(PrimitiveType.Triangles, (uint) Indices.Length, DrawElementsType.UnsignedInt, null);
+		renderer.DrawElements(PrimitiveType.Triangles, (uint) Indices.Length, DrawElementsType.UnsignedInt);
 	}
 
 
