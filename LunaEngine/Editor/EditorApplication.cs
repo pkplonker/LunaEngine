@@ -10,8 +10,8 @@ namespace Editor
 {
 	public class EditorApplication
 	{
-		public const int WINDOW_SIZE_X = 1920; //3840;
-		public const int WINDOW_SIZE_Y = 1080; //2160;
+		public const int WINDOW_SIZE_X = 3840;
+		public const int WINDOW_SIZE_Y = 2160;
 		private const string WINDOW_NAME = "Luna Engine";
 		private IWindow? window;
 		private Renderer? renderer;
@@ -39,6 +39,10 @@ namespace Editor
 			window.Render += OnRender;
 			window.Resize += OnWindowResize;
 			window.Closing += OnClose;
+			var go = new GameObject();
+			go.AddComponent<TestComponent>();
+
+			var x = go.GetComponent<TestComponent>();
 		}
 
 		private void OnClose()

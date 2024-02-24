@@ -8,6 +8,7 @@ public class Transform
 
 	private Vector3 position = new Vector3(0f);
 
+	[Serializable]
 	public Vector3 Position
 	{
 		get => position;
@@ -20,6 +21,7 @@ public class Transform
 
 	private Vector3 scale = new Vector3(1f);
 
+	[Serializable]
 	public Vector3 Scale
 	{
 		get => scale;
@@ -32,6 +34,7 @@ public class Transform
 
 	private Quaternion rotation = Quaternion.Identity;
 
+	[Serializable]
 	public Quaternion Rotation
 	{
 		get => rotation;
