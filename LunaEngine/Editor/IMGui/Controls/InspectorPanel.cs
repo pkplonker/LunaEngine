@@ -25,10 +25,10 @@ public class InspectorPanel : IPanel
 		if (controller.SelectedGameObject != null)
 		{
 			var go = controller.SelectedGameObject;
-			ImGui.Text(go.Name);
-			ImGui.Text(go.Guid.ToString());
-			ImGuiHelpers.UndoableCheckbox("Enabled", () => go.Enabled, val => go.Enabled = val,
+			ImGuiHelpers.UndoableCheckbox("##Enabled", () => go.Enabled, val => go.Enabled = val,
 				"GameObject Enabled Toggled");
+			ImGui.SameLine();
+			ImGui.Text($"{go.Name}: {go.Guid.ToString()}");
 			ImGuiHelpers.DrawTransform(go.Transform);
 
 			foreach (var component in go.GetComponents())

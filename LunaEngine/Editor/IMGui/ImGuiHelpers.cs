@@ -132,12 +132,17 @@ public static class ImGuiHelpers
 		ImGui.PopStyleColor();
 	}
 
-	public static void UndoableCheckbox(string label, Func<bool> getValue, Action<bool> setValue, string actionDescription)
+	public static void UndoableCheckbox(string label, Func<bool> getValue, Action<bool> setValue,
+		string actionDescription)
 	{
 		bool originalValue = getValue();
 		bool currentValue = originalValue;
 
-		ImGui.Text(label);
+		if (!label.StartsWith("##"))
+		{
+			ImGui.Text(label);
+		}
+
 		ImGui.SameLine();
 		if (ImGui.Checkbox($"##{label}", ref currentValue))
 		{
@@ -146,14 +151,12 @@ public static class ImGuiHelpers
 			if (originalValue != currentValue)
 			{
 				UndoManager.RecordAndPerform(new Memento(
-					() => setValue(currentValue),   
+					() => setValue(currentValue),
 					() => setValue(originalValue),
 					actionDescription));
 			}
 		}
 	}
-
-
 
 	private static Dictionary<string, float> sliderStates = new Dictionary<string, float>();
 
