@@ -5,8 +5,10 @@ namespace Engine;
 [Serializable]
 public class Material
 {
-	[Serializable]
-	public Shader? Shader { get; set; }
+	[Serializable] public Shader? Shader { get; set; }
+	[Serializable] public Texture? Texture { get; set; }
+
+	public int TestProp { get; set; } = 22;
 
 	public Material(Shader? shader)
 	{

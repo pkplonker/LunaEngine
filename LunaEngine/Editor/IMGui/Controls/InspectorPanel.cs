@@ -25,7 +25,7 @@ public class InspectorPanel : IPanel
 		if (controller.SelectedGameObject != null)
 		{
 			var go = controller.SelectedGameObject;
-			ImGuiHelpers.UndoableCheckbox("##Enabled", () => go.Enabled, val => go.Enabled = val,
+			UndoableImGui.UndoableCheckbox("##Enabled", () => go.Enabled, val => go.Enabled = val,
 				"GameObject Enabled Toggled");
 			ImGui.SameLine();
 			ImGui.Text($"{go.Name}: {go.Guid.ToString()}");
@@ -66,11 +66,10 @@ public class InspectorPanel : IPanel
 		}
 	}
 
-	private static void ProcessMember(IComponent component, MemberInfo member)
+	private static void ProcessMember(object component, MemberInfo member)
 	{
 		var attribute = member.GetCustomAttribute<SerializableAttribute>();
-		if (member is FieldInfo && (attribute == null ||
-		                            attribute.Show == false))
+		if (member is FieldInfo && (attribute == null || !attribute.Show))
 		{
 			return;
 		}
@@ -78,16 +77,7 @@ public class InspectorPanel : IPanel
 		object propertyValue = null;
 		if (member is PropertyInfo propertyInfo)
 		{
-			if (propertyInfo.GetGetMethod(true)?.IsPublic == true)
-			{
-				if ((attribute?.Show ?? true) == false)
-				{
-					return;
-				}
-			}
-
-			var typeAttribute = propertyInfo.PropertyType.GetCustomAttribute<SerializableAttribute>();
-			if (typeAttribute != null && typeAttribute.Show == false)
+			if (propertyInfo.GetGetMethod(true)?.IsPublic != true && (attribute?.Show ?? true) == false)
 			{
 				return;
 			}
@@ -96,15 +86,134 @@ public class InspectorPanel : IPanel
 		}
 		else if (member is FieldInfo fieldInfo)
 		{
-			var typeAttribute = fieldInfo.FieldType.GetCustomAttribute<SerializableAttribute>();
-			if (typeAttribute != null && typeAttribute.Show == false)
-			{
-				return;
-			}
-
 			propertyValue = fieldInfo.GetValue(component);
 		}
 
-		ImGui.Text($"{attribute?.CustomName ?? member.Name} : {propertyValue}");
+		//if (propertyValue == null) return;
+
+		Type memberType = null;
+		if (member is PropertyInfo propInfo)
+		{
+			memberType = propInfo.PropertyType;
+		}
+		else if (member is FieldInfo fieldInfo)
+		{
+			memberType = fieldInfo.FieldType;
+		}
+
+		var typeAttribute = memberType?.GetCustomAttribute<SerializableAttribute>();
+		if (propertyValue != null && typeAttribute != null)
+		{
+			if (typeAttribute.Show)
+			{
+				ProcessClassAttribute(propertyValue, memberType);
+			}
+
+			return;
+		}
+
+		DrawProperty(component, member, attribute, propertyValue);
+	}
+
+	private static object GetValue(object component, MemberInfo member)
+	{
+		switch (member)
+		{
+			case PropertyInfo property:
+				return property.GetValue(component);
+			case FieldInfo field:
+				return field.GetValue(component);
+			default:
+				throw new InvalidOperationException("Unsupported member type.");
+		}
+	}
+
+	private static void SetValue(object component, MemberInfo member, object value)
+	{
+		switch (member)
+		{
+			case PropertyInfo property:
+				property.SetValue(component, value);
+				break;
+			case FieldInfo field:
+				field.SetValue(component, value);
+				break;
+			default:
+				throw new InvalidOperationException("Unsupported member type.");
+		}
+	}
+
+	private static void DrawProperty(object component, MemberInfo member, SerializableAttribute? attribute,
+		object? propertyValue)
+	{
+		var name = attribute?.CustomName ?? member.Name;
+
+		var actionDescription = $"Modifying {name}";
+		if (propertyValue is int intValue)
+		{
+			Func<int> getter = () => (int) GetValue(component, member);
+			Action<int> setter = (newValue) => SetValue(component, member, newValue);
+			UndoableImGui.UndoableDragInt(getter, setter, name, actionDescription);
+		}
+		else if (propertyValue is float floatValue)
+		{
+			Func<float> getter = () => (float) GetValue(component, member);
+			Action<float> setter = (newValue) => SetValue(component, member, newValue);
+			UndoableImGui.UndoableDragFloat(getter, setter, name, actionDescription);
+		}
+		else if (propertyValue is bool boolValue)
+		{
+			Func<bool> getter = () => (bool) GetValue(component, member);
+			Action<bool> setter = (newValue) => SetValue(component, member, newValue);
+			UndoableImGui.UndoableCheckbox(name, getter, setter, actionDescription);
+		}
+		else if (propertyValue is string stringValue)
+		{
+			Func<string> getter = () => (string) GetValue(component, member);
+			Action<string> setter = (newValue) => SetValue(component, member, newValue);
+			UndoableImGui.UndoableTextBox(name, getter, setter, actionDescription);
+		}
+		else if (propertyValue is Vector2 vector2Value)
+		{
+			// Example: ImGui.InputFloat2($"{member.Name}", ref vector2Value);
+		}
+		else if (propertyValue is Vector3 vector3Value)
+		{
+			// Example: ImGui.InputFloat3($"{member.Name}", ref vector3Value);
+		}
+		else if (propertyValue is Vector4 vector4Value)
+		{
+			// Example: ImGui.InputFloat4($"{member.Name}", ref vector4Value);
+		}
+		else
+		{
+			ImGui.Text($"{name} : {propertyValue}");
+		}
+	}
+
+	private static void ProcessClassAttribute(object propertyValue, Type memberType)
+	{
+		ImGui.Indent();
+
+		ImGui.PushStyleColor(ImGuiCol.Header, new Vector4(0.2f, 0.2f, 0.2f, 1.0f));
+
+		if (ImGui.CollapsingHeader(memberType.Name, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.Framed))
+		{
+			foreach (PropertyInfo property in memberType.GetProperties(BindingFlags.Instance | BindingFlags.Public |
+			                                                           BindingFlags.NonPublic))
+			{
+				ProcessMember(propertyValue, property);
+			}
+
+			foreach (FieldInfo field in memberType.GetFields(BindingFlags.Instance | BindingFlags.Public |
+			                                                 BindingFlags.NonPublic))
+			{
+				ProcessMember(propertyValue, field);
+			}
+		}
+
+		ImGui.PopStyleColor();
+
+		ImGui.Unindent();
 	}
 }

@@ -25,7 +25,7 @@ public class EditorCameraPanel : IPanel
 
 		var originalAspect = editorCamera.AspectRatio;
 
-		ImGuiHelpers.UndoableButton("Reset",
+		UndoableImGui.UndoableButton("Reset",
 			new Memento(() => { editorCamera.Reset(); },
 				() =>
 				{
