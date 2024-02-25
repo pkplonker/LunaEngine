@@ -7,6 +7,7 @@ public class TestComponent : Component
 	public float PropGetSet { get; set; } = 20;
 	public Material Mat { get; set; } = new Material(null);
 	[Serializable] public int PropInspectable = 40;
+	[Serializable] public bool boollt = true;
 
 	[Serializable] public double FieldInspectable = 60;
 

@@ -7,6 +7,7 @@ public static class UndoableImGui
 {
 	private static Dictionary<string, float> sliderStates = new();
 	private static Dictionary<string, string> textStates = new();
+	private const float DEFAULT_LABEL_WIDTH = 400;
 
 	public static bool UndoableButton(string label, Memento memento)
 	{
@@ -46,12 +47,12 @@ public static class UndoableImGui
 		}
 	}
 
-	private static string DrawLabel(string label)
+	private static string DrawLabel(string label, float width)
 	{
 		if (!label.StartsWith("##"))
 		{
 			ImGui.Text(label);
-			ImGui.SameLine();
+			ImGui.SameLine(width);
 		}
 
 		label = label.Insert(0, "##");
@@ -66,10 +67,13 @@ public static class UndoableImGui
 		string actionDescription,
 		float min = float.MinValue,
 		float max = float.MaxValue,
-		float speed = 1.0f)
+		float speed = 1.0f,
+		float labelWidth = DEFAULT_LABEL_WIDTH,
+		bool stretch = true)
 	{
 		float value = getValue();
-		label = DrawLabel(label);
+		label = DrawLabel(label, labelWidth);
+		if (stretch) ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X);
 		bool valueChanged = ImGui.DragFloat(label, ref value, speed, min, max);
 		HandleSliderState(label, value);
 		HandleValueChange(valueChanged, label, value, setValue, actionDescription);
@@ -82,10 +86,13 @@ public static class UndoableImGui
 		string actionDescription,
 		int min = int.MinValue,
 		int max = int.MaxValue,
-		float speed = 1.0f)
+		float speed = 1.0f,
+		float labelWidth = DEFAULT_LABEL_WIDTH,
+		bool stretch = true)
 	{
 		int value = getValue();
-		label = DrawLabel(label);
+		label = DrawLabel(label, labelWidth);
+		if (stretch) ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X);
 		bool valueChanged = ImGui.DragInt(label, ref value, speed, min, max);
 		HandleSliderState(label, value);
 		HandleValueChange(valueChanged, label, value, setValue, actionDescription);
@@ -143,7 +150,7 @@ public static class UndoableImGui
 			sliderStates[label] = ConvertToFloat(value);
 		}
 	}
-	
+
 	private static void HandleTextState(string label, string value)
 	{
 		if (ImGui.IsItemActivated())
@@ -181,16 +188,20 @@ public static class UndoableImGui
 		Func<string> getValue,
 		Action<string> setValue,
 		string actionDescription,
-		int bufferSize = 100)
+		int bufferSize = 100,
+		float labelWidth = DEFAULT_LABEL_WIDTH,
+		bool stretch = true)
 	{
 		string value = getValue();
-		label = DrawLabel(label);
+		label = DrawLabel(label, labelWidth);
+
 		byte[] buffer = Encoding.UTF8.GetBytes(value.PadRight(bufferSize, '\0'));
 
+		if (stretch) ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X);
 		bool valueChanged = ImGui.InputText(label, buffer, (uint) buffer.Length);
-		string newValue = Encoding.UTF8.GetString(buffer).TrimEnd('\0');
-		HandleTextState(label,value);
-		HandleValueChange(valueChanged, label, newValue, setValue, actionDescription);
 
+		string newValue = Encoding.UTF8.GetString(buffer).TrimEnd('\0');
+		HandleTextState(label, value);
+		HandleValueChange(valueChanged, label, newValue, setValue, actionDescription);
 	}
 }

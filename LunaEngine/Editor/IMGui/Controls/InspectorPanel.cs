@@ -195,7 +195,7 @@ public class InspectorPanel : IPanel
 	{
 		ImGui.Indent();
 
-		ImGui.PushStyleColor(ImGuiCol.Header, new Vector4(0.2f, 0.2f, 0.2f, 1.0f));
+		ImGui.PushStyleColor(ImGuiCol.Header, new Vector4(0.4f, 0.4f, 0.4f, 1.0f));
 
 		if (ImGui.CollapsingHeader(memberType.Name, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.Framed))
 		{
