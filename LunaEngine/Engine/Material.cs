@@ -2,9 +2,11 @@
 
 namespace Engine;
 
+[Serializable]
 public class Material
 {
-	public Shader? Shader;
+	[Serializable]
+	public Shader? Shader { get; set; }
 
 	public Material(Shader? shader)
 	{

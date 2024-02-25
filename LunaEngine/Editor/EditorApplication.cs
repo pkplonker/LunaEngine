@@ -143,23 +143,28 @@ namespace Editor
 		private void PerformTest()
 		{
 			var go = new GameObject();
-			go.AddComponent<RotateComponent>();
-			go.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestSphere.obj"));
-			go.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
-			go.Name = "Sphere";
-
-			var go2 = new GameObject();
-			go2.AddComponent<RotateComponent>();
-			go2.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestCube.obj"));
-			go2.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
-			go2.Transform.Position += new Vector3(1, 0, 0);
-			go2.Name = "Cube";
-
-			var plane = new GameObject();
-			plane.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/plane.fbx"));
-			plane.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
-			plane.Transform.Position += new Vector3(0, 3, 0);
-			plane.Name = "Plane";
+			go.AddComponent<TestComponent>();
+			go.Name = "Test";
+			
+			// var go = new GameObject();
+			// go.AddComponent<RotateComponent>();
+			// go.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestSphere.obj"));
+			// go.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
+			// go.AddComponent<TestComponent>();
+			// go.Name = "Sphere";
+			//
+			// var go2 = new GameObject();
+			// go2.AddComponent<RotateComponent>();
+			// go2.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestCube.obj"));
+			// go2.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
+			// go2.Transform.Position += new Vector3(1, 0, 0);
+			// go2.Name = "Cube";
+			//
+			// var plane = new GameObject();
+			// plane.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/plane.fbx"));
+			// plane.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
+			// plane.Transform.Position += new Vector3(0, 3, 0);
+			// plane.Name = "Plane";
 		}
 
 		private void OnRender(double deltaTime)

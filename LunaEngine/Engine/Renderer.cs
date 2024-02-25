@@ -48,7 +48,7 @@ public class Renderer
 				var renderPassData = new RenderPassData(view.Value, projection.Value);
 				foreach (var go in SceneController.ActiveScene.GameObjects)
 				{
-					var component = go.GetComponent<IRenderableComponent>();
+					var component = go?.GetComponent<IRenderableComponent>();
 					component?.Render(this, renderPassData);
 				}
 

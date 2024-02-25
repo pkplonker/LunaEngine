@@ -1,5 +1,7 @@
-﻿namespace Engine;
+﻿using System.Collections;
 
+namespace Engine;
+[Serializable(false)]
 public class GameObject
 {
 	public string Name = "DEFAULT_NAME";
@@ -16,7 +18,7 @@ public class GameObject
 
 	public T? GetComponent<T>() where T : class?, IComponent
 	{
-		return components.First(x => x is T) as T ?? null;
+		return components?.FirstOrDefault(x => x is T) as T ?? null;
 	}
 
 	public bool TryGetComponent<T>(out IComponent? component) where T : class?, IComponent
@@ -73,4 +75,6 @@ public class GameObject
 			component.Update();
 		}
 	}
+
+	public HashSet<IComponent> GetComponents() => components;
 }
