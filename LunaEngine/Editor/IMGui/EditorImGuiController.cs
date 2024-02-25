@@ -37,7 +37,7 @@ public class EditorImGuiController : IDisposable
 		this.editorCamera = editorCamera;
 	}
 
-	public GameObject SelectedGameObject { get; set; }
+	public GameObject? SelectedGameObject { get; set; }
 
 	private void CreateControls(EditorCamera editorCamera)
 	{

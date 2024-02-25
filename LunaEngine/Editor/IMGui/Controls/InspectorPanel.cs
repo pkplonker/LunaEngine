@@ -21,11 +21,14 @@ public class InspectorPanel : IPanel
 		ImGui.Begin(PanelName);
 		if (controller.SelectedGameObject != null)
 		{
-			ImGui.Text(controller.SelectedGameObject?.Name);
-			ImGui.Text(controller.SelectedGameObject?.Guid.ToString());
-
+			var go = controller.SelectedGameObject;
+			ImGui.Text(go.Name);
+			ImGui.Text(go.Guid.ToString());
+			ImGuiHelpers.DrawTransform(go.Transform);
 		}
 
 		ImGui.End();
 	}
+
+	
 }
