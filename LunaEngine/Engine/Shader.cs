@@ -19,8 +19,10 @@ public class Shader : IDisposable
 		this.fragmentPath = fragmentPath;
 		this.vertexPath = vertexPath;
 		this.GUID = vertexPath + fragmentPath;
+
 		uint vertex = LoadShader(ShaderType.VertexShader, vertexPath);
 		uint fragment = LoadShader(ShaderType.FragmentShader, fragmentPath);
+
 		handle = this.gl.CreateProgram();
 		this.gl.AttachShader(handle, vertex);
 		this.gl.AttachShader(handle, fragment);
@@ -103,6 +105,11 @@ public class Shader : IDisposable
 	private uint LoadShader(ShaderType type, string path)
 	{
 		path = path.MakeAbsolute();
+		if (!File.Exists(path))
+		{
+			throw new FileNotFoundException(path);
+		}
+
 		string src = File.ReadAllText(path);
 		uint handle = gl.CreateShader(type);
 		gl.ShaderSource(handle, src);

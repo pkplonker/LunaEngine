@@ -5,7 +5,7 @@ namespace Engine;
 
 public class MeshRenderer : IRenderableComponent
 {
-	public Shader Shader { get; set; }
+	public Material Material { get; set; }
 
 	public MeshRenderer(GameObject gameObject)
 	{
@@ -14,11 +14,13 @@ public class MeshRenderer : IRenderableComponent
 
 	public void Render(Renderer renderer, RenderPassData data)
 	{
-		renderer.UseShader(Shader);
-		
-		this.Shader.SetUniform("uView", data.View);
-		this.Shader.SetUniform("uProjection", data.Projection);
-		this.Shader.SetUniform("uModel", GameObject.Transform.ModelMatrix);
+		if (Material == null)
+		{
+			//Console.WriteLine("Trying to render without valid shader");
+			return;
+		}
+
+		renderer.UseMaterial(Material, data, GameObject.Transform.ModelMatrix);
 
 		var mf = GameObject.GetComponent<MeshFilter>();
 		if (mf != null)

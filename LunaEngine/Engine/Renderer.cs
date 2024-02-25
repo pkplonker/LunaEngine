@@ -20,6 +20,7 @@ public class Renderer
 	private IWindow window;
 	public Vector2D<float> ViewportSize;
 	public Vector2D<int> WindowSize;
+	private Shader lastShader;
 	public int DrawCalls { get; private set; }
 	public int MaterialsUsed { get; private set; }
 	public int ShadersUsed { get; private set; }
@@ -32,6 +33,7 @@ public class Renderer
 		{
 			DrawCalls = 0;
 			ShadersUsed = 0;
+			lastShader = null;
 			MaterialsUsed = 0;
 			Triangles = 0;
 			Vertices = 0;
@@ -128,17 +130,30 @@ public class Renderer
 	public unsafe void DrawElements(PrimitiveType primativeType, uint indicesLength, DrawElementsType elementsTyp)
 	{
 		DrawCalls++;
-		Triangles += indicesLength/3;
+		Triangles += indicesLength / 3;
 		Vertices += indicesLength;
 
 		Gl.DrawElements(primativeType, indicesLength, elementsTyp, null);
 	}
 
-
-	public void UseShader(Shader shader)
+	public void UseShader(Shader? shader)
 	{
-		ShadersUsed++;
-		shader?.Use();
+		if (shader == null) return;
+
+		if (lastShader != shader)
+		{
+			ShadersUsed++;
+			shader?.Use();
+			lastShader = shader;
+		}
+	}
+
+	public void UseMaterial(Material material, RenderPassData data, Matrix4x4 modelMatrix)
+	{
+		if (material == null || material.Shader == null) return;
+		var shader = material.Shader;
+		MaterialsUsed++;
+		material.Use(this, data, modelMatrix);
 	}
 }
 

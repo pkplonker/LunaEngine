@@ -56,7 +56,7 @@ namespace Editor
 
 		private void OnClose()
 		{
-            imGuiController.Close();
+			imGuiController.Close();
 			renderer.Close();
 		}
 
@@ -88,10 +88,10 @@ namespace Editor
 				}
 				finally
 				{
-					window.Dispose();
+					window?.Dispose();
 				}
-				Settings.Settings.SaveSettings();
 
+				Settings.Settings.SaveSettings();
 			}
 		}
 
@@ -145,13 +145,21 @@ namespace Editor
 			var go = new GameObject();
 			go.AddComponent<RotateComponent>();
 			go.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestSphere.obj"));
-			go.AddComponent<MeshRenderer>().Shader = ResourceManager.GetShader();
+			go.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
+			go.Name = "Sphere";
 
 			var go2 = new GameObject();
 			go2.AddComponent<RotateComponent>();
 			go2.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestCube.obj"));
-			go2.AddComponent<MeshRenderer>().Shader = ResourceManager.GetShader();
+			go2.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
 			go2.Transform.Position += new Vector3(1, 0, 0);
+			go2.Name = "Cube";
+
+			var plane = new GameObject();
+			plane.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/plane.fbx"));
+			plane.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
+			plane.Transform.Position += new Vector3(0, 3, 0);
+			plane.Name = "Plane";
 		}
 
 		private void OnRender(double deltaTime)

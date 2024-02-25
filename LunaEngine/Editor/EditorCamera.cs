@@ -58,27 +58,35 @@ public class EditorCamera : ICamera
 		float deltaTime = Time.DeltaTime;
 
 		float speed = Settings.GetSetting("Key Speed", settingsCategory,true, 10f);
+		float speedMultiplier = Settings.GetSetting("Speed Multiplier", settingsCategory,true, 5f);
+
 		float mouseSensitivityX = Settings.GetSetting("Mouse Sensitivity X", settingsCategory,true, 0.3f);
 		float mouseSensitivityY = Settings.GetSetting("Mouse Sensitivity Y", settingsCategory,true, 0.5f);
 
+		float currentSpeed = speed;
+		if (input.IsKeyPressed(InputController.Key.ShiftLeft))
+		{
+			currentSpeed *= speedMultiplier;
+		}
+		Console.WriteLine(currentSpeed);
 		if (input.IsKeyPressed(InputController.Key.W))
 		{
-			Transform.Position += Transform.Forward * speed * deltaTime;
+			Transform.Position += Transform.Forward * currentSpeed * deltaTime;
 		}
 
 		if (input.IsKeyPressed(InputController.Key.S))
 		{
-			Transform.Position += Transform.Back * speed * deltaTime;
+			Transform.Position += Transform.Back * currentSpeed * deltaTime;
 		}
 
 		if (input.IsKeyPressed(InputController.Key.A))
 		{
-			Transform.Position += Transform.Right * speed * deltaTime;
+			Transform.Position += Transform.Right * currentSpeed * deltaTime;
 		}
 
 		if (input.IsKeyPressed(InputController.Key.D))
 		{
-			Transform.Position += Transform.Left * speed * deltaTime;
+			Transform.Position += Transform.Left * currentSpeed * deltaTime;
 		}
 
 		var mouseDelta = input.GetMouseDelta();

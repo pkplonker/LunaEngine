@@ -43,7 +43,29 @@ public static class ResourceManager
 	public static Shader? GetShader(string vertPath = DEFAULT_VERT, string fragPath = DEFAULT_FRAG)
 	{
 		var key = vertPath + fragPath;
-		shaders.TryAdd(key, new Shader(gl, vertPath, fragPath));
-		return shaders[key];
+		
+		if (shaders.ContainsKey(key))
+		{
+			return shaders[key];
+		}
+
+		Shader shader;
+
+		try
+		{
+			shader = new Shader(gl, vertPath, fragPath);
+		}
+		catch (Exception e)
+		{
+			Console.WriteLine($"Failed to generate shader{e}");
+			return null;
+		}
+
+		if (shader != null)
+		{
+			shaders.TryAdd(key, shader);
+		}
+
+		return shader;
 	}
 }
