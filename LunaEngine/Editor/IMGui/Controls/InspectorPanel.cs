@@ -25,6 +25,8 @@ public class InspectorPanel : IPanel
 			var go = controller.SelectedGameObject;
 			ImGui.Text(go.Name);
 			ImGui.Text(go.Guid.ToString());
+			ImGuiHelpers.UndoableCheckbox("Enabled", () => go.Enabled, val => go.Enabled = val,
+				"GameObject Enabled Toggled");
 			ImGuiHelpers.DrawTransform(go.Transform);
 		}
 

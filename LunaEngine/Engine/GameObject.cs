@@ -7,7 +7,7 @@ public class GameObject
 	private HashSet<IComponent> components = new();
 	public Transform Transform { get; private set; }
 	public static event Action<GameObject> GameObjectCreated;
-
+	public bool Enabled = true;
 	public GameObject()
 	{
 		Transform = new Transform();
@@ -67,6 +67,7 @@ public class GameObject
 
 	public void Update()
 	{
+		if (!Enabled) return;
 		foreach (var component in components)
 		{
 			component.Update();

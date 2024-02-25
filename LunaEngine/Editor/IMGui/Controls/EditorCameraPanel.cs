@@ -32,8 +32,8 @@ public class EditorCameraPanel : IPanel
 					editorCamera.Transform.Rotation = originalRotation;
 					editorCamera.Transform.Position = originalPos;
 					editorCamera.AspectRatio = originalAspect;
-				},"Reset Editor Camera"));
-		//ImGuiHelpers.DrawTransform(editorCamera.Transform);
+				}, "Reset Editor Camera"));
+		ImGuiHelpers.DrawTransform(editorCamera.Transform);
 		ImGui.End();
 	}
 }

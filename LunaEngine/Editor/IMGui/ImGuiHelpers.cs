@@ -25,7 +25,7 @@ public static class ImGuiHelpers
 		float labelWidth = ImGui.CalcTextSize("Rotation").X + 20.0f;
 		float totalWidth = ImGui.GetContentRegionAvail().X - labelWidth;
 		float fieldWidth = totalWidth / 3.0f - ImGui.GetStyle().ItemInnerSpacing.X;
-		
+
 		ImGui.Text("Position");
 		ImGui.SameLine(labelWidth);
 		ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(1, 0, 0, 1));
@@ -130,8 +130,30 @@ public static class ImGuiHelpers
 			$"##ScaleZ{trans.GetHashCode()}",
 			"Change Scale Z");
 		ImGui.PopStyleColor();
-
 	}
+
+	public static void UndoableCheckbox(string label, Func<bool> getValue, Action<bool> setValue, string actionDescription)
+	{
+		bool originalValue = getValue();
+		bool currentValue = originalValue;
+
+		ImGui.Text(label);
+		ImGui.SameLine();
+		if (ImGui.Checkbox($"##{label}", ref currentValue))
+		{
+			setValue(currentValue);
+
+			if (originalValue != currentValue)
+			{
+				UndoManager.RecordAndPerform(new Memento(
+					() => setValue(currentValue),   
+					() => setValue(originalValue),
+					actionDescription));
+			}
+		}
+	}
+
+
 
 	private static Dictionary<string, float> sliderStates = new Dictionary<string, float>();
 
