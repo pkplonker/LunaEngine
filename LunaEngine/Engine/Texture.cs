@@ -5,6 +5,7 @@ using File = System.IO.File;
 
 namespace Engine;
 
+[Serializable]
 public class Texture : IDisposable
 {
 	private uint handle;

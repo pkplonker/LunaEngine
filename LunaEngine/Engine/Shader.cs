@@ -4,6 +4,7 @@ using Silk.NET.OpenGL;
 
 namespace Engine;
 
+[Serializable]
 public class Shader : IDisposable
 {
 	private uint handle;
@@ -15,9 +16,9 @@ public class Shader : IDisposable
 
 	public Shader(GL gl, string vertexPath, string fragmentPath)
 	{
-		this.gl = gl;
 		this.fragmentPath = fragmentPath;
 		this.vertexPath = vertexPath;
+		this.gl = gl;
 		this.GUID = vertexPath + fragmentPath;
 
 		uint vertex = LoadShader(ShaderType.VertexShader, vertexPath);

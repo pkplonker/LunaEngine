@@ -142,16 +142,15 @@ namespace Editor
 
 		private void PerformTest()
 		{
-			var go = new GameObject();
-			go.AddComponent<TestComponent>();
-			go.Name = "Test";
+			var test = new GameObject();
+			test.AddComponent<TestComponent>();
+			test.Name = "Test";
 			
-			// var go = new GameObject();
-			// go.AddComponent<RotateComponent>();
-			// go.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestSphere.obj"));
-			// go.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
-			// go.AddComponent<TestComponent>();
-			// go.Name = "Sphere";
+			var go = new GameObject();
+			go.AddComponent<RotateComponent>();
+			go.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestSphere.obj"));
+			go.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
+			go.Name = "Sphere";
 			//
 			// var go2 = new GameObject();
 			// go2.AddComponent<RotateComponent>();
