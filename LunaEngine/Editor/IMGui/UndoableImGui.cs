@@ -128,7 +128,6 @@ public static class UndoableImGui
 			setValue(value);
 		}
 
-		Console.WriteLine(ImGui.IsItemActive());
 		if (ImGui.IsItemDeactivatedAfterEdit())
 		{
 			string originalVal = textStates.ContainsKey(label) ? textStates[label] : value;

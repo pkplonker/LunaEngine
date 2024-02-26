@@ -69,6 +69,10 @@ public class InspectorPanel : IPanel
 	private static void ProcessMember(object component, MemberInfo member)
 	{
 		var attribute = member.GetCustomAttribute<SerializableAttribute>();
+		if (member.Name == "GUID")
+		{
+			Console.WriteLine(member.Name);
+		}
 		if (member is FieldInfo && (attribute == null || !attribute.Show))
 		{
 			return;
@@ -77,7 +81,7 @@ public class InspectorPanel : IPanel
 		object propertyValue = null;
 		if (member is PropertyInfo propertyInfo)
 		{
-			if (propertyInfo.GetGetMethod(true)?.IsPublic != true && (attribute?.Show ?? true) == false)
+			if (propertyInfo.GetGetMethod(true)?.IsPublic != true || (attribute?.Show ?? true) == false)
 			{
 				return;
 			}
@@ -88,7 +92,7 @@ public class InspectorPanel : IPanel
 		{
 			propertyValue = fieldInfo.GetValue(component);
 		}
-
+		
 		//if (propertyValue == null) return;
 
 		Type memberType = null;
