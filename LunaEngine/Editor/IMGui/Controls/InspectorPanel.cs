@@ -69,10 +69,7 @@ public class InspectorPanel : IPanel
 	private static void ProcessMember(object component, MemberInfo member)
 	{
 		var attribute = member.GetCustomAttribute<SerializableAttribute>();
-		if (member.Name == "GUID")
-		{
-			Console.WriteLine(member.Name);
-		}
+		
 		if (member is FieldInfo && (attribute == null || !attribute.Show))
 		{
 			return;
@@ -111,6 +108,7 @@ public class InspectorPanel : IPanel
 			if (typeAttribute.Show)
 			{
 				ProcessClassAttribute(propertyValue, memberType);
+				return;
 			}
 
 			return;

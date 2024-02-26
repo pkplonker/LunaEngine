@@ -12,14 +12,14 @@ public class Shader : IDisposable
 	private Dictionary<string, int> uniformDict = new();
 	public string vertexPath { get; private set; }
 	public string fragmentPath { get; private set; }
-	public string GUID { get; private set; }
+	[Serializable(false)]
+	public Guid guid { get; private set; } = Guid.NewGuid();
 
 	public Shader(GL gl, string vertexPath, string fragmentPath)
 	{
 		this.fragmentPath = fragmentPath;
 		this.vertexPath = vertexPath;
 		this.gl = gl;
-		this.GUID = vertexPath + fragmentPath;
 
 		uint vertex = LoadShader(ShaderType.VertexShader, vertexPath);
 		uint fragment = LoadShader(ShaderType.FragmentShader, fragmentPath);

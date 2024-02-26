@@ -22,8 +22,30 @@ public static class ResourceManager
 
 	public static Texture? GetTexture(string path)
 	{
-		textures.TryAdd(path, new Texture(gl, path));
-		return textures[path];
+		
+		if (textures.ContainsKey(path))
+		{
+			return textures[path];
+		}
+
+		Texture texture;
+
+		try
+		{
+			texture = new Texture(gl, path);
+		}
+		catch (Exception e)
+		{
+			Console.WriteLine($"Failed to generate texture{e}");
+			return null;
+		}
+
+		if (texture != null)
+		{
+			textures.TryAdd(path, texture);
+		}
+
+		return texture;
 	}
 
 	public static Mesh? GetMesh(string path)

@@ -152,6 +152,7 @@ public class Renderer
 	{
 		if (material == null || material.Shader == null) return;
 		var shader = material.Shader;
+		UseShader(shader);
 		MaterialsUsed++;
 		material.Use(this, data, modelMatrix);
 	}

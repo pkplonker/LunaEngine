@@ -1,13 +1,28 @@
 ﻿using System.Numerics;
+using Silk.NET.OpenGL;
 
 namespace Engine;
 
 [Serializable]
 public class Material
 {
-	[Serializable] public Shader? Shader { get; set; }
-	[Serializable] public Texture? Texture { get; set; }
+	public enum TextureType
+	{
+		Albedo,
+		Normal,
+		Metallic,
+		Roughness,
+		AO
+	}
 
+	[Serializable] public Shader? Shader { get; set; }
+	[Serializable] public Texture? Albedo { get; set; }
+	[Serializable] public Texture? Normal { get; set; }
+	[Serializable] public Texture? Metallic { get; set; }
+	[Serializable] public Texture? Roughness { get; set; }
+	[Serializable] public Texture? AO { get; set; }
+
+	[Serializable(false)] public Guid GUID { get; private set; } = Guid.NewGuid();
 	public int TestProp { get; set; } = 22;
 
 	public Material(Shader? shader)
@@ -19,8 +34,22 @@ public class Material
 	{
 		if (Shader == null || renderer == null) return;
 		renderer.UseShader(Shader);
+		BindTexture(Albedo, Material.TextureType.Albedo);
+		BindTexture(Normal, Material.TextureType.Normal);
+		BindTexture(Metallic, Material.TextureType.Metallic);
+		BindTexture(Roughness, Material.TextureType.Roughness);
+		BindTexture(AO, Material.TextureType.AO);
+
 		Shader.SetUniform("uView", data.View);
 		Shader.SetUniform("uProjection", data.Projection);
 		Shader.SetUniform("uModel", modelMatrix);
+	}
+
+	private void BindTexture(Texture? texture, Material.TextureType textureType)
+	{
+		if (texture == null) return;
+		var textureUnit = (int) textureType;
+		texture?.Bind(TextureUnit.Texture0 + textureUnit);
+		Shader.SetUniform("uAlbedo", textureUnit);
 	}
 }

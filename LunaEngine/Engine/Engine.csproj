@@ -55,6 +55,12 @@
       <None Update="Resources\Shaders\gridv.glsl">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Resources\Shaders\PBRFragment.glsl">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\Shaders\PBRVertex.glsl">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>

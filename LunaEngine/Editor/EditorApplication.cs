@@ -88,7 +88,14 @@ namespace Editor
 				}
 				finally
 				{
-					window?.Dispose();
+					try
+					{
+						window?.Dispose();
+					}
+					catch (Exception e)
+					{
+						Console.WriteLine("Failed to dispose");
+					}
 				}
 
 				Settings.Settings.SaveSettings();
@@ -142,14 +149,30 @@ namespace Editor
 
 		private void PerformTest()
 		{
-			var test = new GameObject();
-			test.AddComponent<TestComponent>();
-			test.Name = "Test";
+			// var test = new GameObject();
+			// test.AddComponent<TestComponent>();
+			// test.Name = "Test";
 			
 			var go = new GameObject();
 			go.AddComponent<RotateComponent>();
 			go.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestSphere.obj"));
-			go.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
+			go.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader(@"/resources/shaders/PBRVertex.glsl",@"/resources/shaders/PBRFragment.glsl"));
+			var Albedo = ResourceManager.GetTexture(@"/resources/textures/test.png");
+			var Normal = ResourceManager.GetTexture(@"/resources/textures/test.png");
+			var Metallic = ResourceManager.GetTexture(@"/resources/textures/test.png");
+			var Roughness = ResourceManager.GetTexture(@"/resources/textures/test.png");
+			var AO = ResourceManager.GetTexture(@"/resources/textures/test.png");
+
+			go.GetComponent<MeshRenderer>().Material.Albedo =
+				ResourceManager.GetTexture(@"/resources/textures/test.png");
+			go.GetComponent<MeshRenderer>().Material.Normal =
+				ResourceManager.GetTexture(@"/resources/textures/test.png");
+			go.GetComponent<MeshRenderer>().Material.Metallic =
+				ResourceManager.GetTexture(@"/resources/textures/test.png");
+			go.GetComponent<MeshRenderer>().Material.Roughness =
+				ResourceManager.GetTexture(@"/resources/textures/test.png");
+			go.GetComponent<MeshRenderer>().Material.AO =
+				ResourceManager.GetTexture(@"/resources/textures/test.png");
 			go.Name = "Sphere";
 			//
 			// var go2 = new GameObject();

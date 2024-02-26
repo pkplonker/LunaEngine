@@ -8,17 +8,17 @@ namespace Engine;
 [Serializable]
 public class Texture : IDisposable
 {
+
+
 	private uint handle;
 	private GL gl;
 
 	public string Path { get; set; }
-	public TextureType Type { get; }
 
-	public unsafe Texture(GL gl, string path, TextureType type = TextureType.None)
+	public unsafe Texture(GL gl, string path)
 	{
 		this.gl = gl;
 		Path = path;
-		Type = type;
 		handle = this.gl.GenTexture();
 		Bind();
 

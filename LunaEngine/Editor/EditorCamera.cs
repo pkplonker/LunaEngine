@@ -68,7 +68,6 @@ public class EditorCamera : ICamera
 		{
 			currentSpeed *= speedMultiplier;
 		}
-		Console.WriteLine(currentSpeed);
 		if (input.IsKeyPressed(InputController.Key.W))
 		{
 			Transform.Position += Transform.Forward * currentSpeed * deltaTime;
