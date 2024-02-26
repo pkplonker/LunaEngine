@@ -152,28 +152,26 @@ namespace Editor
 			// var test = new GameObject();
 			// test.AddComponent<TestComponent>();
 			// test.Name = "Test";
-			
+
 			var go = new GameObject();
 			go.AddComponent<RotateComponent>();
-			go.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestSphere.obj"));
-			go.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader(@"/resources/shaders/PBRVertex.glsl",@"/resources/shaders/PBRFragment.glsl"));
-			var Albedo = ResourceManager.GetTexture(@"/resources/textures/test.png");
-			var Normal = ResourceManager.GetTexture(@"/resources/textures/test.png");
-			var Metallic = ResourceManager.GetTexture(@"/resources/textures/test.png");
-			var Roughness = ResourceManager.GetTexture(@"/resources/textures/test.png");
-			var AO = ResourceManager.GetTexture(@"/resources/textures/test.png");
-
+			go.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestCube.obj"));
+			go.AddComponent<MeshRenderer>().Material = new Material(
+				ResourceManager.GetShader(@"/resources/shaders/PBRVertex.glsl",
+					@"/resources/shaders/PBRFragment.glsl"));
+			
 			go.GetComponent<MeshRenderer>().Material.Albedo =
-				ResourceManager.GetTexture(@"/resources/textures/test.png");
+				ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
 			go.GetComponent<MeshRenderer>().Material.Normal =
-				ResourceManager.GetTexture(@"/resources/textures/test.png");
+				ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
 			go.GetComponent<MeshRenderer>().Material.Metallic =
-				ResourceManager.GetTexture(@"/resources/textures/test.png");
+				ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
 			go.GetComponent<MeshRenderer>().Material.Roughness =
-				ResourceManager.GetTexture(@"/resources/textures/test.png");
+				ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
 			go.GetComponent<MeshRenderer>().Material.AO =
-				ResourceManager.GetTexture(@"/resources/textures/test.png");
+				ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
 			go.Name = "Sphere";
+			
 			//
 			// var go2 = new GameObject();
 			// go2.AddComponent<RotateComponent>();

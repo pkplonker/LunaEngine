@@ -1,7 +1,10 @@
 ﻿using System.Numerics;
 using System.Reflection;
+using System.Text;
 using Engine;
 using ImGuiNET;
+using Silk.NET.SDL;
+using Renderer = Engine.Renderer;
 using SerializableAttribute = Engine.SerializableAttribute;
 
 namespace Editor.Controls;
@@ -9,6 +12,7 @@ namespace Editor.Controls;
 public class InspectorPanel : IPanel
 {
 	private readonly EditorImGuiController controller;
+	private Renderer renderer;
 	public static event Action<IPanel> RegisterPanel;
 
 	public InspectorPanel(EditorImGuiController controller)
@@ -21,6 +25,7 @@ public class InspectorPanel : IPanel
 
 	public void Draw(Renderer renderer)
 	{
+		this.renderer = renderer;
 		ImGui.Begin(PanelName);
 		if (controller.SelectedGameObject != null)
 		{
@@ -66,10 +71,10 @@ public class InspectorPanel : IPanel
 		}
 	}
 
-	private static void ProcessMember(object component, MemberInfo member)
+	private void ProcessMember(object component, MemberInfo member)
 	{
 		var attribute = member.GetCustomAttribute<SerializableAttribute>();
-		
+
 		if (member is FieldInfo && (attribute == null || !attribute.Show))
 		{
 			return;
@@ -89,7 +94,7 @@ public class InspectorPanel : IPanel
 		{
 			propertyValue = fieldInfo.GetValue(component);
 		}
-		
+
 		//if (propertyValue == null) return;
 
 		Type memberType = null;
@@ -107,14 +112,21 @@ public class InspectorPanel : IPanel
 		{
 			if (typeAttribute.Show)
 			{
-				ProcessClassAttribute(propertyValue, memberType);
+				ProcessClassAttribute(propertyValue, memberType, member.Name);
 				return;
 			}
 
 			return;
 		}
 
-		DrawProperty(component, member, attribute, propertyValue);
+		try
+		{
+			DrawProperty(component, member, attribute, propertyValue);
+		}
+		catch (Exception e)
+		{
+			Console.WriteLine(e);
+		}
 	}
 
 	private static object GetValue(object component, MemberInfo member)
@@ -145,10 +157,95 @@ public class InspectorPanel : IPanel
 		}
 	}
 
-	private static void DrawProperty(object component, MemberInfo member, SerializableAttribute? attribute,
+	private Dictionary<string, string> nameCache = new Dictionary<string, string>();
+
+	private string GetFormattedName(string camelCaseName)
+	{
+		if (string.IsNullOrEmpty(camelCaseName))
+		{
+			return camelCaseName;
+		}
+
+		// Check if the name is already processed and stored in the cache
+		if (nameCache.TryGetValue(camelCaseName, out string formattedName))
+		{
+			return formattedName;
+		}
+
+		// Process the camelCase name to create a formatted name
+		formattedName = ConvertCamelCaseToProperCase(camelCaseName);
+
+		// Store the formatted name in the cache for future use
+		nameCache[camelCaseName] = formattedName;
+
+		return formattedName;
+	}
+
+	private static string ConvertCamelCaseToProperCase(string name)
+	{
+		if (string.IsNullOrEmpty(name))
+			return name;
+		if (name == name.ToUpper()) return name;
+		var result = new StringBuilder();
+		result.Append(char.ToUpper(name[0]));
+
+		for (var i = 1; i < name.Length; i++)
+		{
+			if (char.IsUpper(name[i]))
+			{
+				result.Append(' ');
+			}
+
+			result.Append(name[i]);
+		}
+
+		return result.ToString();
+	}
+
+	private void DrawProperty(object component, MemberInfo member, SerializableAttribute? attribute,
 		object? propertyValue)
 	{
-		var name = attribute?.CustomName ?? member.Name;
+		var customEditorAttr = member.GetCustomAttribute<CustomEditorAttribute>();
+		var name = ConvertCamelCaseToProperCase(attribute?.CustomName ?? member.Name);
+		if (customEditorAttr != null)
+		{
+			if (customEditorAttr.ShowName)
+			{
+				ImGui.Text(name);
+			}
+
+			switch (customEditorAttr.EditorType)
+			{
+				case Type t when t == typeof(TextureImageCustomEditor):
+					uint textureId;
+
+					if (member is PropertyInfo propertyInfo)
+					{
+						textureId = (uint) propertyInfo.GetValue(component);
+					}
+					else if (member is FieldInfo fieldInfo)
+					{
+						textureId = (uint) fieldInfo.GetValue(component);
+					}
+					else
+					{
+						throw new InvalidCastException($"Failed to cast {typeof(MemberInfo)}");
+					}
+
+					int size = 200;
+
+					var editorInstance = (iCustomEditor) Activator.CreateInstance(
+						customEditorAttr.EditorType,
+						new object[] {textureId, size, size});
+
+					editorInstance.Draw(renderer);
+					break;
+				default:
+					throw new InvalidOperationException("Unsupported editor type");
+			}
+
+			return;
+		}
 
 		var actionDescription = $"Modifying {name}";
 		if (propertyValue is int intValue)
@@ -193,13 +290,15 @@ public class InspectorPanel : IPanel
 		}
 	}
 
-	private static void ProcessClassAttribute(object propertyValue, Type memberType)
+	private void ProcessClassAttribute(object propertyValue, Type memberType, string memberName)
 	{
 		ImGui.Indent();
 
 		ImGui.PushStyleColor(ImGuiCol.Header, new Vector4(0.4f, 0.4f, 0.4f, 1.0f));
 
-		if (ImGui.CollapsingHeader(memberType.Name, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.Framed))
+		var upperName = ConvertCamelCaseToProperCase(memberName);
+		var shownname = upperName == memberType.Name ? upperName : $"{memberType.Name} - {upperName}";
+		if (ImGui.CollapsingHeader(shownname, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.Framed))
 		{
 			foreach (PropertyInfo property in memberType.GetProperties(BindingFlags.Instance | BindingFlags.Public |
 			                                                           BindingFlags.NonPublic))

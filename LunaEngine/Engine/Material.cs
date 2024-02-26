@@ -15,15 +15,18 @@ public class Material
 		AO
 	}
 
+	public int TestProp { get; set; } = 22;
+	public float TestProp2 { get; set; } = 99;
+	public bool TestProp3 { get; set; } = true;
+
+	[Serializable(false)] public Guid GUID { get; private set; } = Guid.NewGuid();
+
 	[Serializable] public Shader? Shader { get; set; }
 	[Serializable] public Texture? Albedo { get; set; }
 	[Serializable] public Texture? Normal { get; set; }
 	[Serializable] public Texture? Metallic { get; set; }
 	[Serializable] public Texture? Roughness { get; set; }
 	[Serializable] public Texture? AO { get; set; }
-
-	[Serializable(false)] public Guid GUID { get; private set; } = Guid.NewGuid();
-	public int TestProp { get; set; } = 22;
 
 	public Material(Shader? shader)
 	{

@@ -9,8 +9,10 @@ namespace Engine;
 public class Texture : IDisposable
 {
 
-
+	[Serializable]
+	[CustomEditor(typeof(TextureImageCustomEditor), showName:false)]
 	private uint handle;
+
 	private GL gl;
 
 	public string Path { get; set; }
@@ -23,8 +25,11 @@ public class Texture : IDisposable
 		Bind();
 
 		var img = ImageResult.FromMemory(File.ReadAllBytes(path.MakeAbsolute()), ColorComponents.RedGreenBlueAlpha);
-		gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, (uint) img.Width, (uint) img.Height, 0,
-			PixelFormat.Rgba, PixelType.UnsignedByte, null);
+		fixed (byte* ptr = img.Data)
+		{
+			gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) img.Width, 
+				(uint) img.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
+		}
 
 		SetParameters();
 	}
