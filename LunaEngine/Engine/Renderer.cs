@@ -88,6 +88,10 @@ public class Renderer
 
 			Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0,
 				TextureTarget.Texture2D, renderTexture.Handle, 0);
+			
+			Gl.Enable(GLEnum.CullFace);
+			Gl.CullFace(GLEnum.Back);
+			Gl.FrontFace(FrontFaceDirection.Ccw);
 		}
 	}
 
