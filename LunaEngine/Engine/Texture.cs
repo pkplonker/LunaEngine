@@ -1,4 +1,5 @@
-﻿using Silk.NET.Assimp;
+﻿using Editor.Controls;
+using Silk.NET.Assimp;
 using Silk.NET.OpenGL;
 using StbImageSharp;
 using File = System.IO.File;
@@ -11,7 +12,7 @@ public class Texture : IDisposable
 
 	[Serializable]
 	[CustomEditor(typeof(TextureImageCustomEditor), showName:false)]
-	private uint handle;
+	private uint textureHandle;
 
 	private GL gl;
 
@@ -21,7 +22,7 @@ public class Texture : IDisposable
 	{
 		this.gl = gl;
 		Path = path;
-		handle = this.gl.GenTexture();
+		textureHandle = this.gl.GenTexture();
 		Bind();
 
 		var img = ImageResult.FromMemory(File.ReadAllBytes(path.MakeAbsolute()), ColorComponents.RedGreenBlueAlpha);
@@ -49,11 +50,11 @@ public class Texture : IDisposable
 	public void Bind(TextureUnit textureSlot = TextureUnit.Texture0)
 	{
 		gl.ActiveTexture(textureSlot);
-		gl.BindTexture(TextureTarget.Texture2D, handle);
+		gl.BindTexture(TextureTarget.Texture2D, textureHandle);
 	}
 
 	public void Dispose()
 	{
-		gl.DeleteTexture(handle);
+		gl.DeleteTexture(textureHandle);
 	}
 }

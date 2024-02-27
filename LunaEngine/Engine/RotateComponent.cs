@@ -4,8 +4,10 @@ namespace Engine;
 
 public class RotateComponent : Component
 {
+	[Serializable]
+	private float rotationAmount = 1;
 	public RotateComponent(GameObject gameObject) : base(gameObject) { }
-	private const float rotationAmount = 1;
+
 	public override void Update()
 	{
 		float amount = rotationAmount*Time.DeltaTime;

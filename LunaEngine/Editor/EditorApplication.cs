@@ -160,17 +160,17 @@ namespace Editor
 				ResourceManager.GetShader(@"/resources/shaders/PBRVertex.glsl",
 					@"/resources/shaders/PBRFragment.glsl"));
 			
-			go.GetComponent<MeshRenderer>().Material.Albedo =
-				ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
+			// go.GetComponent<MeshRenderer>().Material.Albedo =
+			// 	ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
 			go.GetComponent<MeshRenderer>().Material.Normal =
-				ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
-			go.GetComponent<MeshRenderer>().Material.Metallic =
-				ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
-			go.GetComponent<MeshRenderer>().Material.Roughness =
-				ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
-			go.GetComponent<MeshRenderer>().Material.AO =
-				ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
-			go.Name = "Sphere";
+				null;
+			// go.GetComponent<MeshRenderer>().Material.Metallic =
+			// 	ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
+			// go.GetComponent<MeshRenderer>().Material.Roughness =
+			// 	ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
+			// go.GetComponent<MeshRenderer>().Material.AO =
+			// 	ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
+			// go.Name = "Sphere";
 			
 			//
 			// var go2 = new GameObject();
