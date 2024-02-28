@@ -5,7 +5,7 @@ namespace Engine;
 public class RotateComponent : Component
 {
 	[Serializable]
-	private float rotationAmount = 1;
+	private float rotationAmount = 0.35f;
 	public RotateComponent(GameObject gameObject) : base(gameObject) { }
 
 	public override void Update()

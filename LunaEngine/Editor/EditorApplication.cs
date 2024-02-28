@@ -160,8 +160,8 @@ namespace Editor
 				ResourceManager.GetShader(@"/resources/shaders/PBRVertex.glsl",
 					@"/resources/shaders/PBRFragment.glsl"));
 			
-			// go.GetComponent<MeshRenderer>().Material.Albedo =
-			// 	ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
+			go.GetComponent<MeshRenderer>().Material.Albedo =
+				ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
 			go.GetComponent<MeshRenderer>().Material.Normal =
 				null;
 			// go.GetComponent<MeshRenderer>().Material.Metallic =
