@@ -3,11 +3,11 @@ using Engine;
 
 namespace Editor;
 
-public static class CustomEditorHandler
+public static class CustomEditorLoader
 {
 	public static Dictionary<Type, Type> customEditors { get; private set; } = new();
 
-	static CustomEditorHandler()
+	static CustomEditorLoader()
 	{
 		foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
 		{

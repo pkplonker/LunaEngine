@@ -38,7 +38,7 @@ public class InspectorPanel : IPanel
 			{
 				try
 				{
-					propertyDrawer.DrawObject(component, 0);
+					propertyDrawer.DrawObject(component, 0, null);
 				}
 				catch (Exception e)
 				{

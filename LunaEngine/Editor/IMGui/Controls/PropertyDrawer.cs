@@ -1,23 +1,23 @@
 ﻿using System.Numerics;
 using System.Reflection;
-using System.Text;
 using Editor.Properties;
 using Engine;
 using ImGuiNET;
 using SerializableAttribute = Engine.SerializableAttribute;
-using Texture = Engine.Texture;
+
 namespace Editor.Controls;
 
 public class PropertyDrawer : IPropertyDrawer
 {
-	private Dictionary<string, string> nameCache = new Dictionary<string, string>();
 	private Renderer renderer;
 
 	public PropertyDrawer(Renderer renderer)
 	{
 		this.renderer = renderer;
 	}
-	public void DrawObject(object component, int depth, string? name = null)
+
+	public void DrawObject(object component, int depth, IPropertyDrawInterceptStrategy? interceptStrategy,
+		string? name = null)
 	{
 		var type = component.GetType();
 		if (depth > 0)
@@ -37,7 +37,7 @@ public class PropertyDrawer : IPropertyDrawer
 
 		if (ImGui.CollapsingHeader(name ?? type.Name, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.Framed))
 		{
-			ProcessProps(component, type, depth);
+			ProcessProps(component, type, depth, interceptStrategy);
 		}
 
 		if (depth > 0)
@@ -47,7 +47,7 @@ public class PropertyDrawer : IPropertyDrawer
 		}
 	}
 
-	private void ProcessProps(object component, Type type, int depth)
+	private void ProcessProps(object component, Type type, int depth, IPropertyDrawInterceptStrategy? interceptStrategy)
 	{
 		var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 		foreach (var memberInfo in type
@@ -63,12 +63,18 @@ public class PropertyDrawer : IPropertyDrawer
 				         };
 			         }))
 		{
-			ProcessMember(component, memberInfo, depth);
+			ProcessMember(component, memberInfo, depth, interceptStrategy);
 		}
 	}
 
-	private void ProcessMember(object component, IMemberAdapter memberInfo, int depth)
+	private void ProcessMember(object component, IMemberAdapter memberInfo, int depth,
+		IPropertyDrawInterceptStrategy? interceptStrategy)
 	{
+		if (interceptStrategy?.Draw(component, memberInfo, renderer) ?? false)
+		{
+			return;
+		}
+
 		var attribute = memberInfo.GetCustomAttribute<SerializableAttribute>();
 
 		if (memberInfo.GetMemberInfo() is FieldInfo && (attribute == null || !attribute.Show))
@@ -91,9 +97,18 @@ public class PropertyDrawer : IPropertyDrawer
 		if (propertyValue != null && typeAttribute != null)
 		{
 			if (!typeAttribute.Show) return;
-			var upperName = GetFormattedName(memberInfo.Name);
-			var shownname = upperName == memberType.Name ? upperName : $"{memberType.Name} - {upperName}";
-			DrawObject(memberInfo.GetValue(component), ++depth, shownname );
+
+			if (CustomEditorLoader.TryGetEditor(memberType, out var customEditor))
+			{
+				customEditor.Draw(memberInfo, propertyValue, renderer, depth);
+			}
+			else
+			{
+				var upperName = CamelCaseRenamer.GetFormattedName(memberInfo.Name);
+				var shownName = upperName == memberType.Name ? upperName : $"{memberType.Name} - {upperName}";
+				DrawObject(memberInfo.GetValue(component), ++depth, interceptStrategy, shownName);
+			}
+
 			return;
 		}
 
@@ -106,93 +121,34 @@ public class PropertyDrawer : IPropertyDrawer
 			Console.WriteLine(e);
 		}
 	}
-	
-	private string GetFormattedName(string camelCaseName)
-	{
-		if (string.IsNullOrEmpty(camelCaseName))
-		{
-			return camelCaseName;
-		}
-
-		if (nameCache.TryGetValue(camelCaseName, out string formattedName))
-		{
-			return formattedName;
-		}
-
-		formattedName = ConvertCamelCaseToProperCase(camelCaseName);
-
-		nameCache[camelCaseName] = formattedName;
-
-		return formattedName;
-	}
-
-	private static string ConvertCamelCaseToProperCase(string name)
-	{
-		if (string.IsNullOrEmpty(name))
-			return name;
-		if (name == name.ToUpper()) return name;
-		var result = new StringBuilder();
-		result.Append(char.ToUpper(name[0]));
-
-		for (var i = 1; i < name.Length; i++)
-		{
-			if (char.IsUpper(name[i]))
-			{
-				result.Append(' ');
-			}
-
-			result.Append(name[i]);
-		}
-
-		return result.ToString();
-	}
 
 	private void DrawProperty(object component, IMemberAdapter member, SerializableAttribute? attribute,
 		object? propertyValue)
 	{
 		if (member == null) return;
-		var customEditorAttr = member.GetCustomAttribute<CustomEditorAttribute>();
-		var name = GetFormattedName(attribute?.CustomName ?? member.Name);
+		if (HasCustomEditor(component, member, attribute))
+		{
+			return;
+		}
+
+		var name = CamelCaseRenamer.GetFormattedName(attribute?.CustomName ?? member.Name);
 
 		var value = member.GetValue(component);
 
 		if (value == null)
 		{
-			ImGui.Text(name);
-			ImGui.SameLine();
-			if (ImGui.Button($"Add##{member?.GetHashCode()}")) { }
-
-			return;
-		}
-
-		if (customEditorAttr != null)
-		{
-			if (customEditorAttr.ShowName)
-			{
-				ImGui.Text(name);
-			}
-
-			switch (customEditorAttr.EditorType)
-			{
-				case Type t when t == typeof(TextureImageCustomEditor):
-
-					int size = 200;
-
-					var editorInstance = (ICustomEditor) Activator.CreateInstance(
-						customEditorAttr.EditorType,
-						new object[] {value, size, size});
-
-					editorInstance.Draw(renderer);
-					break;
-				default:
-					throw new InvalidOperationException("Unsupported editor type");
-			}
-
+			ImGuiHelpers.AddProperty(member);
 			return;
 		}
 
 		var actionDescription = $"Modifying {name}";
 
+		PerformDraw(component, member, propertyValue, name, actionDescription);
+	}
+
+	private static void PerformDraw(object component, IMemberAdapter member, object? propertyValue, string name,
+		string actionDescription)
+	{
 		if (propertyValue is int intValue)
 		{
 			Func<int> getter = () => (int) member.GetValue(component);
@@ -233,5 +189,10 @@ public class PropertyDrawer : IPropertyDrawer
 		{
 			ImGui.Text($"{name} : {propertyValue}");
 		}
+	}
+
+	private bool HasCustomEditor(object component, IMemberAdapter member, SerializableAttribute? attribute)
+	{
+		return false;
 	}
 }

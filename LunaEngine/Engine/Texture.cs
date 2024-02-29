@@ -1,6 +1,4 @@
-﻿using Editor.Controls;
-using Silk.NET.Assimp;
-using Silk.NET.OpenGL;
+﻿using Silk.NET.OpenGL;
 using StbImageSharp;
 using File = System.IO.File;
 
@@ -9,12 +7,10 @@ namespace Engine;
 [Serializable]
 public class Texture : IDisposable
 {
-
-	[Serializable]
-	[CustomEditor(typeof(TextureImageCustomEditor), showName:false)]
 	private uint textureHandle;
-
 	private GL gl;
+	public uint Width { get; private set; }
+	public uint Height { get; private set; }
 
 	public string Path { get; set; }
 
@@ -25,10 +21,12 @@ public class Texture : IDisposable
 		textureHandle = this.gl.GenTexture();
 		Bind();
 
-		var img = ImageResult.FromMemory(File.ReadAllBytes(path.MakeAbsolute()), ColorComponents.RedGreenBlueAlpha);
+		var img = ImageResult.FromMemory(File.ReadAllBytes(path.MakeProjectAbsolute()), ColorComponents.RedGreenBlueAlpha);
 		fixed (byte* ptr = img.Data)
 		{
-			gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) img.Width, 
+			Width = (uint) img.Width;
+			Height = (uint) img.Height;
+			gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) img.Width,
 				(uint) img.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
 		}
 

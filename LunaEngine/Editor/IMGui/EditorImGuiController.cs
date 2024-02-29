@@ -8,6 +8,7 @@ using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
+using MessageBox = Editor.Controls.MessageBox;
 
 namespace Editor;
 
@@ -109,7 +110,10 @@ public class EditorImGuiController : IDisposable
 
 				ImGui.EndMenu();
 			}
-
+			if (ImGui.MenuItem("Add Scene"))
+			{
+				//LoadScene();
+			}
 			if (ImGui.MenuItem("Settings"))
 			{
 				//openSettings = true;

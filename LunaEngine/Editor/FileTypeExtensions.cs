@@ -1,19 +1,32 @@
-﻿using Newtonsoft.Json;
+﻿using Engine;
+using Newtonsoft.Json;
 
 namespace Editor;
 
-public static class FileExtensions
+public static class FileTypeExtensions
 {
 	private static Dictionary<string, IEnumerable<string>> extentionsDict = new();
 
-	static FileExtensions()
+	static FileTypeExtensions()
 	{
-		LoadExtensionsFromFile("path_to_your_json_file.json");
+		LoadExtensionsFromFile(FileExtensions.MakeAbsolute("resources/extensions.json"));
 	}
 
-	public static IEnumerable<string> GetExtensions(Type type) => extentionsDict.TryGetValue(nameof(type), out var extensions)
-		? extensions
-		: Enumerable.Empty<string>();
+	public static IEnumerable<string> GetExtensions(Type? type)
+	{
+		if (type == null)
+		{
+			return Enumerable.Empty<string>();
+		}
+
+		var name = type.Name.Split('.')[^1];
+		if (extentionsDict.TryGetValue(name, out var extensions))
+		{
+			return extensions;
+		}
+
+		return Enumerable.Empty<string>();
+	}
 
 	private static void LoadExtensionsFromFile(string filePath)
 	{

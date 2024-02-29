@@ -105,7 +105,7 @@ public class Shader : IDisposable
 
 	private uint LoadShader(ShaderType type, string path)
 	{
-		path = path.MakeAbsolute();
+		path = path.MakeProjectAbsolute();
 		if (!File.Exists(path))
 		{
 			throw new FileNotFoundException(path);

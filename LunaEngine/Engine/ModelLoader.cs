@@ -10,7 +10,7 @@ public class ModelLoader
 {
 	public static unsafe Mesh? LoadModel(GL gl, string path)
 	{
-		path = path.MakeAbsolute();
+		path = path.MakeProjectAbsolute();
 		var assimp = Silk.NET.Assimp.Assimp.GetApi();
 		if (!System.IO.File.Exists(path))
 		{

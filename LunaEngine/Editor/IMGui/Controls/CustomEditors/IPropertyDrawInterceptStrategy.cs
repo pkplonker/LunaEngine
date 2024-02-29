@@ -1,8 +1,9 @@
 ﻿using Editor.Properties;
+using Engine;
 
 namespace Editor.Controls;
 
-public interface IInterceptStrategy
+public interface IPropertyDrawInterceptStrategy
 {
-	bool Draw(IMemberAdapter member);
+	bool Draw(object component, IMemberAdapter member, Renderer renderer);
 }

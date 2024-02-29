@@ -9,6 +9,7 @@ using Silk.NET.Maths;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
 using StbImageSharp;
+using MessageBox = Editor.Controls.MessageBox;
 
 namespace Editor
 {
@@ -155,15 +156,15 @@ namespace Editor
 
 			var go = new GameObject();
 			go.AddComponent<RotateComponent>();
-			go.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestCube.obj"));
+			go.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/models/TestCube.obj"));
 			go.AddComponent<MeshRenderer>().Material = new Material(
-				ResourceManager.GetShader(@"/resources/shaders/PBRVertex.glsl",
-					@"/resources/shaders/PBRFragment.glsl"));
+				ResourceManager.GetShader(@"/shaders/PBRVertex.glsl",
+					@"shaders/PBRFragment.glsl"));
 			
 			go.GetComponent<MeshRenderer>().Material.Albedo =
-				ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
+				ResourceManager.GetTexture(@"textures/uvgrid.png");
 			go.GetComponent<MeshRenderer>().Material.Normal =
-				null;
+				ResourceManager.GetTexture(@"/textures/uvgrid.png");
 			// go.GetComponent<MeshRenderer>().Material.Metallic =
 			// 	ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
 			// go.GetComponent<MeshRenderer>().Material.Roughness =
@@ -171,7 +172,7 @@ namespace Editor
 			// go.GetComponent<MeshRenderer>().Material.AO =
 			// 	ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
 			// go.Name = "Sphere";
-			
+
 			//
 			// var go2 = new GameObject();
 			// go2.AddComponent<RotateComponent>();

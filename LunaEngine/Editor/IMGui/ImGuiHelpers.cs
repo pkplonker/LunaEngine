@@ -1,8 +1,9 @@
 ﻿using System.Numerics;
 using Editor.Controls;
+using Editor.Properties;
 using Engine;
 using ImGuiNET;
-
+using System.Windows.Forms;
 namespace Editor;
 
 public static class ImGuiHelpers
@@ -118,5 +119,13 @@ public static class ImGuiHelpers
 			$"##ScaleZ{trans.GetHashCode()}",
 			"Change Scale Z", stretch: false);
 		ImGui.PopStyleColor();
+	}
+	
+	public static void AddProperty(IMemberAdapter member)
+	{
+		if (ImGui.Button($"Add {member.Name}"))
+		{
+			var result = FileDialog.OpenFileDialog(FileDialog.FilterByType(member.MemberType) );
+		}
 	}
 }

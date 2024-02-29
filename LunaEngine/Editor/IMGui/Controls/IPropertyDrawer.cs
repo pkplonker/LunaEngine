@@ -2,5 +2,5 @@
 
 public interface IPropertyDrawer
 {
-	void DrawObject(object component, int depth, string? name = null);
+	void DrawObject(object component, int depth,IPropertyDrawInterceptStrategy? interceptStrategy, string? name = null);
 }
