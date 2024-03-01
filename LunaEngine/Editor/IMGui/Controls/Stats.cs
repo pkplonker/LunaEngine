@@ -10,11 +10,9 @@ public class Stats : IPanel
 
 	private double lastUpdateTime = 0;
 	private string formattedTotalTime = "00:00:00";
-	public static event Action<IPanel> RegisterPanel;
 
 	public Stats()
 	{
-		RegisterPanel?.Invoke(this);
 	}
 
 	private readonly float[] fpsBuffer = new float[100];
@@ -48,7 +46,7 @@ public class Stats : IPanel
 		ImGui.Text($"Shaders: {renderer.ShadersUsed}");
 		ImGui.Separator();
 		ImGui.Text($"Window Size: {renderer.WindowSize.X} x {renderer.WindowSize.Y}");
-		ImGui.Text($"Viewport Size: {(int) renderer.ViewportSize.X} x {(int) renderer.ViewportSize.Y}");
+		ImGui.Text($"Viewport Size: {(int) renderer.viewportRenderTarget.ViewportSize.X} x {(int) renderer.viewportRenderTarget.ViewportSize.Y}");
 
 		ImGui.PlotLines(string.Empty, ref fpsBuffer[0], fpsBuffer.Length, 0, null, 0, fpsBuffer.Max(),
 			new System.Numerics.Vector2(-1, 80));

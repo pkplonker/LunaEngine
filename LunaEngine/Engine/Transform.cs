@@ -83,4 +83,9 @@ public class Transform
 		Rotation = Quaternion.Normalize(yaw * Rotation * pitch);
 
 	}
+
+	public void Translate(Vector3 translation)
+	{
+		position += translation;
+	}
 }

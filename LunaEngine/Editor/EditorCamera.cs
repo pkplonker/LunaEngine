@@ -7,13 +7,12 @@ namespace Engine;
 
 public class EditorCamera : ICamera
 {
-	public Transform Transform;
+	public Transform Transform = null;
 	public float AspectRatio { get; set; }
 
-	private float zoom = 45f;
-	private readonly Vector3 startPosition;
-	private readonly float startAspectRatio;
-	private const string settingsCategory = "Editor Camera";
+	protected float zoom = 45f;
+	protected readonly Vector3 startPosition;
+	protected readonly float startAspectRatio;
 	public EditorCamera(Vector3 position, float aspectRatio)
 	{
 		startPosition = position;
@@ -52,44 +51,8 @@ public class EditorCamera : ICamera
 	public Matrix4x4 GetProjection() =>
 		Matrix4x4.CreatePerspectiveFieldOfView(MathExtensions.DegreesToRadians(zoom), AspectRatio, 0.1f, 100.0f);
 
-	public void Update(InputController input)
+	public virtual void Update(InputController input)
 	{
-		if (!input.IsMousePressed(InputController.MouseButton.Right)) return;
-		float deltaTime = Time.DeltaTime;
-
-		float speed = Settings.GetSetting("Key Speed", settingsCategory,true, 10f);
-		float speedMultiplier = Settings.GetSetting("Speed Multiplier", settingsCategory,true, 5f);
-
-		float mouseSensitivityX = Settings.GetSetting("Mouse Sensitivity X", settingsCategory,true, 0.3f);
-		float mouseSensitivityY = Settings.GetSetting("Mouse Sensitivity Y", settingsCategory,true, 0.5f);
-
-		float currentSpeed = speed;
-		if (input.IsKeyPressed(InputController.Key.ShiftLeft))
-		{
-			currentSpeed *= speedMultiplier;
-		}
-		if (input.IsKeyPressed(InputController.Key.W))
-		{
-			Transform.Position += Transform.Forward * currentSpeed * deltaTime;
-		}
-
-		if (input.IsKeyPressed(InputController.Key.S))
-		{
-			Transform.Position += Transform.Back * currentSpeed * deltaTime;
-		}
-
-		if (input.IsKeyPressed(InputController.Key.A))
-		{
-			Transform.Position += Transform.Right * currentSpeed * deltaTime;
-		}
-
-		if (input.IsKeyPressed(InputController.Key.D))
-		{
-			Transform.Position += Transform.Left * currentSpeed * deltaTime;
-		}
-
-		var mouseDelta = input.GetMouseDelta();
-		Transform.Rotate(-mouseDelta.X * mouseSensitivityX * Time.DeltaTime,
-			mouseDelta.Y * mouseSensitivityY * Time.DeltaTime);
+	
 	}
 }

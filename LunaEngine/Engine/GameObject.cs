@@ -8,12 +8,10 @@ public class GameObject
 	public Guid Guid = System.Guid.NewGuid();
 	private HashSet<IComponent> components = new();
 	public Transform Transform { get; private set; }
-	public static event Action<GameObject> GameObjectCreated;
 	public bool Enabled = true;
 	public GameObject()
 	{
 		Transform = new Transform();
-		GameObjectCreated?.Invoke(this);
 	}
 
 	public T? GetComponent<T>() where T : class?, IComponent

@@ -1,4 +1,5 @@
-﻿using ImGuiNET;
+﻿using Engine;
+using ImGuiNET;
 using Renderer = Engine.Renderer;
 
 namespace Editor.Controls;
@@ -7,12 +8,18 @@ public class InspectorPanel : IPanel
 {
 	private readonly EditorImGuiController controller;
 	private PropertyDrawer propertyDrawer;
-	public static event Action<IPanel> RegisterPanel;
+	private GameObject? selectedGameObject;
+	public event Action<object> SelectionChanged;
 
 	public InspectorPanel(EditorImGuiController controller)
 	{
-		RegisterPanel?.Invoke(this);
-		this.controller = controller;
+		controller.GameObjectSelectionChanged += ControllerOnGameObjectSelectionChanged;
+	}
+
+	private void ControllerOnGameObjectSelectionChanged(GameObject? obj)
+	{
+		selectedGameObject = obj;
+		SelectionChanged?.Invoke(obj);
 	}
 
 	public string PanelName { get; set; } = "Inspector";
@@ -25,9 +32,9 @@ public class InspectorPanel : IPanel
 		}
 
 		ImGui.Begin(PanelName);
-		if (controller.SelectedGameObject != null)
+		if (selectedGameObject != null)
 		{
-			var go = controller.SelectedGameObject;
+			var go = selectedGameObject;
 			UndoableImGui.UndoableCheckbox("##Enabled", () => go.Enabled, val => go.Enabled = val,
 				"GameObject Enabled Toggled");
 			ImGui.SameLine();

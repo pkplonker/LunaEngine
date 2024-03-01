@@ -38,7 +38,21 @@ public class EditorImGuiController : IDisposable
 		this.editorCamera = editorCamera;
 	}
 
-	public GameObject? SelectedGameObject { get; set; }
+	public event Action<GameObject?> GameObjectSelectionChanged;
+	private GameObject? selectedGameObject;
+
+	public GameObject? SelectedGameObject
+	{
+		get => selectedGameObject;
+		set
+		{
+			if (value != selectedGameObject)
+			{
+				selectedGameObject = value;
+				GameObjectSelectionChanged?.Invoke(SelectedGameObject);
+			}
+		}
+	}
 
 	private void CreateControls(EditorCamera editorCamera)
 	{
@@ -46,7 +60,9 @@ public class EditorImGuiController : IDisposable
 		controls.Add(new EditorCameraPanel(editorCamera), true);
 		controls.Add(new UndoRedoPanel(), true);
 		controls.Add(new HierarchyPanel(this), true);
-		controls.Add(new InspectorPanel(this), true);
+		var inspector = new InspectorPanel(this);
+		controls.Add(inspector, true);
+		controls.Add(new ObjectPreviewPanel(inspector), true);
 	}
 
 	public void ImGuiControllerUpdate(float deltaTime)
@@ -61,12 +77,12 @@ public class EditorImGuiController : IDisposable
 		var size = ImGui.GetContentRegionAvail();
 		if (size != previousSize)
 		{
-			renderer.SetRenderTargetSize(new Vector2D<float>(size.X, size.Y));
+			renderer.SetRenderTargetSize(renderer.viewportRenderTarget, new Vector2D<float>(size.X, size.Y));
 			previousSize = size;
 		}
 
-
-		ImGui.Image((IntPtr) renderer.renderTexture.Handle, new Vector2(size.X, size.Y), Vector2.Zero, Vector2.One,
+		ImGui.Image(renderer.viewportRenderTarget.GetHandlePtr(), new Vector2(size.X, size.Y), Vector2.Zero,
+			Vector2.One,
 			Vector4.One,
 			Vector4.Zero);
 		ImGui.End();
@@ -110,10 +126,12 @@ public class EditorImGuiController : IDisposable
 
 				ImGui.EndMenu();
 			}
+
 			if (ImGui.MenuItem("Add Scene"))
 			{
 				//LoadScene();
 			}
+
 			if (ImGui.MenuItem("Settings"))
 			{
 				//openSettings = true;

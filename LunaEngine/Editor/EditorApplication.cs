@@ -125,7 +125,8 @@ namespace Editor
 							() => { window.Close(); });
 					}
 				};
-				editorCamera = new EditorCamera(Vector3.UnitZ * 6, WINDOW_SIZE_X / (float) WINDOW_SIZE_Y);
+				editorCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, WINDOW_SIZE_X / (float) WINDOW_SIZE_Y);
+				SceneController.ActiveScene.ActiveCamera = editorCamera;
 				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera);
 				try
 				{
@@ -154,16 +155,35 @@ namespace Editor
 			// test.AddComponent<TestComponent>();
 			// test.Name = "Test";
 
-			var go = new GameObject();
-			go.AddComponent<RotateComponent>();
-			go.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/models/TestCube.obj"));
-			go.AddComponent<MeshRenderer>().Material = new Material(
+			var cube = new GameObject();
+			cube.Name = "Cube";
+
+			SceneController.ActiveScene.AddGameObject(cube);
+			cube.AddComponent<RotateComponent>();
+			cube.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/models/TestCube.obj"));
+			cube.AddComponent<MeshRenderer>().Material = new Material(
 				ResourceManager.GetShader(@"/shaders/PBRVertex.glsl",
 					@"shaders/PBRFragment.glsl"));
-			
-			go.GetComponent<MeshRenderer>().Material.Albedo =
+
+			cube.GetComponent<MeshRenderer>().Material.Albedo =
 				ResourceManager.GetTexture(@"textures/uvgrid.png");
-			go.GetComponent<MeshRenderer>().Material.Normal =
+			cube.GetComponent<MeshRenderer>().Material.Normal =
+				ResourceManager.GetTexture(@"/textures/uvgrid.png");
+
+			var sphere = new GameObject();
+			sphere.Name = "Sphere";
+
+			SceneController.ActiveScene.AddGameObject(sphere);
+			sphere.AddComponent<RotateComponent>();
+			sphere.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/models/TestSphere.obj"));
+			sphere.Transform.Translate(new Vector3(1.5f,0,0));
+			sphere.AddComponent<MeshRenderer>().Material = new Material(
+				ResourceManager.GetShader(@"/shaders/PBRVertex.glsl",
+					@"shaders/PBRFragment.glsl"));
+
+			sphere.GetComponent<MeshRenderer>().Material.Albedo =
+				ResourceManager.GetTexture(@"textures/uvgrid.png");
+			sphere.GetComponent<MeshRenderer>().Material.Normal =
 				ResourceManager.GetTexture(@"/textures/uvgrid.png");
 			// go.GetComponent<MeshRenderer>().Material.Metallic =
 			// 	ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
@@ -190,7 +210,7 @@ namespace Editor
 
 		private void OnRender(double deltaTime)
 		{
-			renderer?.RenderUpdate(editorCamera?.GetView(), editorCamera?.GetProjection());
+			renderer?.RenderUpdate();
 			imGuiController?.Render();
 		}
 
