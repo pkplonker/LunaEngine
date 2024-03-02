@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Numerics;
+using Engine.Logging;
 using ImGuiNET;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
@@ -65,6 +66,11 @@ public class Renderer
 		Gl.Enable(EnableCap.DepthTest);
 		Gl.ClearColor(clearColor);
 		Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
+		if (scene.ActiveCamera == null)
+		{
+			Debug.Warning("No active camera to render with");
+			return;
+		}
 		var renderPassData = new RenderPassData(scene.ActiveCamera.GetView(), scene.ActiveCamera.GetProjection());
 		foreach (var component in scene.GameObjects.Select(go => go?.GetComponent<IRenderableComponent>()))
 		{
