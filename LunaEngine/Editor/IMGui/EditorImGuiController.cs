@@ -24,6 +24,8 @@ public class EditorImGuiController : IDisposable
 	public event Action<GameObject?> GameObjectSelectionChanged;
 	private GameObject? selectedGameObject;
 	private readonly InputController inputController;
+	private SettingsPanel settingsPanel;
+	private bool openSettings;
 
 	public GameObject? SelectedGameObject
 	{
@@ -67,6 +69,7 @@ public class EditorImGuiController : IDisposable
 		controls.Add(inspector, true);
 		controls.Add(new ObjectPreviewPanel(inspector, inputController), true);
 		controls.Add(new ImGuiLoggerWindow(), true);
+		settingsPanel = new SettingsPanel();
 	}
 
 	public void ImGuiControllerUpdate(float deltaTime)
@@ -153,7 +156,7 @@ public class EditorImGuiController : IDisposable
 
 			if (ImGui.MenuItem("Settings"))
 			{
-				//openSettings = true;
+				openSettings = true;
 			}
 
 			if (ImGui.BeginMenu("Windows"))
@@ -173,6 +176,13 @@ public class EditorImGuiController : IDisposable
 			if (ImGui.BeginMenu("Tools")) { }
 
 			ImGui.EndMainMenuBar();
+			
+			if (openSettings)
+			{
+				ImGui.OpenPopup("Settings");
+				openSettings = false;
+			}
+			settingsPanel.Draw(renderer);
 		}
 	}
 

@@ -67,7 +67,7 @@ namespace Editor
 
 		public void Start()
 		{
-			Settings.Settings.LoadSettings();
+			SettingsController.LoadSettings();
 
 			if (window != null)
 			{
@@ -104,7 +104,7 @@ namespace Editor
 					}
 				}
 
-				Settings.Settings.SaveSettings();
+				SettingsController.SaveSettings();
 			}
 		}
 
@@ -152,11 +152,7 @@ namespace Editor
 			{
 				throw new NullReferenceException($"{nameof(window)} cannot be null");
 			}
-
-			for (int i = 0; i < 50; i++)
-			{
-				Debug.Log($"Testing{i}");
-			}
+			
 
 			PerformTest();
 		}

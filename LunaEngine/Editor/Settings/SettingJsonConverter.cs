@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Editor.Settings;
+namespace Editor;
 
 public class SettingJsonConverter : JsonConverter
 {

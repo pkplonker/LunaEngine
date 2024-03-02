@@ -455,8 +455,6 @@ public class InputController
 	private void OnMouseWheel(IMouse device, ScrollWheel args)
 	{
 		MouseScroll?.Invoke(args.X, args.Y);
-		Debug.Log($"mouseMove {args.X} x {args.Y}");
-
 	}
 
 	private void OnMouseMove(IMouse device, Vector2 args)

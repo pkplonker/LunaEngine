@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using Editor;
-using Editor.Settings;
 using Silk.NET.Input;
 
 namespace Engine;

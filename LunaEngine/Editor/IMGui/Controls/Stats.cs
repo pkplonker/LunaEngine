@@ -1,6 +1,7 @@
 ﻿using Engine;
 using ImGuiNET;
 using System;
+using Engine.Logging;
 
 namespace Editor.Controls;
 
@@ -58,6 +59,7 @@ public class Stats : IPanel
 		ImGui.Separator();
 		ImGui.Text($"Mouse Pos: {inputController.GetMousePosition()}");
 		ImGui.Text($"Mouse Delta: {inputController.GetMouseDelta()}");
+	
 		ImGui.End();
 	}
 }

@@ -10,6 +10,7 @@ public class InspectorPanel : IPanel
 	private readonly EditorImGuiController controller;
 	private PropertyDrawer propertyDrawer;
 	private GameObject? selectedGameObject;
+	private float test;
 	public event Action<object> SelectionChanged;
 
 	public InspectorPanel(EditorImGuiController controller)
@@ -27,17 +28,19 @@ public class InspectorPanel : IPanel
 
 	public void Draw(Renderer renderer)
 	{
+		ImGui.Begin(PanelName);
+
 		if (propertyDrawer == null)
 		{
 			propertyDrawer = new PropertyDrawer(renderer);
 		}
 
-		ImGui.Begin(PanelName);
 		if (selectedGameObject != null)
 		{
 			var go = selectedGameObject;
-			UndoableImGui.UndoableCheckbox("##Enabled", () => go.Enabled, val => go.Enabled = val,
-				"GameObject Enabled Toggled");
+			UndoableImGui.UndoableCheckbox("##Enabled", "GameObject Enabled Toggled", () => go.Enabled,
+				val => go.Enabled = val
+			);
 			ImGui.SameLine();
 			ImGui.Text($"{go.Name}: {go.Guid.ToString()}");
 			ImGuiHelpers.DrawTransform(go.Transform);

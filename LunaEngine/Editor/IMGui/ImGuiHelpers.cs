@@ -4,6 +4,7 @@ using Editor.Properties;
 using Engine;
 using ImGuiNET;
 using System.Windows.Forms;
+
 namespace Editor;
 
 public static class ImGuiHelpers
@@ -22,10 +23,11 @@ public static class ImGuiHelpers
 		ImGui.SameLine();
 		ImGui.SetNextItemWidth(fieldWidth - ImGui.CalcTextSize("X").X);
 		UndoableImGui.UndoableDragFloat(
+			$"##PosX{trans.GetHashCode()}",
+			"Change Position X",
 			() => trans.Position.X,
 			value => trans.Position = new Vector3(value, trans.Position.Y, trans.Position.Z),
-			$"##PosX{trans.GetHashCode()}",
-			"Change Position X", stretch: false);
+			stretch: false);
 		ImGui.PopStyleColor();
 		ImGui.SameLine();
 		ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0, 1, 0, 1));
@@ -33,10 +35,11 @@ public static class ImGuiHelpers
 		ImGui.SameLine();
 		ImGui.SetNextItemWidth(fieldWidth - ImGui.CalcTextSize("Y").X);
 		UndoableImGui.UndoableDragFloat(
+			$"##PosY{trans.GetHashCode()}",
+			"Change Position Y",
 			() => trans.Position.Y,
 			value => trans.Position = new Vector3(trans.Position.X, value, trans.Position.Z),
-			$"##PosY{trans.GetHashCode()}",
-			"Change Position Y", stretch: false);
+			stretch: false);
 		ImGui.PopStyleColor();
 		ImGui.SameLine();
 		ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0, 0, 1, 1));
@@ -44,10 +47,11 @@ public static class ImGuiHelpers
 		ImGui.SameLine();
 		ImGui.SetNextItemWidth(fieldWidth - ImGui.CalcTextSize("Z").X);
 		UndoableImGui.UndoableDragFloat(
+			$"##PosZ{trans.GetHashCode()}",
+			"Change Position Z",
 			() => trans.Position.Z,
 			value => trans.Position = new Vector3(trans.Position.X, value, trans.Position.Z),
-			$"##PosZ{trans.GetHashCode()}",
-			"Change Position Z", stretch: false);
+			stretch: false);
 		ImGui.PopStyleColor();
 
 		ImGui.Text("Rotation");
@@ -57,10 +61,11 @@ public static class ImGuiHelpers
 		ImGui.SameLine();
 		ImGui.SetNextItemWidth(fieldWidth - ImGui.CalcTextSize("X").X);
 		UndoableImGui.UndoableDragFloat(
+			$"##RotX{trans.GetHashCode()}",
+			"Change Rotation X",
 			() => trans.Rotation.ToEulerDegrees().X,
 			value => trans.Rotation = new Vector3(value, trans.Rotation.Y, trans.Rotation.Z).ToQuaternionFromDegrees(),
-			$"##RotX{trans.GetHashCode()}",
-			"Change Rotation X", stretch: false);
+			stretch: false);
 		ImGui.PopStyleColor();
 		ImGui.SameLine();
 		ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0, 1, 0, 1));
@@ -68,10 +73,11 @@ public static class ImGuiHelpers
 		ImGui.SameLine();
 		ImGui.SetNextItemWidth(fieldWidth - ImGui.CalcTextSize("Y").X);
 		UndoableImGui.UndoableDragFloat(
+			$"##RotY{trans.GetHashCode()}",
+			"Change Rotation Y",
 			() => trans.Rotation.ToEulerDegrees().Y,
 			value => trans.Rotation = new Vector3(trans.Rotation.X, value, trans.Rotation.Z).ToQuaternionFromDegrees(),
-			$"##RotY{trans.GetHashCode()}",
-			"Change Rotation Y", stretch: false);
+			stretch: false);
 		ImGui.PopStyleColor();
 		ImGui.SameLine();
 		ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0, 0, 1, 1));
@@ -79,10 +85,11 @@ public static class ImGuiHelpers
 		ImGui.SameLine();
 		ImGui.SetNextItemWidth(fieldWidth - ImGui.CalcTextSize("Z").X);
 		UndoableImGui.UndoableDragFloat(
+			$"##RotZ{trans.GetHashCode()}",
+			"Change Rotation Z",
 			() => trans.Rotation.ToEulerDegrees().Z,
 			value => trans.Rotation = new Vector3(trans.Rotation.X, trans.Rotation.Y, value).ToQuaternionFromDegrees(),
-			$"##RotZ{trans.GetHashCode()}",
-			"Change Rotation Z", stretch: false);
+			stretch: false);
 		ImGui.PopStyleColor();
 
 		ImGui.Text("Scale");
@@ -92,10 +99,11 @@ public static class ImGuiHelpers
 		ImGui.SameLine();
 		ImGui.SetNextItemWidth(fieldWidth - ImGui.CalcTextSize("X").X);
 		UndoableImGui.UndoableDragFloat(
-			() => trans.Scale.X,
-			value => trans.Scale = new Vector3(value, trans.Scale.Y, trans.Scale.Z),
 			$"##ScaleX{trans.GetHashCode()}",
-			"Change Scale X", stretch: false);
+			"Change Scale X",
+			() => trans.Scale.X,
+			value => trans.Scale = new Vector3(value, trans.Scale.Y, trans.Scale.Z), stretch: false
+		);
 		ImGui.PopStyleColor();
 		ImGui.SameLine();
 		ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0, 1, 0, 1));
@@ -103,10 +111,11 @@ public static class ImGuiHelpers
 		ImGui.SameLine();
 		ImGui.SetNextItemWidth(fieldWidth - ImGui.CalcTextSize("Y").X);
 		UndoableImGui.UndoableDragFloat(
+			$"##ScaleY{trans.GetHashCode()}",
+			"Change Scale Y",
 			() => trans.Scale.Y,
 			value => trans.Scale = new Vector3(trans.Scale.X, value, trans.Scale.Z),
-			$"##ScaleY{trans.GetHashCode()}",
-			"Change Scale Y", stretch: false);
+			stretch: false);
 		ImGui.PopStyleColor();
 		ImGui.SameLine();
 		ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0, 0, 1, 1));
@@ -114,18 +123,19 @@ public static class ImGuiHelpers
 		ImGui.SameLine();
 		ImGui.SetNextItemWidth(fieldWidth - ImGui.CalcTextSize("Z").X);
 		UndoableImGui.UndoableDragFloat(
+			$"##ScaleZ{trans.GetHashCode()}",
+			"Change Scale Z",
 			() => trans.Scale.Z,
 			value => trans.Scale = new Vector3(trans.Scale.X, trans.Scale.Y, value),
-			$"##ScaleZ{trans.GetHashCode()}",
-			"Change Scale Z", stretch: false);
+			stretch: false);
 		ImGui.PopStyleColor();
 	}
-	
+
 	public static void AddProperty(IMemberAdapter member)
 	{
 		if (ImGui.Button($"Add {member.Name}"))
 		{
-			var result = FileDialog.OpenFileDialog(FileDialog.FilterByType(member.MemberType) );
+			var result = FileDialog.OpenFileDialog(FileDialog.FilterByType(member.MemberType));
 		}
 	}
 }
