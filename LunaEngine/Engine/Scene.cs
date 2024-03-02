@@ -8,8 +8,9 @@ public class Scene
 
 	public Scene()
 	{
-		GameObject.GameObjectCreated += OnGameObjectCreated;
 	}
+
+	public ICamera ActiveCamera { get; set; }
 
 	private void OnGameObjectCreated(GameObject obj)
 	{
@@ -27,5 +28,20 @@ public class Scene
 		{
 			go?.Update();
 		}
+	}
+
+	public void AddGameObject(GameObject go)
+	{
+		if (go == null)
+		{
+			return;
+		}
+
+		GameObjects.Add(go);
+	}
+
+	public void Clear()
+	{
+		GameObjects.Clear();
 	}
 }

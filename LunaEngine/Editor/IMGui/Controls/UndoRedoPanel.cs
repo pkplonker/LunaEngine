@@ -9,11 +9,9 @@ public class UndoRedoPanel : IPanel
 {
 	public string PanelName { get; set; } = "Undo Redo";
 
-	public static event Action<IPanel> RegisterPanel;
 
 	public UndoRedoPanel()
 	{
-		RegisterPanel?.Invoke(this);
 	}
 
 	public void Draw(Renderer renderer)

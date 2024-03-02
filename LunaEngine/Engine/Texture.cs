@@ -1,29 +1,34 @@
-﻿using Silk.NET.Assimp;
-using Silk.NET.OpenGL;
+﻿using Silk.NET.OpenGL;
 using StbImageSharp;
 using File = System.IO.File;
 
 namespace Engine;
 
+[Serializable]
 public class Texture : IDisposable
 {
-	private uint handle;
+	private uint textureHandle;
 	private GL gl;
+	public uint Width { get; private set; }
+	public uint Height { get; private set; }
 
 	public string Path { get; set; }
-	public TextureType Type { get; }
 
-	public unsafe Texture(GL gl, string path, TextureType type = TextureType.None)
+	public unsafe Texture(GL gl, string path)
 	{
 		this.gl = gl;
 		Path = path;
-		Type = type;
-		handle = this.gl.GenTexture();
+		textureHandle = this.gl.GenTexture();
 		Bind();
 
-		var img = ImageResult.FromMemory(File.ReadAllBytes(path.MakeAbsolute()), ColorComponents.RedGreenBlueAlpha);
-		gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, (uint) img.Width, (uint) img.Height, 0,
-			PixelFormat.Rgba, PixelType.UnsignedByte, null);
+		var img = ImageResult.FromMemory(File.ReadAllBytes(path), ColorComponents.RedGreenBlueAlpha);
+		fixed (byte* ptr = img.Data)
+		{
+			Width = (uint) img.Width;
+			Height = (uint) img.Height;
+			gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba, (uint) img.Width,
+				(uint) img.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
+		}
 
 		SetParameters();
 	}
@@ -43,11 +48,11 @@ public class Texture : IDisposable
 	public void Bind(TextureUnit textureSlot = TextureUnit.Texture0)
 	{
 		gl.ActiveTexture(textureSlot);
-		gl.BindTexture(TextureTarget.Texture2D, handle);
+		gl.BindTexture(TextureTarget.Texture2D, textureHandle);
 	}
 
 	public void Dispose()
 	{
-		gl.DeleteTexture(handle);
+		gl.DeleteTexture(textureHandle);
 	}
 }

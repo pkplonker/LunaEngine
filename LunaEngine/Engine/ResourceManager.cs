@@ -1,12 +1,13 @@
-﻿using Silk.NET.OpenGL;
+﻿using Engine.Logging;
+using Silk.NET.OpenGL;
 
 namespace Engine;
 
 public static class ResourceManager
 {
-	private const string DEFAULT_FRAG = @"/resources/shaders/unlitfragment.glsl";
+	private readonly static string DEFAULT_FRAG = @"/resources/shaders/unlitfragment.glsl";
 
-	private const string DEFAULT_VERT = @"/resources/shaders/unlitvertex.glsl";
+	private readonly static string DEFAULT_VERT = @"/resources/shaders/unlitvertex.glsl";
 
 	private static Dictionary<string, Mesh?> meshes = new();
 	private static Dictionary<string, Shader> shaders = new();
@@ -15,6 +16,12 @@ public static class ResourceManager
 
 	private static GL gl;
 
+	static ResourceManager()
+	{
+		DEFAULT_FRAG = DEFAULT_FRAG.MakeAbsolute();
+		DEFAULT_VERT = DEFAULT_VERT.MakeAbsolute();
+	}
+
 	public static void Init(GL gl)
 	{
 		ResourceManager.gl = gl;
@@ -22,8 +29,29 @@ public static class ResourceManager
 
 	public static Texture? GetTexture(string path)
 	{
-		textures.TryAdd(path, new Texture(gl, path));
-		return textures[path];
+		if (textures.ContainsKey(path))
+		{
+			return textures[path];
+		}
+
+		Texture texture;
+
+		try
+		{
+			texture = new Texture(gl, path);
+		}
+		catch (Exception e)
+		{
+			Logger.Warning($"Failed to generate texture{e}");
+			return null;
+		}
+
+		if (texture != null)
+		{
+			textures.TryAdd(path, texture);
+		}
+
+		return texture;
 	}
 
 	public static Mesh? GetMesh(string path)
@@ -40,10 +68,20 @@ public static class ResourceManager
 		return meshes.ContainsKey(path) ? meshes[path] : null;
 	}
 
-	public static Shader? GetShader(string vertPath = DEFAULT_VERT, string fragPath = DEFAULT_FRAG)
+	public static Shader? GetShader(string vertPath = "", string fragPath = "")
 	{
+		if (string.IsNullOrEmpty(vertPath))
+		{
+			vertPath = DEFAULT_VERT;
+		}
+
+		if (string.IsNullOrEmpty(fragPath))
+		{
+			fragPath = DEFAULT_FRAG;
+		}
+
 		var key = vertPath + fragPath;
-		
+
 		if (shaders.ContainsKey(key))
 		{
 			return shaders[key];
@@ -57,7 +95,7 @@ public static class ResourceManager
 		}
 		catch (Exception e)
 		{
-			Console.WriteLine($"Failed to generate shader{e}");
+			Logger.Warning($"Failed to generate shader{e}");
 			return null;
 		}
 

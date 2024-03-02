@@ -12,4 +12,14 @@ public class MeshFilter : Component
 	{
 		meshes.Add(mesh);
 	}
+	
+	public MeshFilter Clone(MeshFilter newMeshFilter)
+	{
+		foreach (var mesh in meshes)
+		{
+			newMeshFilter.meshes.Clear();
+			newMeshFilter.AddMesh(mesh);
+		}
+		return newMeshFilter;
+	}
 }

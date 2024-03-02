@@ -7,11 +7,9 @@ namespace Editor.Controls;
 public class HierarchyPanel : IPanel
 {
 	private readonly EditorImGuiController controller;
-	public static event Action<IPanel> RegisterPanel;
 
 	public HierarchyPanel(EditorImGuiController controller)
 	{
-		RegisterPanel?.Invoke(this);
 		this.controller = controller;
 	}
 

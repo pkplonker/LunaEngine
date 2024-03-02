@@ -4,6 +4,7 @@ using Silk.NET.OpenGL;
 
 namespace Engine;
 
+[Serializable]
 public class Shader : IDisposable
 {
 	private uint handle;
@@ -11,14 +12,14 @@ public class Shader : IDisposable
 	private Dictionary<string, int> uniformDict = new();
 	public string vertexPath { get; private set; }
 	public string fragmentPath { get; private set; }
-	public string GUID { get; private set; }
+	[Serializable(false)]
+	public Guid guid { get; private set; } = Guid.NewGuid();
 
 	public Shader(GL gl, string vertexPath, string fragmentPath)
 	{
-		this.gl = gl;
 		this.fragmentPath = fragmentPath;
 		this.vertexPath = vertexPath;
-		this.GUID = vertexPath + fragmentPath;
+		this.gl = gl;
 
 		uint vertex = LoadShader(ShaderType.VertexShader, vertexPath);
 		uint fragment = LoadShader(ShaderType.FragmentShader, fragmentPath);
@@ -104,7 +105,6 @@ public class Shader : IDisposable
 
 	private uint LoadShader(ShaderType type, string path)
 	{
-		path = path.MakeAbsolute();
 		if (!File.Exists(path))
 		{
 			throw new FileNotFoundException(path);

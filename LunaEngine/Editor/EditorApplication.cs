@@ -2,6 +2,7 @@
 using System.Numerics;
 using Editor.Controls;
 using Engine;
+using Engine.Logging;
 using ImGuiNET;
 using Silk.NET.Core;
 using Silk.NET.Input;
@@ -9,6 +10,7 @@ using Silk.NET.Maths;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
 using StbImageSharp;
+using MessageBox = Editor.Controls.MessageBox;
 
 namespace Editor
 {
@@ -34,6 +36,8 @@ namespace Editor
 
 		private void Setup()
 		{
+			Logger.Start();
+			Logger.AddSink(new ConsoleLogSink());
 			var options = WindowOptions.Default;
 			options.Size = new Vector2D<int>(WINDOW_SIZE_X, WINDOW_SIZE_Y);
 			options.Title = WINDOW_NAME;
@@ -73,7 +77,7 @@ namespace Editor
 					}
 					catch (Exception ex)
 					{
-						Console.WriteLine("An error occurred during window run: " + ex.Message);
+						Logger.Error("An error occurred during window run: " + ex.Message);
 					}
 
 					if (imGuiController != null)
@@ -84,11 +88,18 @@ namespace Editor
 				}
 				catch (Exception ex)
 				{
-					Console.WriteLine("An error occurred during shutdown: " + ex.Message);
+					Logger.Error("An error occurred during shutdown: " + ex.Message);
 				}
 				finally
 				{
-					window?.Dispose();
+					try
+					{
+						window?.Dispose();
+					}
+					catch (Exception e)
+					{
+						Logger.Error("Failed to dispose");
+					}
 				}
 
 				Settings.Settings.SaveSettings();
@@ -104,9 +115,11 @@ namespace Editor
 		private void OnLoad()
 		{
 			SceneController.ActiveScene = new Scene();
+
 			if (window != null)
 			{
 				renderer?.Load(window);
+				ResourceManager.Init(renderer.Gl);
 				var inputContext = window.CreateInput();
 				inputController = new InputController(inputContext);
 				inputController.KeyPress += key =>
@@ -117,8 +130,10 @@ namespace Editor
 							() => { window.Close(); });
 					}
 				};
-				editorCamera = new EditorCamera(Vector3.UnitZ * 6, WINDOW_SIZE_X / (float) WINDOW_SIZE_Y);
-				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera);
+				editorCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, WINDOW_SIZE_X / (float) WINDOW_SIZE_Y);
+				SceneController.ActiveScene.ActiveCamera = editorCamera;
+				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera, inputController);
+				renderer.AddScene(SceneController.ActiveScene, new Vector2D<uint>(0, 0), out _);
 				try
 				{
 					window.SetWindowIcon(
@@ -135,43 +150,83 @@ namespace Editor
 				throw new NullReferenceException($"{nameof(window)} cannot be null");
 			}
 
-			ResourceManager.Init(renderer.Gl);
 
 			PerformTest();
 		}
 
 		private void PerformTest()
 		{
-			var go = new GameObject();
-			go.AddComponent<RotateComponent>();
-			go.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestSphere.obj"));
-			go.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
-			go.Name = "Sphere";
+			// var test = new GameObject();
+			// test.AddComponent<TestComponent>();
+			// test.Name = "Test";
 
-			var go2 = new GameObject();
-			go2.AddComponent<RotateComponent>();
-			go2.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestCube.obj"));
-			go2.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
-			go2.Transform.Position += new Vector3(1, 0, 0);
-			go2.Name = "Cube";
+			var cube = new GameObject();
+			cube.Name = "Cube";
 
-			var plane = new GameObject();
-			plane.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/plane.fbx"));
-			plane.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
-			plane.Transform.Position += new Vector3(0, 3, 0);
-			plane.Name = "Plane";
+			SceneController.ActiveScene.AddGameObject(cube);
+			cube.AddComponent<RotateComponent>();
+			cube.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"models/TestCube.obj".MakeProjectAbsolute()));
+			cube.AddComponent<MeshRenderer>().Material = new Material(
+				ResourceManager.GetShader(
+					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
+					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
+					));
+
+			cube.GetComponent<MeshRenderer>().Material.Albedo =
+				ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
+			cube.GetComponent<MeshRenderer>().Material.Normal =
+				ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
+
+			var sphere = new GameObject();
+			sphere.Name = "Sphere";
+
+			SceneController.ActiveScene.AddGameObject(sphere);
+			sphere.AddComponent<RotateComponent>();
+			sphere.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/models/TestSphere.obj".MakeProjectAbsolute()));
+			sphere.Transform.Translate(new Vector3(1.5f, 0, 0));
+			sphere.AddComponent<MeshRenderer>().Material = new Material(
+				ResourceManager.GetShader(
+					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
+					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
+				));
+
+			sphere.GetComponent<MeshRenderer>().Material.Albedo =
+				ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
+			sphere.GetComponent<MeshRenderer>().Material.Normal =
+				ResourceManager.GetTexture(@"/textures/uvgrid.png".MakeProjectAbsolute());
+			// go.GetComponent<MeshRenderer>().Material.Metallic =
+			// 	ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
+			// go.GetComponent<MeshRenderer>().Material.Roughness =
+			// 	ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
+			// go.GetComponent<MeshRenderer>().Material.AO =
+			// 	ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
+			// go.Name = "Sphere";
+
+			//
+			// var go2 = new GameObject();
+			// go2.AddComponent<RotateComponent>();
+			// go2.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestCube.obj"));
+			// go2.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
+			// go2.Transform.Position += new Vector3(1, 0, 0);
+			// go2.Name = "Cube";
+			//
+			// var plane = new GameObject();
+			// plane.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/plane.fbx"));
+			// plane.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
+			// plane.Transform.Position += new Vector3(0, 3, 0);
+			// plane.Name = "Plane";
 		}
 
 		private void OnRender(double deltaTime)
 		{
-			renderer?.RenderUpdate(editorCamera?.GetView(), editorCamera?.GetProjection());
+			Logger.Debug("Testing");
+			renderer?.RenderUpdate();
 			imGuiController?.Render();
 		}
 
 		private void OnUpdate(double deltaTime)
 		{
 			Time.Update((float) window.Time);
-			editorCamera.Update(inputController);
 			SceneController.ActiveScene?.Update();
 			imGuiController?.ImGuiControllerUpdate((float) deltaTime);
 			PerformanceTracker.ReportAverages();

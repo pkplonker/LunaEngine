@@ -1,4 +1,6 @@
-﻿namespace Engine;
+﻿using Engine.Logging;
+
+namespace Engine;
 
 using System;
 using System.Collections.Generic;
@@ -46,7 +48,7 @@ public class PerformanceTracker : IDisposable
 			if (iterationCount > 0)
 			{
 				double averageMilliseconds = recentElapsedTimes[functionName].Average() / Stopwatch.Frequency * 1000.0;
-				Console.WriteLine($"Average time for {functionName} over {iterationCount} iterations: {averageMilliseconds} ms");
+				Logger.Debug($"Average time for {functionName} over {iterationCount} iterations: {averageMilliseconds} ms");
 			}
 		}
 	}

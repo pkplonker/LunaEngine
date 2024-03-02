@@ -3,7 +3,7 @@ using Silk.NET.OpenGL;
 
 namespace Engine;
 
-public class Mesh : IDisposable, IRenderable
+public class Mesh : IDisposable
 {
 	public Mesh(GL gl, float[] vertices, uint[] indices)
 	{
@@ -19,7 +19,7 @@ public class Mesh : IDisposable, IRenderable
 	public BufferObject<float> VBO { get; set; }
 	public BufferObject<uint> EBO { get; set; }
 	public GL GL { get; }
-	private const int vertexSize = 5;
+	private const int vertexSize = 14;
 
 	public unsafe void SetupMesh()
 	{
@@ -27,7 +27,10 @@ public class Mesh : IDisposable, IRenderable
 		VBO = new BufferObject<float>(GL, Vertices, BufferTargetARB.ArrayBuffer);
 		VAO = new VertexArrayObject<float, uint>(GL, VBO, EBO);
 		VAO.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, vertexSize, 0);
-		VAO.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, vertexSize, 3);
+		VAO.VertexAttributePointer(1, 3, VertexAttribPointerType.Float, vertexSize, 12);
+		VAO.VertexAttributePointer(2, 3, VertexAttribPointerType.Float, vertexSize, 24);
+		VAO.VertexAttributePointer(3, 2, VertexAttribPointerType.Float, vertexSize, 36);
+		VAO.VertexAttributePointer(4, 3, VertexAttribPointerType.Float, vertexSize, 44);
 		VAO.UnBind();
 	}
 

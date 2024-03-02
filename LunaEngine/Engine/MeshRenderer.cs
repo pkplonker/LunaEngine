@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Engine.Logging;
 using Silk.NET.OpenGL;
 
 namespace Engine;
@@ -16,7 +17,7 @@ public class MeshRenderer : IRenderableComponent
 	{
 		if (Material == null)
 		{
-			//Console.WriteLine("Trying to render without valid shader");
+			Logger.Warning("Trying to render without valid material");
 			return;
 		}
 
@@ -34,4 +35,9 @@ public class MeshRenderer : IRenderableComponent
 
 	public GameObject GameObject { get; set; }
 	public void Update() { }
+
+	public void Clone(MeshRenderer? dmr)
+	{
+		dmr.Material = Material;
+	}
 }

@@ -6,11 +6,9 @@ namespace Editor.Controls;
 public class EditorCameraPanel : IPanel
 {
 	private readonly EditorCamera editorCamera;
-	public static event Action<IPanel> RegisterPanel;
 
 	public EditorCameraPanel(EditorCamera editorCamera)
 	{
-		RegisterPanel?.Invoke(this);
 		this.editorCamera = editorCamera;
 	}
 
@@ -25,7 +23,7 @@ public class EditorCameraPanel : IPanel
 
 		var originalAspect = editorCamera.AspectRatio;
 
-		ImGuiHelpers.UndoableButton("Reset",
+		UndoableImGui.UndoableButton("Reset",
 			new Memento(() => { editorCamera.Reset(); },
 				() =>
 				{

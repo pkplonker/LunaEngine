@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Editor.Controls;
 using Engine;
+using Engine.Logging;
 using ImGuiNET;
 using Silk.NET.Assimp;
 using Silk.NET.Input;
@@ -8,6 +9,7 @@ using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
+using MessageBox = Editor.Controls.MessageBox;
 
 namespace Editor;
 
@@ -19,8 +21,25 @@ public class EditorImGuiController : IDisposable
 	private Dictionary<IPanel, bool> controls = new();
 	private readonly EditorCamera editorCamera;
 	private const string iniSaveLocation = "imgui.ini";
+	public event Action<GameObject?> GameObjectSelectionChanged;
+	private GameObject? selectedGameObject;
+	private readonly InputController inputController;
 
-	public EditorImGuiController(GL gl, IView view, IInputContext input, Renderer renderer, EditorCamera editorCamera)
+	public GameObject? SelectedGameObject
+	{
+		get => selectedGameObject;
+		set
+		{
+			if (value != selectedGameObject)
+			{
+				selectedGameObject = value;
+				GameObjectSelectionChanged?.Invoke(SelectedGameObject);
+			}
+		}
+	}
+
+	public EditorImGuiController(GL gl, IView view, IInputContext input, Renderer renderer, EditorCamera editorCamera,
+		InputController inputController)
 	{
 		this.renderer = renderer;
 		imGuiController = new ImGuiController(gl, view, input);
@@ -33,11 +52,10 @@ public class EditorImGuiController : IDisposable
 
 		ImGuiTheme.ApplyTheme(0);
 		SetSize();
-		CreateControls(editorCamera);
 		this.editorCamera = editorCamera;
+		this.inputController = inputController;
+		CreateControls(editorCamera);
 	}
-
-	public GameObject? SelectedGameObject { get; set; }
 
 	private void CreateControls(EditorCamera editorCamera)
 	{
@@ -45,7 +63,10 @@ public class EditorImGuiController : IDisposable
 		controls.Add(new EditorCameraPanel(editorCamera), true);
 		controls.Add(new UndoRedoPanel(), true);
 		controls.Add(new HierarchyPanel(this), true);
-		controls.Add(new InspectorPanel(this), true);
+		var inspector = new InspectorPanel(this);
+		controls.Add(inspector, true);
+		controls.Add(new ObjectPreviewPanel(inspector, inputController), true);
+		controls.Add(new ImGuiLoggerWindow(), true);
 	}
 
 	public void ImGuiControllerUpdate(float deltaTime)
@@ -58,16 +79,31 @@ public class EditorImGuiController : IDisposable
 		ImGui.Begin("Viewport",
 			ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
 		var size = ImGui.GetContentRegionAvail();
-		if (size != previousSize)
+		if (ImGui.IsWindowFocused() || (ImGui.IsWindowHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Right)))
 		{
-			renderer.SetRenderTargetSize(new Vector2D<float>(size.X, size.Y));
-			previousSize = size;
+			ImGui.SetWindowFocus();
+			editorCamera.Update(inputController);
 		}
 
+		if (SceneController.ActiveScene != null)
+		{
+			if (size != previousSize)
+			{
+				renderer.SetRenderTargetSize(SceneController.ActiveScene, new Vector2D<float>(size.X, size.Y));
+				previousSize = size;
+			}
 
-		ImGui.Image((IntPtr) renderer.renderTexture.Handle, new Vector2(size.X, size.Y), Vector2.Zero, Vector2.One,
-			Vector4.One,
-			Vector4.Zero);
+			var rt = renderer.GetSceneRenderTarget(SceneController.ActiveScene);
+			if (rt != null)
+			{
+				ImGui.Image(rt.GetHandlePtr(),
+					new Vector2(size.X, size.Y), Vector2.Zero,
+					Vector2.One,
+					Vector4.One,
+					Vector4.Zero);
+			}
+		}
+
 		ImGui.End();
 		ImGui.PopStyleVar();
 
@@ -108,6 +144,11 @@ public class EditorImGuiController : IDisposable
 				}
 
 				ImGui.EndMenu();
+			}
+
+			if (ImGui.MenuItem("Add Scene"))
+			{
+				//LoadScene();
 			}
 
 			if (ImGui.MenuItem("Settings"))

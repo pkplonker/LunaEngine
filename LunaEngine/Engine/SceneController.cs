@@ -4,5 +4,5 @@ public static class SceneController
 {
 	
 
-	public static Scene ActiveScene { get; set; }
+	public static Scene? ActiveScene { get; set; }
 }
