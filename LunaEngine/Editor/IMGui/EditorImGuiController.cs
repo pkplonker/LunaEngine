@@ -59,7 +59,7 @@ public class EditorImGuiController : IDisposable
 
 	private void CreateControls(EditorCamera editorCamera)
 	{
-		controls.Add(new Stats(), true);
+		controls.Add(new Stats(inputController), true);
 		controls.Add(new EditorCameraPanel(editorCamera), true);
 		controls.Add(new UndoRedoPanel(), true);
 		controls.Add(new HierarchyPanel(this), true);

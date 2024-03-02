@@ -145,7 +145,7 @@ namespace Editor
 				}
 				catch (Exception e)
 				{
-					Console.Write(e);
+					Debug.Error(e);
 				}
 			}
 			else
@@ -237,7 +237,13 @@ namespace Editor
 			Time.Update((float) window.Time);
 			SceneController.ActiveScene?.Update();
 			imGuiController?.ImGuiControllerUpdate((float) deltaTime);
+			LateUpdate();
 			PerformanceTracker.ReportAverages();
+		}
+
+		private void LateUpdate()
+		{
+			inputController.Update();
 		}
 
 		public static EditorApplication GetApplication() => application ??= new EditorApplication();

@@ -10,13 +10,14 @@ public class Stats : IPanel
 
 	private double lastUpdateTime = 0;
 	private string formattedTotalTime = "00:00:00";
-
-	public Stats()
-	{
-	}
-
 	private readonly float[] fpsBuffer = new float[100];
 	private int bufferIndex = 0;
+	private readonly InputController inputController;
+
+	public Stats(InputController inputController)
+	{
+		this.inputController = inputController;
+	}
 
 	private void UpdateFpsBuffer(int fps)
 	{
@@ -50,12 +51,13 @@ public class Stats : IPanel
 		if (vps.HasValue)
 		{
 			ImGui.Text($"Viewport Size: {vps.Value.X} x {vps.Value.Y}");
-
 		}
 
 		ImGui.PlotLines(string.Empty, ref fpsBuffer[0], fpsBuffer.Length, 0, null, 0, fpsBuffer.Max(),
 			new System.Numerics.Vector2(-1, 80));
-
+		ImGui.Separator();
+		ImGui.Text($"Mouse Pos: {inputController.GetMousePosition()}");
+		ImGui.Text($"Mouse Delta: {inputController.GetMouseDelta()}");
 		ImGui.End();
 	}
 }

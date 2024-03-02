@@ -10,7 +10,7 @@ namespace Editor;
 public class ImGuiLoggerWindow : ILogSink, IPanel
 {
 	private static ConcurrentQueue<LogMessage> logQueue = new();
-	private const int MaxLogSize = 50000;
+	private const int MaxLogSize = 3000;
 	private bool first;
 	public string PanelName { get; set; } = "Console";
 
@@ -51,11 +51,14 @@ public class ImGuiLoggerWindow : ILogSink, IPanel
 		}
 
 		ImGui.SameLine();
-		if (ImGui.Button("Gen"))
+		if (ImGui.Button("GenerateTestMessages"))
 		{
-			for (int i = 0; i < 5; i++)
+			for (var i = 0; i < 5; i++)
 			{
-				Debug.Warning("g");
+				Debug.Log("l");
+				Debug.Info("i");
+				Debug.Warning("w");
+				Debug.Error("e");
 			}
 		}
 		ImGui.SameLine();
@@ -80,7 +83,6 @@ public class ImGuiLoggerWindow : ILogSink, IPanel
 			DrawLog(logArray[i]);
 		}
 
-		Debug.Log(endIndex - startIndex);
 		ImGui.EndChild();
 
 		ImGui.SameLine();
