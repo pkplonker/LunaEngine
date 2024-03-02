@@ -2,15 +2,15 @@
 
 namespace Engine.Logging;
 
-public static class Logger
+public static class Debug
 {
 	private static ConcurrentQueue<LogMessage> logQueue = new ConcurrentQueue<LogMessage>();
-	private static List<ILogSink> sinks = new List<ILogSink>();
+	private static ConcurrentBag<ILogSink> sinks = new ConcurrentBag<ILogSink>();
 	private static bool isRunning;
 	private static readonly Thread loggerThread;
 	private const int threadInterval = 10;
 
-	static Logger()
+	static Debug()
 	{
 		loggerThread = new Thread(new ThreadStart(ProcessLogs))
 		{
@@ -25,29 +25,29 @@ public static class Logger
 		sinks.Add(sink);
 	}
 
-	private static void Log(LogLevel level, string message)
+	private static void LogInternal(LogLevel level, string message)
 	{
 		logQueue.Enqueue(new LogMessage {Level = level, Message = message, Timestamp = DateTime.UtcNow});
 	}
 
-	public static void Debug(string message)
+	public static void Log(object message)
 	{
-		Log(LogLevel.Debug, message);
+		LogInternal(LogLevel.Debug, message.ToString() ?? string.Empty);
 	}
 
-	public static void Info(string message)
+	public static void Info(object message)
 	{
-		Log(LogLevel.Info, message);
+		LogInternal(LogLevel.Info, message.ToString() ?? string.Empty);
 	}
 
-	public static void Warning(string message)
+	public static void Warning(object message)
 	{
-		Log(LogLevel.Warning, message);
+		LogInternal(LogLevel.Warning, message.ToString() ?? string.Empty);
 	}
 
-	public static void Error(string message)
+	public static void Error(object message)
 	{
-		Log(LogLevel.Error, message);
+		LogInternal(LogLevel.Error, message.ToString() ?? string.Empty);
 	}
 
 	public static void Start()
@@ -75,4 +75,5 @@ public static class Logger
 			Thread.Sleep(threadInterval);
 		}
 	}
+	
 }

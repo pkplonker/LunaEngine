@@ -119,7 +119,7 @@ public class PropertyDrawer : IPropertyDrawer
 		}
 		catch (Exception e)
 		{
-			Logger.Warning(e.ToString());
+			Debug.Warning(e.ToString());
 		}
 	}
 

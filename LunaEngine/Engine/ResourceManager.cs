@@ -42,7 +42,7 @@ public static class ResourceManager
 		}
 		catch (Exception e)
 		{
-			Logger.Warning($"Failed to generate texture{e}");
+			Debug.Warning($"Failed to generate texture{e}");
 			return null;
 		}
 
@@ -95,7 +95,7 @@ public static class ResourceManager
 		}
 		catch (Exception e)
 		{
-			Logger.Warning($"Failed to generate shader{e}");
+			Debug.Warning($"Failed to generate shader{e}");
 			return null;
 		}
 

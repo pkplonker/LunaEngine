@@ -50,7 +50,7 @@ public class InspectorPanel : IPanel
 				}
 				catch (Exception e)
 				{
-					Logger.Warning(e.ToString());
+					Debug.Warning(e.ToString());
 				}
 			}
 

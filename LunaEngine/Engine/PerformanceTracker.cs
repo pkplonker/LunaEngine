@@ -48,7 +48,7 @@ public class PerformanceTracker : IDisposable
 			if (iterationCount > 0)
 			{
 				double averageMilliseconds = recentElapsedTimes[functionName].Average() / Stopwatch.Frequency * 1000.0;
-				Logger.Debug($"Average time for {functionName} over {iterationCount} iterations: {averageMilliseconds} ms");
+				Logging.Debug.Log($"Average time for {functionName} over {iterationCount} iterations: {averageMilliseconds} ms");
 			}
 		}
 	}

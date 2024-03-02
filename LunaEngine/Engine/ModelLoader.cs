@@ -14,7 +14,7 @@ public class ModelLoader
 		var assimp = Silk.NET.Assimp.Assimp.GetApi();
 		if (!System.IO.File.Exists(path))
 		{
-			Logger.Warning($"Failed to find file {path}");
+			Debug.Warning($"Failed to find file {path}");
 			return null;
 		}
 		var scene = assimp.ImportFile(path, (uint) PostProcessSteps.Triangulate);
