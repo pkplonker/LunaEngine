@@ -1,4 +1,5 @@
 ﻿using Engine;
+using Engine.Logging;
 using ImGuiNET;
 using Renderer = Engine.Renderer;
 
@@ -49,7 +50,7 @@ public class InspectorPanel : IPanel
 				}
 				catch (Exception e)
 				{
-					Console.WriteLine(e);
+					Logger.Warning(e.ToString());
 				}
 			}
 

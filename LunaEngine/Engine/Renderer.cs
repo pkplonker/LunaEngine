@@ -11,19 +11,28 @@ public class Renderer
 {
 	public GL Gl { get; private set; }
 
-	public RenderTarget viewportRenderTarget { get; private set; }
-
 	private const int colorVal = 50;
 	private Vector4D<int> clearColor = new(colorVal, colorVal, colorVal, 255);
 	private Texture texture;
 	public Vector2D<int> WindowSize;
 	private Shader lastShader;
-	public RenderTarget inspectorRenderTarget { get; private set; }
 	public int DrawCalls { get; private set; }
 	public int MaterialsUsed { get; private set; }
 	public int ShadersUsed { get; private set; }
 	public uint Triangles { get; set; }
 	public uint Vertices { get; set; }
+	private Dictionary<Scene, RenderTarget> sceneRenderTargets = new Dictionary<Scene, RenderTarget>();
+
+	public void AddScene(Scene scene, Vector2D<uint> size, out RenderTarget renderTarget)
+	{
+		if (!sceneRenderTargets.ContainsKey(scene))
+		{
+			renderTarget = GenerateFrameBuffer(size.X, size.Y);
+			sceneRenderTargets.Add(scene, renderTarget);
+		}
+
+		renderTarget = sceneRenderTargets[scene];
+	}
 
 	public void RenderUpdate()
 	{
@@ -37,8 +46,11 @@ public class Renderer
 			Vertices = 0;
 			unsafe
 			{
-				DrawScene(viewportRenderTarget, SceneController.ActiveScene);
-				DrawScene(inspectorRenderTarget, SceneController.ActiveScene);
+				foreach (var kvp in sceneRenderTargets)
+				{
+					DrawScene(kvp.Value, kvp.Key);
+				}
+
 				Gl.Viewport(0, 0, (uint) WindowSize.X, (uint) WindowSize.Y);
 				Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 			}
@@ -47,9 +59,9 @@ public class Renderer
 
 	private void DrawScene(RenderTarget renderTarget, Scene scene)
 	{
-		Gl.Viewport(0, 0, (uint)renderTarget.ViewportSize.X, (uint)renderTarget.ViewportSize.Y);
+		Gl.Viewport(0, 0, (uint) renderTarget.ViewportSize.X, (uint) renderTarget.ViewportSize.Y);
 		Gl.BindFramebuffer(FramebufferTarget.Framebuffer, renderTarget.frameBuffer.Handle);
-		
+
 		Gl.Enable(EnableCap.DepthTest);
 		Gl.ClearColor(clearColor);
 		Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
@@ -69,9 +81,6 @@ public class Renderer
 		{
 			Gl = GL.GetApi(window);
 			WindowSize = window.Size;
-
-			viewportRenderTarget = GenerateFrameBuffer(3860, 2140);
-			inspectorRenderTarget = GenerateFrameBuffer(1024, 1024);
 
 			Gl.Enable(GLEnum.CullFace);
 			Gl.CullFace(GLEnum.Back);
@@ -98,19 +107,30 @@ public class Renderer
 			TextureTarget.Texture2D, rt.Handle, 0);
 		return new RenderTarget(framebuffer, rt, new Vector2D<int>((int) sizeX, (int) sizeY));
 	}
+
+	public void SetRenderTargetSize(Scene scene, Vector2D<float> size)
+	{
+		unsafe
+		{
+			if (sceneRenderTargets.TryGetValue(scene, out var rt))
+			{
+				rt.ResizeTexture(Gl, (uint) size.X, (uint) size.Y);
+			}
+		}
+	}
+
 	public void SetRenderTargetSize(RenderTarget target, Vector2D<float> size)
 	{
 		unsafe
 		{
-			target.ResizeTexture(Gl, (uint)size.X, (uint)size.Y);
+			target.ResizeTexture(Gl, (uint) size.X, (uint) size.Y);
 		}
 	}
-	
+
 	public void Close()
 	{
 		texture?.Dispose();
 	}
-	
 
 	public unsafe void DrawElements(PrimitiveType primativeType, uint indicesLength, DrawElementsType elementsTyp)
 	{
@@ -141,6 +161,9 @@ public class Renderer
 		MaterialsUsed++;
 		material.Use(this, data, modelMatrix);
 	}
+
+	public RenderTarget? GetSceneRenderTarget(Scene scene) =>
+		sceneRenderTargets.TryGetValue(scene, out var rt) ? rt : null;
 }
 
 public struct RenderPassData

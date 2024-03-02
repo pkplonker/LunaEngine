@@ -10,17 +10,19 @@ public class ObjectPreviewPanel : IPanel
 	private Scene scene;
 	private GameObject materialSphere;
 	private Vector2 previousSize;
+	private readonly InputController inputController;
 
-	public ObjectPreviewPanel(InspectorPanel inspector)
+	public ObjectPreviewPanel(InspectorPanel inspector, InputController inputController)
 	{
+		this.inputController = inputController;
 		inspector.SelectionChanged += InspectorOnSelectionChanged;
 		scene = new Scene();
 
 		materialSphere = new GameObject();
 		materialSphere.AddComponent<RotateComponent>();
 		materialSphere.AddComponent<MeshFilter>()
-			?.AddMesh(ResourceManager.GetMesh(@"Resources/Core/models/TestSphere.obj".MakeAbsolute()));
-		scene.ActiveCamera = new EditorCamera(Vector3.UnitZ * 6, 1024 / (float) 1024);
+			?.AddMesh(ResourceManager.GetMesh(@"Resources/models/TestSphere.obj".MakeAbsolute()));
+		scene.ActiveCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, 1024 / (float) 1024);
 	}
 
 	private void InspectorOnSelectionChanged(object obj)
@@ -29,7 +31,22 @@ public class ObjectPreviewPanel : IPanel
 		switch (obj)
 		{
 			case GameObject gameObject:
-				scene.AddGameObject(gameObject);
+				var dummyGo = new GameObject();
+				scene.AddGameObject(dummyGo);
+				var mf = gameObject.GetComponent<MeshFilter>();
+				var mr = gameObject.GetComponent<MeshRenderer>();
+				var dmf = dummyGo.AddComponent<MeshFilter>();
+				var dmr = dummyGo.AddComponent<MeshRenderer>();
+				if (mf != null)
+				{
+					mf.Clone(dmf);
+				}
+
+				if (mr != null)
+				{
+					mr.Clone(dmr);
+				}
+
 				break;
 			case Material material:
 				scene.AddGameObject(materialSphere);
@@ -46,17 +63,28 @@ public class ObjectPreviewPanel : IPanel
 	public void Draw(Renderer renderer)
 	{
 		ImGui.Begin(PanelName);
+		if (ImGui.IsWindowFocused() || (ImGui.IsWindowHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Right)))
+		{
+			ImGui.SetWindowFocus();
+			((MoveableEditorCamera) scene.ActiveCamera)?.Update(inputController);
+		}
+
 		var size = ImGui.GetContentRegionAvail();
+		renderer.AddScene(scene, new Vector2D<uint>((uint) size.X, (uint) size.Y), out var rt);
 		if (size != previousSize)
 		{
-			renderer.SetRenderTargetSize(renderer.inspectorRenderTarget, new Vector2D<float>(size.X, size.Y));
+			renderer.SetRenderTargetSize(scene, new Vector2D<float>(size.X, size.Y));
 			previousSize = size;
 		}
 
-		ImGui.Image((IntPtr) renderer.inspectorRenderTarget.texture.Handle, new Vector2(size.X, size.Y), Vector2.Zero,
-			Vector2.One,
-			Vector4.One,
-			Vector4.Zero);
+		if (rt != null)
+		{
+			ImGui.Image((IntPtr) rt.texture.Handle, new Vector2(size.X, size.Y), Vector2.Zero,
+				Vector2.One,
+				Vector4.One,
+				Vector4.Zero);
+		}
+
 		ImGui.End();
 	}
 }

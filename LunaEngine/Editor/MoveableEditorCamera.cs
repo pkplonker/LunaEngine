@@ -7,12 +7,12 @@ namespace Engine;
 
 public class MoveableEditorCamera : EditorCamera
 {
-
 	private const string settingsCategory = "Editor Camera";
 	public MoveableEditorCamera(Vector3 position, float aspectRatio) : base(position, aspectRatio) { }
 
 	public override void Update(InputController input)
 	{
+		if (input == null) return;
 		if (!input.IsMousePressed(InputController.MouseButton.Right)) return;
 		float deltaTime = Time.DeltaTime;
 

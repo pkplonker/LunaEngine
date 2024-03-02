@@ -2,6 +2,7 @@
 using System.Reflection;
 using Editor.Properties;
 using Engine;
+using Engine.Logging;
 using ImGuiNET;
 using SerializableAttribute = Engine.SerializableAttribute;
 
@@ -118,7 +119,7 @@ public class PropertyDrawer : IPropertyDrawer
 		}
 		catch (Exception e)
 		{
-			Console.WriteLine(e);
+			Logger.Warning(e.ToString());
 		}
 	}
 

@@ -20,26 +20,9 @@ public class EditorImGuiController : IDisposable
 	private Dictionary<IPanel, bool> controls = new();
 	private readonly EditorCamera editorCamera;
 	private const string iniSaveLocation = "imgui.ini";
-
-	public EditorImGuiController(GL gl, IView view, IInputContext input, Renderer renderer, EditorCamera editorCamera)
-	{
-		this.renderer = renderer;
-		imGuiController = new ImGuiController(gl, view, input);
-		var io = ImGui.GetIO();
-		io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
-		io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
-		io.ConfigFlags |= ImGuiConfigFlags.DpiEnableScaleFonts;
-		io.ConfigFlags |= ImGuiConfigFlags.DpiEnableScaleViewports;
-		ImGui.LoadIniSettingsFromDisk(iniSaveLocation);
-
-		ImGuiTheme.ApplyTheme(0);
-		SetSize();
-		CreateControls(editorCamera);
-		this.editorCamera = editorCamera;
-	}
-
 	public event Action<GameObject?> GameObjectSelectionChanged;
 	private GameObject? selectedGameObject;
+	private readonly InputController inputController;
 
 	public GameObject? SelectedGameObject
 	{
@@ -54,6 +37,25 @@ public class EditorImGuiController : IDisposable
 		}
 	}
 
+	public EditorImGuiController(GL gl, IView view, IInputContext input, Renderer renderer, EditorCamera editorCamera,
+		InputController inputController)
+	{
+		this.renderer = renderer;
+		imGuiController = new ImGuiController(gl, view, input);
+		var io = ImGui.GetIO();
+		io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
+		io.ConfigFlags |= ImGuiConfigFlags.DpiEnableScaleFonts;
+		io.ConfigFlags |= ImGuiConfigFlags.DpiEnableScaleViewports;
+		ImGui.LoadIniSettingsFromDisk(iniSaveLocation);
+
+		ImGuiTheme.ApplyTheme(0);
+		SetSize();
+		this.editorCamera = editorCamera;
+		this.inputController = inputController;
+		CreateControls(editorCamera);
+	}
+
 	private void CreateControls(EditorCamera editorCamera)
 	{
 		controls.Add(new Stats(), true);
@@ -62,7 +64,7 @@ public class EditorImGuiController : IDisposable
 		controls.Add(new HierarchyPanel(this), true);
 		var inspector = new InspectorPanel(this);
 		controls.Add(inspector, true);
-		controls.Add(new ObjectPreviewPanel(inspector), true);
+		controls.Add(new ObjectPreviewPanel(inspector, inputController), true);
 	}
 
 	public void ImGuiControllerUpdate(float deltaTime)
@@ -75,16 +77,31 @@ public class EditorImGuiController : IDisposable
 		ImGui.Begin("Viewport",
 			ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
 		var size = ImGui.GetContentRegionAvail();
-		if (size != previousSize)
+		if (ImGui.IsWindowFocused() || (ImGui.IsWindowHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Right)))
 		{
-			renderer.SetRenderTargetSize(renderer.viewportRenderTarget, new Vector2D<float>(size.X, size.Y));
-			previousSize = size;
+			ImGui.SetWindowFocus();
+			editorCamera.Update(inputController);
 		}
 
-		ImGui.Image(renderer.viewportRenderTarget.GetHandlePtr(), new Vector2(size.X, size.Y), Vector2.Zero,
-			Vector2.One,
-			Vector4.One,
-			Vector4.Zero);
+		if (SceneController.ActiveScene != null)
+		{
+			if (size != previousSize)
+			{
+				renderer.SetRenderTargetSize(SceneController.ActiveScene, new Vector2D<float>(size.X, size.Y));
+				previousSize = size;
+			}
+
+			var rt = renderer.GetSceneRenderTarget(SceneController.ActiveScene);
+			if (rt != null)
+			{
+				ImGui.Image(rt.GetHandlePtr(),
+					new Vector2(size.X, size.Y), Vector2.Zero,
+					Vector2.One,
+					Vector4.One,
+					Vector4.Zero);
+			}
+		}
+
 		ImGui.End();
 		ImGui.PopStyleVar();
 

@@ -21,7 +21,7 @@ public class Texture : IDisposable
 		textureHandle = this.gl.GenTexture();
 		Bind();
 
-		var img = ImageResult.FromMemory(File.ReadAllBytes(path.MakeProjectAbsolute()), ColorComponents.RedGreenBlueAlpha);
+		var img = ImageResult.FromMemory(File.ReadAllBytes(path), ColorComponents.RedGreenBlueAlpha);
 		fixed (byte* ptr = img.Data)
 		{
 			Width = (uint) img.Width;
