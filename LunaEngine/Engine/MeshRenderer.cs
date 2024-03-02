@@ -17,7 +17,7 @@ public class MeshRenderer : IRenderableComponent
 	{
 		if (Material == null)
 		{
-			Logger.Warning("Trying to render without valid material");
+			Debug.Warning("Trying to render without valid material");
 			return;
 		}
 

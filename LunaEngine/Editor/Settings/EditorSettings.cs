@@ -1,10 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using Engine.Logging;
+using Newtonsoft.Json;
 
-namespace Editor.Settings;
+namespace Editor;
 
-public static class Settings
+public static class EditorSettings
 {
-	private static Dictionary<string, Setting> settings = new();
+	public static Dictionary<string, Setting> settingsDict = new();
 	private const string SettingsFilePath = "settings.json";
 
 	public static void SaveSettings()
@@ -14,7 +15,7 @@ public static class Settings
 			TypeNameHandling = TypeNameHandling.Auto,
 			Formatting = Formatting.Indented
 		};
-		var serializedSettings = JsonConvert.SerializeObject(Settings.settings, settings);
+		var serializedSettings = JsonConvert.SerializeObject(settingsDict, settings);
 		File.WriteAllText(SettingsFilePath, serializedSettings);
 	}
 
@@ -33,7 +34,7 @@ public static class Settings
 
 			if (deserializedSettings != null)
 			{
-				Settings.settings = deserializedSettings;
+				settingsDict = deserializedSettings;
 			}
 		}
 	}
@@ -41,11 +42,11 @@ public static class Settings
 	public static float GetSetting(string name, string settingsCategory, bool exposed, float value)
 	{
 		Setting setting;
-		if (!settings.TryGetValue(name, out setting))
+		if (!settingsDict.TryGetValue(name, out setting))
 		{
 			setting = new Setting(name, settingsCategory, typeof(float), exposed);
 			setting.Prop = value;
-			settings.Add(name, setting);
+			settingsDict.Add(name, setting);
 		}
 
 		return (float) setting.Prop;
@@ -54,11 +55,11 @@ public static class Settings
 	public static int GetSetting(string name, string settingsCategory, bool exposed, int value)
 	{
 		Setting setting;
-		if (!settings.TryGetValue(name, out setting))
+		if (!settingsDict.TryGetValue(name, out setting))
 		{
 			setting = new Setting(name, settingsCategory, typeof(int), exposed);
 			setting.Prop = value;
-			settings.Add(name, setting);
+			settingsDict.Add(name, setting);
 		}
 
 		return (int) setting.Prop;
@@ -67,11 +68,11 @@ public static class Settings
 	public static string GetSetting(string name, string settingsCategory, bool exposed, string value)
 	{
 		Setting setting;
-		if (!settings.TryGetValue(name, out setting))
+		if (!settingsDict.TryGetValue(name, out setting))
 		{
 			setting = new Setting(name, settingsCategory, typeof(string), exposed);
 			setting.Prop = value;
-			settings.Add(name, setting);
+			settingsDict.Add(name, setting);
 		}
 
 		return (string) setting.Prop;
@@ -80,13 +81,26 @@ public static class Settings
 	public static bool GetSetting(string name, string settingsCategory, bool exposed, bool value)
 	{
 		Setting setting;
-		if (!settings.TryGetValue(name, out setting))
+		if (!settingsDict.TryGetValue(name, out setting))
 		{
 			setting = new Setting(name, settingsCategory, typeof(bool), exposed);
 			setting.Prop = value;
-			settings.Add(name, setting);
+			settingsDict.Add(name, setting);
 		}
 
 		return (bool) setting.Prop;
+	}
+
+	public static void SaveSetting(string name, object value)
+	{
+		if (!settingsDict.TryGetValue(name, out var setting)) return;
+		if (value.GetType() == setting.Type)
+		{
+			setting.Prop = value;
+		}
+		else
+		{
+			Debug.Warning("Tried to save setting {name} with incorrect value Type");
+		}
 	}
 }

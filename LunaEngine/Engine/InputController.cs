@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Engine.Logging;
 using Silk.NET.Input;
 
 namespace Engine;
@@ -431,6 +432,7 @@ public class InputController
 	public event Action<Key> KeyReleased;
 	private Vector2 lastMousePosition;
 	private Vector2 currentMousePosition;
+	private Vector2 mouseDelta;
 
 	public InputController(IInputContext input)
 	{
@@ -458,17 +460,17 @@ public class InputController
 	private void OnMouseMove(IMouse device, Vector2 args)
 	{
 		currentMousePosition = new Vector2(args.X, args.Y);
+		mouseDelta = currentMousePosition - lastMousePosition;
+		mouseDelta = new Vector2(MathF.Floor(mouseDelta.X), MathF.Floor(mouseDelta.Y));
+		lastMousePosition = currentMousePosition;
 		MouseMove?.Invoke(args.X, args.Y);
 	}
 
-	public Vector2 GetMouseDelta()
+	public void Update()
 	{
-		Vector2 delta = currentMousePosition - lastMousePosition;
-
-		lastMousePosition = currentMousePosition;
-
-		return delta;
+		mouseDelta = Vector2.Zero;
 	}
+	public Vector2 GetMouseDelta() => mouseDelta;
 
 	private void KeyDown(IKeyboard device, Silk.NET.Input.Key key, int arg3)
 	{
@@ -484,4 +486,6 @@ public class InputController
 
 	public bool IsMousePressed(InputController.MouseButton mouseButton) =>
 		input.Mice?.First().IsButtonPressed((Silk.NET.Input.MouseButton) mouseButton) ?? false;
+
+	public Vector2 GetMousePosition() => currentMousePosition;
 }

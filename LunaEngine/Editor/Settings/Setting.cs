@@ -1,4 +1,4 @@
-namespace Editor.Settings;
+namespace Editor;
 
 public class Setting
 {

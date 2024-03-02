@@ -10,6 +10,7 @@ using Silk.NET.Maths;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
 using StbImageSharp;
+using Debug = Engine.Logging.Debug;
 using MessageBox = Editor.Controls.MessageBox;
 
 namespace Editor
@@ -36,8 +37,8 @@ namespace Editor
 
 		private void Setup()
 		{
-			Logger.Start();
-			Logger.AddSink(new ConsoleLogSink());
+			Debug.Start();
+			Debug.AddSink(new ConsoleLogSink());
 			var options = WindowOptions.Default;
 			options.Size = new Vector2D<int>(WINDOW_SIZE_X, WINDOW_SIZE_Y);
 			options.Title = WINDOW_NAME;
@@ -66,7 +67,8 @@ namespace Editor
 
 		public void Start()
 		{
-			Settings.Settings.LoadSettings();
+			EditorSettings.LoadSettings();
+
 			if (window != null)
 			{
 				try
@@ -77,7 +79,7 @@ namespace Editor
 					}
 					catch (Exception ex)
 					{
-						Logger.Error("An error occurred during window run: " + ex.Message);
+						Debug.Error("An error occurred during window run: " + ex.Message);
 					}
 
 					if (imGuiController != null)
@@ -88,7 +90,7 @@ namespace Editor
 				}
 				catch (Exception ex)
 				{
-					Logger.Error("An error occurred during shutdown: " + ex.Message);
+					Debug.Error("An error occurred during shutdown: " + ex.Message);
 				}
 				finally
 				{
@@ -98,11 +100,11 @@ namespace Editor
 					}
 					catch (Exception e)
 					{
-						Logger.Error("Failed to dispose");
+						Debug.Error("Failed to dispose");
 					}
 				}
 
-				Settings.Settings.SaveSettings();
+				EditorSettings.SaveSettings();
 			}
 		}
 
@@ -132,7 +134,8 @@ namespace Editor
 				};
 				editorCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, WINDOW_SIZE_X / (float) WINDOW_SIZE_Y);
 				SceneController.ActiveScene.ActiveCamera = editorCamera;
-				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera, inputController);
+				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera,
+					inputController);
 				renderer.AddScene(SceneController.ActiveScene, new Vector2D<uint>(0, 0), out _);
 				try
 				{
@@ -142,7 +145,7 @@ namespace Editor
 				}
 				catch (Exception e)
 				{
-					Console.Write(e);
+					Debug.Error(e);
 				}
 			}
 			else
@@ -150,6 +153,24 @@ namespace Editor
 				throw new NullReferenceException($"{nameof(window)} cannot be null");
 			}
 
+			// for (int i = 0; i < 50; i++)
+			// {
+			// 	Debug.Log($"Testing{i}");
+			// }
+			// for (int i = 0; i < 50; i++)
+			// {
+			// 	Debug.Warning($"Testing{i}");
+			// }
+			// for (int i = 0; i < 50; i++)
+			// {
+			// 	Debug.Info($"Testing{i}");
+			// }
+			// for (int i = 0; i < 50; i++)
+			// {
+			// 	Debug.Error($"Testing");
+			// }
+			Debug.Warning("Testing22");
+			Debug.Log("Testing33");
 
 			PerformTest();
 		}
@@ -165,12 +186,13 @@ namespace Editor
 
 			SceneController.ActiveScene.AddGameObject(cube);
 			cube.AddComponent<RotateComponent>();
-			cube.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"models/TestCube.obj".MakeProjectAbsolute()));
+			cube.AddComponent<MeshFilter>()
+				?.AddMesh(ResourceManager.GetMesh(@"models/TestCube.obj".MakeProjectAbsolute()));
 			cube.AddComponent<MeshRenderer>().Material = new Material(
 				ResourceManager.GetShader(
 					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
 					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
-					));
+				));
 
 			cube.GetComponent<MeshRenderer>().Material.Albedo =
 				ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
@@ -182,7 +204,8 @@ namespace Editor
 
 			SceneController.ActiveScene.AddGameObject(sphere);
 			sphere.AddComponent<RotateComponent>();
-			sphere.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/models/TestSphere.obj".MakeProjectAbsolute()));
+			sphere.AddComponent<MeshFilter>()
+				?.AddMesh(ResourceManager.GetMesh(@"/models/TestSphere.obj".MakeProjectAbsolute()));
 			sphere.Transform.Translate(new Vector3(1.5f, 0, 0));
 			sphere.AddComponent<MeshRenderer>().Material = new Material(
 				ResourceManager.GetShader(
@@ -219,7 +242,6 @@ namespace Editor
 
 		private void OnRender(double deltaTime)
 		{
-			Logger.Debug("Testing");
 			renderer?.RenderUpdate();
 			imGuiController?.Render();
 		}
@@ -229,7 +251,13 @@ namespace Editor
 			Time.Update((float) window.Time);
 			SceneController.ActiveScene?.Update();
 			imGuiController?.ImGuiControllerUpdate((float) deltaTime);
+			LateUpdate();
 			PerformanceTracker.ReportAverages();
+		}
+
+		private void LateUpdate()
+		{
+			inputController.Update();
 		}
 
 		public static EditorApplication GetApplication() => application ??= new EditorApplication();

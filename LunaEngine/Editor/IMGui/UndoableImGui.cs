@@ -21,8 +21,8 @@ public static class UndoableImGui
 		return result;
 	}
 
-	public static void UndoableCheckbox(string label, Func<bool> getValue, Action<bool> setValue,
-		string actionDescription)
+	public static void UndoableCheckbox(string label, string actionDescription, Func<bool> getValue,
+		Action<bool> setValue)
 	{
 		bool originalValue = getValue();
 		bool currentValue = originalValue;
@@ -61,10 +61,10 @@ public static class UndoableImGui
 	}
 
 	public static void UndoableDragFloat(
-		Func<float> getValue,
-		Action<float> setValue,
 		string label,
 		string actionDescription,
+		Func<float> getValue,
+		Action<float> setValue,
 		float min = float.MinValue,
 		float max = float.MaxValue,
 		float speed = 1.0f,
@@ -80,10 +80,10 @@ public static class UndoableImGui
 	}
 
 	public static void UndoableDragInt(
-		Func<int> getValue,
-		Action<int> setValue,
 		string label,
 		string actionDescription,
+		Func<int> getValue,
+		Action<int> setValue,
 		int min = int.MinValue,
 		int max = int.MaxValue,
 		float speed = 1.0f,
@@ -184,9 +184,9 @@ public static class UndoableImGui
 
 	public static void UndoableTextBox(
 		string label,
+		string actionDescription,
 		Func<string> getValue,
 		Action<string> setValue,
-		string actionDescription,
 		int bufferSize = 100,
 		float labelWidth = DEFAULT_LABEL_WIDTH,
 		bool stretch = true)

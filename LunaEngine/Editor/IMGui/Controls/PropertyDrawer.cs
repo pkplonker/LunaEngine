@@ -119,7 +119,7 @@ public class PropertyDrawer : IPropertyDrawer
 		}
 		catch (Exception e)
 		{
-			Logger.Warning(e.ToString());
+			Debug.Warning(e.ToString());
 		}
 	}
 
@@ -154,25 +154,25 @@ public class PropertyDrawer : IPropertyDrawer
 		{
 			Func<int> getter = () => (int) member.GetValue(component);
 			Action<int> setter = (newValue) => member.SetValue(component, newValue);
-			UndoableImGui.UndoableDragInt(getter, setter, name, actionDescription);
+			UndoableImGui.UndoableDragInt(name, actionDescription, getter, setter);
 		}
 		else if (propertyValue is float floatValue)
 		{
 			Func<float> getter = () => (float) member.GetValue(component);
 			Action<float> setter = (newValue) => member.SetValue(component, newValue);
-			UndoableImGui.UndoableDragFloat(getter, setter, name, actionDescription);
+			UndoableImGui.UndoableDragFloat(name, actionDescription, getter, setter);
 		}
 		else if (propertyValue is bool boolValue)
 		{
 			Func<bool> getter = () => (bool) member.GetValue(component);
 			Action<bool> setter = (newValue) => member.SetValue(component, newValue);
-			UndoableImGui.UndoableCheckbox(name, getter, setter, actionDescription);
+			UndoableImGui.UndoableCheckbox(name, actionDescription, getter, setter);
 		}
 		else if (propertyValue is string stringValue)
 		{
 			Func<string> getter = () => (string) member.GetValue(component);
 			Action<string> setter = (newValue) => member.SetValue(component, newValue);
-			UndoableImGui.UndoableTextBox(name, getter, setter, actionDescription);
+			UndoableImGui.UndoableTextBox(name, actionDescription, getter, setter);
 		}
 		else if (propertyValue is Vector2 vector2Value)
 		{
