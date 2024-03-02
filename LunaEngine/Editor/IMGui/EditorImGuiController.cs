@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Editor.Controls;
 using Engine;
+using Engine.Logging;
 using ImGuiNET;
 using Silk.NET.Assimp;
 using Silk.NET.Input;
@@ -65,6 +66,7 @@ public class EditorImGuiController : IDisposable
 		var inspector = new InspectorPanel(this);
 		controls.Add(inspector, true);
 		controls.Add(new ObjectPreviewPanel(inspector, inputController), true);
+		controls.Add(new ImGuiLoggerWindow(), true);
 	}
 
 	public void ImGuiControllerUpdate(float deltaTime)
