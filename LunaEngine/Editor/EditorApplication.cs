@@ -67,7 +67,7 @@ namespace Editor
 
 		public void Start()
 		{
-			SettingsController.LoadSettings();
+			EditorSettings.LoadSettings();
 
 			if (window != null)
 			{
@@ -104,7 +104,7 @@ namespace Editor
 					}
 				}
 
-				SettingsController.SaveSettings();
+				EditorSettings.SaveSettings();
 			}
 		}
 
@@ -152,7 +152,25 @@ namespace Editor
 			{
 				throw new NullReferenceException($"{nameof(window)} cannot be null");
 			}
-			
+
+			// for (int i = 0; i < 50; i++)
+			// {
+			// 	Debug.Log($"Testing{i}");
+			// }
+			// for (int i = 0; i < 50; i++)
+			// {
+			// 	Debug.Warning($"Testing{i}");
+			// }
+			// for (int i = 0; i < 50; i++)
+			// {
+			// 	Debug.Info($"Testing{i}");
+			// }
+			// for (int i = 0; i < 50; i++)
+			// {
+			// 	Debug.Error($"Testing");
+			// }
+			Debug.Warning("Testing22");
+			Debug.Log("Testing33");
 
 			PerformTest();
 		}

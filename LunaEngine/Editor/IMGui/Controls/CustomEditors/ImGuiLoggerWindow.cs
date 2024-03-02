@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Numerics;
+using System.Text;
 using Editor.Controls;
 using Engine;
 using Engine.Logging;
@@ -18,6 +19,10 @@ public class ImGuiLoggerWindow : ILogSink, IPanel
 	private int lineHeight = 20;
 	private float val = 0.0f;
 	private float maxSlider = 1.0f;
+	private int currentLevel;
+	private string filterString = "";
+	private string loglevelSettingName = "LogLevel";
+	private string settingsCategory = "Console";
 
 	private Dictionary<LogLevel, Vector4> logLevelColors = new()
 	{
@@ -30,6 +35,8 @@ public class ImGuiLoggerWindow : ILogSink, IPanel
 	public ImGuiLoggerWindow()
 	{
 		Debug.AddSink(this);
+
+		currentLevel = EditorSettings.GetSetting(loglevelSettingName, settingsCategory, false, (int) 0);
 	}
 
 	public void Emit(LogMessage message)
@@ -51,6 +58,40 @@ public class ImGuiLoggerWindow : ILogSink, IPanel
 		}
 
 		ImGui.SameLine();
+		if (ImGui.Button("Clear"))
+		{
+			logQueue.Clear();
+		}
+
+		ImGui.SameLine();
+		var str = string.Join('0', Enum.GetNames<LogLevel>());
+		ImGui.Text("Level Filter");
+		ImGui.SameLine();
+		ImGui.SetNextItemWidth(300);
+		if (ImGui.Combo("##combobox", ref currentLevel, Enum.GetNames<LogLevel>().ToArray(),
+			    Enum.GetNames<LogLevel>().Length))
+		{
+			EditorSettings.SaveSetting(loglevelSettingName, currentLevel);
+		}
+
+		ImGui.SameLine();
+		ImGui.Text("Filter");
+		ImGui.SameLine();
+		ImGui.SetNextItemWidth(300);
+		byte[] buffer = Encoding.UTF8.GetBytes(filterString.PadRight(200, '\0'));
+
+		if (ImGui.InputText("##inputfiltertext", buffer, (uint) buffer.Length))
+		{
+			filterString = Encoding.UTF8.GetString(buffer).TrimEnd('\0');
+		}
+		ImGui.SameLine();
+	
+		if (ImGui.Button("Clear Filter"))
+		{
+			filterString = string.Empty;
+		}
+
+		ImGui.SameLine();
 		if (ImGui.Button("GenerateTestMessages"))
 		{
 			for (var i = 0; i < 5; i++)
@@ -61,23 +102,37 @@ public class ImGuiLoggerWindow : ILogSink, IPanel
 				Debug.Error("e");
 			}
 		}
+
+		IEnumerable<LogMessage> data = logQueue;
+
+		data = data.Where(x =>
+		{
+			var result = (int) x.Level >= currentLevel;
+			if (result && !string.IsNullOrEmpty(filterString))
+			{
+				result = x.Message.Contains(filterString);
+			}
+
+			return result;
+		});
+
+
+		var dataCount = data.Count();
 		ImGui.SameLine();
-		ImGui.Text($"Count: {logQueue.Count}");
-		
-		
+		ImGui.Text($"Count: {dataCount} / {logQueue.Count}");
 		ImGui.BeginChild("LogScrollingRegion", new Vector2(-scrollWidth, -ImGui.GetFrameHeightWithSpacing()), false,
 			ImGuiWindowFlags.NoScrollbar);
 		var height = GetLogMessageHeight("Test");
 		var availableHeight = ImGui.GetContentRegionAvail().Y;
 		var elementsToShow = (int) (availableHeight / height);
-		var maxStartIndex = Math.Max(logQueue.Count - elementsToShow, 0);
+		var maxStartIndex = Math.Max(dataCount - elementsToShow, 0);
 
 		var startIndex = maxStartIndex - (int) (val * maxStartIndex);
 		startIndex = Math.Max(startIndex, 0);
 
-		var endIndex = Math.Min(startIndex + elementsToShow, logQueue.Count - 1);
+		var endIndex = Math.Min(startIndex + elementsToShow, dataCount);
 
-		LogMessage[] logArray = logQueue.Skip(startIndex).Take(endIndex - startIndex).ToArray();
+		LogMessage[] logArray = data.Skip(startIndex).Take(endIndex - startIndex).ToArray();
 		for (var i = 0; i < logArray.Length; i++)
 		{
 			DrawLog(logArray[i]);

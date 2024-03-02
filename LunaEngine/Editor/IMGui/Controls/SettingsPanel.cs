@@ -12,11 +12,11 @@ public class SettingsPanel : IPanel
 
 	public SettingsPanel()
 	{
-		string s = SettingsController.GetSetting("Test String", settingsCategory, true, "Testing123");
-		float f = SettingsController.GetSetting("Test Float", settingsCategory, true, 5f);
+		string s = EditorSettings.GetSetting("Test String", settingsCategory, true, "Testing123");
+		float f = EditorSettings.GetSetting("Test Float", settingsCategory, true, 5f);
 
-		int i = SettingsController.GetSetting("Test Int", settingsCategory, true, (int)1);
-		bool b = SettingsController.GetSetting("Test Bool", settingsCategory, true, true);
+		int i = EditorSettings.GetSetting("Test Int", settingsCategory, true, (int)1);
+		bool b = EditorSettings.GetSetting("Test Bool", settingsCategory, true, true);
 	}
 
 	public void Draw(Renderer renderer)
@@ -41,12 +41,12 @@ public class SettingsPanel : IPanel
 			ImGui.Separator();
 			if (ImGui.BeginTabBar("category"))
 			{
-				foreach (var category in SettingsController.settingsDict.Values.Where(x => x.Exposed)
+				foreach (var category in EditorSettings.settingsDict.Values.Where(x => x.Exposed)
 					         .Select(x => x.Category).Distinct())
 				{
 					if (ImGui.BeginTabItem(category))
 					{
-						foreach (var setting in SettingsController.settingsDict.Values.Where(x =>
+						foreach (var setting in EditorSettings.settingsDict.Values.Where(x =>
 							         x.Category == category && x.Exposed))
 						{
 							ImGui.Text(setting.Name);

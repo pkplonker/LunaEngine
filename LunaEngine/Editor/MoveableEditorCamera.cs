@@ -15,11 +15,11 @@ public class MoveableEditorCamera : EditorCamera
 		if (!input.IsMousePressed(InputController.MouseButton.Right)) return;
 		float deltaTime = Time.DeltaTime;
 
-		float speed = SettingsController.GetSetting("Key Speed", settingsCategory, true, 10f);
-		float speedMultiplier = SettingsController.GetSetting("Speed Multiplier", settingsCategory, true, 5f);
+		float speed = EditorSettings.GetSetting("Key Speed", settingsCategory, true, 10f);
+		float speedMultiplier = EditorSettings.GetSetting("Speed Multiplier", settingsCategory, true, 5f);
 
-		float mouseSensitivityX = SettingsController.GetSetting("Mouse Sensitivity X", settingsCategory, true, 0.3f);
-		float mouseSensitivityY = SettingsController.GetSetting("Mouse Sensitivity Y", settingsCategory, true, 0.5f);
+		float mouseSensitivityX = EditorSettings.GetSetting("Mouse Sensitivity X", settingsCategory, true, 0.3f);
+		float mouseSensitivityY = EditorSettings.GetSetting("Mouse Sensitivity Y", settingsCategory, true, 0.5f);
 
 		float currentSpeed = speed;
 		if (input.IsKeyPressed(InputController.Key.ShiftLeft))

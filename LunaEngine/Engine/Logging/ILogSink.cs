@@ -10,7 +10,7 @@ public enum LogLevel
 	Debug,
 	Info,
 	Warning,
-	Error
+	Error,
 }
 
 public class LogMessage

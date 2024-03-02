@@ -1,8 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Engine.Logging;
+using Newtonsoft.Json;
 
 namespace Editor;
 
-public static class SettingsController
+public static class EditorSettings
 {
 	public static Dictionary<string, Setting> settingsDict = new();
 	private const string SettingsFilePath = "settings.json";
@@ -88,5 +89,18 @@ public static class SettingsController
 		}
 
 		return (bool) setting.Prop;
+	}
+
+	public static void SaveSetting(string name, object value)
+	{
+		if (!settingsDict.TryGetValue(name, out var setting)) return;
+		if (value.GetType() == setting.Type)
+		{
+			setting.Prop = value;
+		}
+		else
+		{
+			Debug.Warning("Tried to save setting {name} with incorrect value Type");
+		}
 	}
 }
