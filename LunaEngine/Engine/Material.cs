@@ -50,9 +50,13 @@ public class Material
 
 	private void BindTexture(Texture? texture, Material.TextureType textureType)
 	{
-		if (texture == null) return;
-		var textureUnit = (int) textureType;
-		texture?.Bind(TextureUnit.Texture0 + textureUnit);
-		Shader.SetUniform("uAlbedo", textureUnit);
+		int textureUnit = -1;
+		if (texture != null)
+		{
+			textureUnit = (int) textureType;
+			texture?.Bind(TextureUnit.Texture0 + textureUnit);
+		}
+
+		Shader.SetUniform($"u{Enum.GetName(textureType)}", textureUnit);
 	}
 }

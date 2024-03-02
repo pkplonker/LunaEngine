@@ -184,20 +184,20 @@ namespace Editor
 			var cube = new GameObject();
 			cube.Name = "Cube";
 
-			SceneController.ActiveScene.AddGameObject(cube);
-			cube.AddComponent<RotateComponent>();
-			cube.AddComponent<MeshFilter>()
-				?.AddMesh(ResourceManager.GetMesh(@"models/TestCube.obj".MakeProjectAbsolute()));
-			cube.AddComponent<MeshRenderer>().Material = new Material(
-				ResourceManager.GetShader(
-					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
-					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
-				));
-
-			cube.GetComponent<MeshRenderer>().Material.Albedo =
-				ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
-			cube.GetComponent<MeshRenderer>().Material.Normal =
-				ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
+			// SceneController.ActiveScene.AddGameObject(cube);
+			// cube.AddComponent<RotateComponent>();
+			// cube.AddComponent<MeshFilter>()
+			// 	?.AddMesh(ResourceManager.GetMesh(@"models/TestCube.obj".MakeProjectAbsolute()));
+			// cube.AddComponent<MeshRenderer>().Material = new Material(
+			// 	ResourceManager.GetShader(
+			// 		@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
+			// 		@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
+			// 	));
+			//
+			// cube.GetComponent<MeshRenderer>().Material.Albedo =
+			// 	ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
+			// cube.GetComponent<MeshRenderer>().Material.Normal =
+			// 	ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
 
 			var sphere = new GameObject();
 			sphere.Name = "Sphere";
@@ -213,10 +213,10 @@ namespace Editor
 					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
 				));
 
-			sphere.GetComponent<MeshRenderer>().Material.Albedo =
-				ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
-			sphere.GetComponent<MeshRenderer>().Material.Normal =
-				ResourceManager.GetTexture(@"/textures/uvgrid.png".MakeProjectAbsolute());
+			// sphere.GetComponent<MeshRenderer>().Material.Albedo =
+			// 	ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
+			// sphere.GetComponent<MeshRenderer>().Material.Normal =
+			// 	ResourceManager.GetTexture(@"/textures/uvgrid.png".MakeProjectAbsolute());
 			// go.GetComponent<MeshRenderer>().Material.Metallic =
 			// 	ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
 			// go.GetComponent<MeshRenderer>().Material.Roughness =
