@@ -4,11 +4,11 @@ using Silk.NET.OpenGL;
 
 namespace Engine;
 
-public class MeshRenderer : IRenderableComponent
+public class MeshRenderer : Component, IRenderableComponent
 {
 	public Material Material { get; set; }
 
-	public MeshRenderer(GameObject gameObject)
+	public MeshRenderer(GameObject gameObject) : base(gameObject)
 	{
 		this.GameObject = gameObject;
 	}
@@ -33,7 +33,6 @@ public class MeshRenderer : IRenderableComponent
 		}
 	}
 
-	public GameObject GameObject { get; set; }
 	public void Update() { }
 
 	public void Clone(MeshRenderer? dmr)

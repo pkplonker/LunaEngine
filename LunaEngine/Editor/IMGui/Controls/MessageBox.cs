@@ -23,6 +23,11 @@ public class MessageBox
 		MessageBox.onConfirm = onConfirm;
 		isVisible = true;
 	}
+	public static void Show(string message)
+	{
+		MessageBox.message = message;
+		isVisible = true;
+	}
 
 	public static void Render()
 	{

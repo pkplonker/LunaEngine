@@ -3,6 +3,7 @@ using Silk.NET.OpenGL;
 
 namespace Engine;
 
+[Inspectable]
 [Serializable]
 public class Material
 {
@@ -15,18 +16,38 @@ public class Material
 		AO
 	}
 
-	public int TestProp { get; set; } = 22;
-	public float TestProp2 { get; set; } = 99;
-	public bool TestProp3 { get; set; } = true;
+	[Inspectable(false)]
+	[Serializable(true)]
+	public Guid GUID { get; private set; } = Guid.NewGuid();
 
-	[Serializable(false)] public Guid GUID { get; private set; } = Guid.NewGuid();
+	[Inspectable]
+	[Serializable(false)]
+	public Shader? Shader { get; set; }
 
-	[Serializable] public Shader? Shader { get; set; }
-	[Serializable] public Texture? Albedo { get; set; }
-	[Serializable] public Texture? Normal { get; set; }
-	[Serializable] public Texture? Metallic { get; set; }
-	[Serializable] public Texture? Roughness { get; set; }
-	[Serializable] public Texture? AO { get; set; }
+	[Inspectable]
+	[Serializable(false)]
+
+	public Texture? Albedo { get; set; }
+
+	[Inspectable]
+	[Serializable(false)]
+
+	public Texture? Normal { get; set; }
+
+	[Inspectable]
+	[Serializable(false)]
+
+	public Texture? Metallic { get; set; }
+
+	[Inspectable]
+	[Serializable(false)]
+
+	public Texture? Roughness { get; set; }
+
+	[Inspectable]
+	[Serializable(false)]
+
+	public Texture? AO { get; set; }
 
 	public Material(Shader? shader)
 	{

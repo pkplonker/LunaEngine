@@ -10,6 +10,7 @@ using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
 using MessageBox = Editor.Controls.MessageBox;
+using Scene = Engine.Scene;
 
 namespace Editor;
 
@@ -117,6 +118,7 @@ public class EditorImGuiController : IDisposable
 
 		ImGui.ShowDemoWindow();
 		MessageBox.Render();
+		InfoBox.Render();
 		DrawMenu();
 	}
 
@@ -128,12 +130,14 @@ public class EditorImGuiController : IDisposable
 			{
 				if (ImGui.MenuItem("New", "Ctrl+N"))
 				{
-					//New();
+					SceneController.ActiveScene = new Scene();
 				}
 
 				if (ImGui.MenuItem("Save", "Ctrl+S"))
 				{
-					//Save();
+					var result = new SceneSerializer(SceneController.ActiveScene,
+						Path.Combine(ProjectManager.ActiveProject.Directory, "TestScene.SCENE")).Serialize();
+					InfoBox.Show(result ? "Saved" : "Failed to save");
 				}
 
 				if (ImGui.MenuItem("Save As", "Ctrl+Shft+S"))

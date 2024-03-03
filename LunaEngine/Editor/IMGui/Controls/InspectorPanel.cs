@@ -42,7 +42,7 @@ public class InspectorPanel : IPanel
 				val => go.Enabled = val
 			);
 			ImGui.SameLine();
-			ImGui.Text($"{go.Name}: {go.Guid.ToString()}");
+			ImGui.Text($"{go.Name}: {go.Transform.Guid.ToString()}");
 			ImGuiHelpers.DrawTransform(go.Transform);
 
 			foreach (var component in go.GetComponents())

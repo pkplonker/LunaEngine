@@ -41,7 +41,7 @@ public class HierarchyPanel : IPanel
 
 	private void DrawChildren(Transform transform)
 	{
-		foreach (var gameobject in transform.GetChildrenAsGameObjects())
+		foreach (var gameobject in transform.ChildrenAsGameObjects)
 		{
 			DrawGameObjectNode(gameobject);
 		}
@@ -65,7 +65,7 @@ public class HierarchyPanel : IPanel
 			flags |= ImGuiTreeNodeFlags.Leaf;
 		}
 
-		bool nodeOpen = ImGui.TreeNodeEx($"{go.Name}##{go.Guid}", flags);
+		bool nodeOpen = ImGui.TreeNodeEx($"{go.Name}##{go.Transform.Guid}", flags);
 
 		if (selected)
 		{

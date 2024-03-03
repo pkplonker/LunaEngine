@@ -4,7 +4,7 @@ namespace Engine;
 
 public class RotateComponent : Component
 {
-	[Serializable]
+	[Inspectable]
 	private float rotationAmount = 0.35f;
 	public RotateComponent(GameObject gameObject) : base(gameObject) { }
 

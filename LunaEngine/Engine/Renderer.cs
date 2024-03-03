@@ -71,7 +71,7 @@ public class Renderer
 		}
 
 		var renderPassData = new RenderPassData(scene.ActiveCamera.GetView(), scene.ActiveCamera.GetProjection());
-		foreach (var component in scene.AllGameObjects.Select(go => go?.GetComponent<IRenderableComponent>()))
+		foreach (var component in scene.ChildrenAsGameObjectsRecursive.Select(go => go?.GetComponent<IRenderableComponent>()))
 		{
 			component?.Render(this, renderPassData);
 		}

@@ -3,9 +3,10 @@ using Silk.NET.OpenGL;
 
 namespace Engine;
 
+[Serializable]
 public class Mesh : IDisposable
 {
-	public Mesh(GL gl, float[] vertices, uint[] indices)
+	public Mesh(GL gl, float[] vertices, uint[] indices, string path)
 	{
 		GL = gl;
 		Vertices = vertices;
@@ -13,13 +14,32 @@ public class Mesh : IDisposable
 		SetupMesh();
 	}
 
+	[Serializable(false)]
 	public float[] Vertices { get; private set; }
+
+	[Serializable(false)]
+
 	public uint[] Indices { get; private set; }
+
+	[Serializable(false)]
+
 	public VertexArrayObject<float, uint> VAO { get; set; }
+
+	[Serializable(false)]
+
 	public BufferObject<float> VBO { get; set; }
+
+	[Serializable(false)]
+
 	public BufferObject<uint> EBO { get; set; }
+
 	public GL GL { get; }
+
+	[Serializable(false)]
 	private const int vertexSize = 14;
+
+	public Guid GUID { get; set; } = Guid.NewGuid();
+	public string Path { get; set; } = string.Empty;
 
 	public unsafe void SetupMesh()
 	{

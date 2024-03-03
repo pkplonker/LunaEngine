@@ -7,7 +7,7 @@ using File = Silk.NET.Assimp.File;
 
 namespace Engine;
 
-public class ModelLoader 
+public class ModelLoader
 {
 	public static unsafe Mesh? LoadModel(GL gl, string path)
 	{
@@ -17,6 +17,7 @@ public class ModelLoader
 			Debug.Warning($"Failed to find file {path}");
 			return null;
 		}
+
 		var scene = assimp.ImportFile(path, (uint) PostProcessSteps.Triangulate);
 
 		if (scene == null || scene->MFlags == Silk.NET.Assimp.Assimp.SceneFlagsIncomplete || scene->MRootNode == null)
@@ -59,7 +60,7 @@ public class ModelLoader
 				indices.Add(face.MIndices[j]);
 		}
 
-		return new Mesh(gl, BuildVertices(vertices), BuildIndices(indices));
+		return new Mesh(gl, BuildVertices(vertices), BuildIndices(indices), path);
 	}
 
 	private static float[] BuildVertices(List<Vertex> vertexCollection)

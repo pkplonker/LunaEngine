@@ -1,21 +1,16 @@
 ﻿using Silk.NET.Assimp;
 
 namespace Engine;
-
+[Inspectable]
 public class Scene : Transform
 {
-	public IReadOnlyList<Transform> AllTransforms => GetChildren();
-
-	public List<GameObject?> AllGameObjects =>
-		AllTransforms.Where(x => x.GameObject != null).Select(x => x.GameObject).ToList();
-
 	public Scene() : base(null) { }
-
+	public string Name { get; set; } = "Default Scene";
 	public ICamera? ActiveCamera { get; set; }
 
 	public void Update()
 	{
-		foreach (var go in AllGameObjects)
+		foreach (var go in ChildrenAsGameObjectsRecursive)
 		{
 			go?.Update();
 		}
@@ -30,11 +25,12 @@ public class Scene : Transform
 	{
 		if (node == null) return;
 
-		foreach (var child in node.GetChildren())
+		foreach (var child in node.ChildrenRecursive)
 		{
 			node.SetParent(null);
 			ClearRelationshipsRecursive(child);
 		}
+
 		children.Clear();
 	}
 

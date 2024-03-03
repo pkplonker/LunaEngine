@@ -178,7 +178,7 @@ namespace Editor
 
 			var sphere = new GameObject();
 			sphere.Name = "Sphere";
-
+			
 			sphere.AddComponent<RotateComponent>();
 			sphere.AddComponent<MeshFilter>()
 				?.AddMesh(ResourceManager.GetMesh(@"/models/TestSphere.obj".MakeProjectAbsolute()));
@@ -189,10 +189,10 @@ namespace Editor
 					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
 				));
 			sphere.Transform.SetParent(SceneController.ActiveScene);
-
+			
 			var sphereChild = new GameObject();
 			sphereChild.Name = "SphereChild";
-
+			
 			sphereChild.AddComponent<RotateComponent>();
 			sphereChild.AddComponent<MeshFilter>()
 				?.AddMesh(ResourceManager.GetMesh(@"/models/TestSphere.obj".MakeProjectAbsolute()));
@@ -202,12 +202,12 @@ namespace Editor
 					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
 					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
 				));
-
+			
 			sphereChild.Transform.SetParent(sphere.Transform);
-
+			
 			var sphereChild2 = new GameObject();
 			sphereChild2.Name = "SphereChild2";
-
+			
 			sphereChild2.AddComponent<RotateComponent>();
 			sphereChild2.AddComponent<MeshFilter>()
 				?.AddMesh(ResourceManager.GetMesh(@"/models/TestSphere.obj".MakeProjectAbsolute()));
@@ -217,7 +217,7 @@ namespace Editor
 					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
 					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
 				));
-
+			
 			sphereChild2.Transform.SetParent(sphereChild.Transform);
 		}
 

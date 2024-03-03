@@ -4,6 +4,7 @@ using File = System.IO.File;
 
 namespace Engine;
 
+[Inspectable]
 [Serializable]
 public class Texture : IDisposable
 {

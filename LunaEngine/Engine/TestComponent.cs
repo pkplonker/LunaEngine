@@ -6,12 +6,12 @@ public class TestComponent : Component
 
 	public float PropGetSet { get; set; } = 20;
 	public Material Mat { get; set; } = new Material(null);
-	[Serializable] public int PropInspectable = 40;
-	[Serializable] public bool boollt = true;
+	[Inspectable] public int PropInspectable = 40;
+	[Inspectable] public bool boollt = true;
 	
-	[Serializable] public double FieldInspectable = 60;
+	[Inspectable] public double FieldInspectable = 60;
 	
-	[Serializable(CustomName = "Custom Name")]
+	[Inspectable(CustomName = "Custom Name")]
 	public string oldName = "Steve";
 	
 	public string PropGetSetString { get; set; } = null;
@@ -19,7 +19,7 @@ public class TestComponent : Component
 	// not visable
 	public int prop;
 	public int field;
-	[Serializable(false)] public int propGetSetNotInspectable { get; set; }
+	[Inspectable(false)] public int propGetSetNotInspectable { get; set; }
 
 	public TestComponent(GameObject gameObject) : base(gameObject)
 	{

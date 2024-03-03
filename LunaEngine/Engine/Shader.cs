@@ -4,16 +4,22 @@ using Silk.NET.OpenGL;
 
 namespace Engine;
 
-[Serializable]
+[Inspectable]
 public class Shader : IDisposable
 {
 	private uint handle;
 	private GL gl;
 	private Dictionary<string, int> uniformDict = new();
-	public string vertexPath { get; private set; }
-	public string fragmentPath { get; private set; }
+
 	[Serializable(false)]
-	public Guid guid { get; private set; } = Guid.NewGuid();
+	public string vertexPath { get; private set; }
+
+	[Serializable(false)]
+	public string fragmentPath { get; private set; }
+
+	[Inspectable(false)]
+	[Serializable(true)]
+	public Guid GUID { get; private set; } = Guid.NewGuid();
 
 	public Shader(GL gl, string vertexPath, string fragmentPath)
 	{

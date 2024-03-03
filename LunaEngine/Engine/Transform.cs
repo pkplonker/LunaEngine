@@ -2,13 +2,63 @@
 
 namespace Engine;
 
+[Inspectable]
+[Serializable]
 public class Transform
 {
+	[Inspectable(false)]
+	[Serializable(false)]
 	public GameObject? GameObject { get; private set; }
+
 	private bool isDirty = true;
 	private Vector3 position = new(0f);
+
+	[Inspectable(false)]
+	[Serializable(false)]
 	protected HashSet<Transform> children = new();
+
+	[Serializable(true)]
+	public IEnumerable<Guid> ChildrenGuids => children.Select(x => x.Guid);
 	private Transform? parent = null;
+
+	[Inspectable(false)]
+	public Vector3 Forward => Vector3.Transform(-Vector3.UnitZ, Rotation);
+
+	[Inspectable(false)]
+	public Vector3 Back => Vector3.Transform(Vector3.UnitZ, Rotation);
+
+	[Inspectable(false)]
+	public Vector3 Up => Vector3.Transform(Vector3.UnitY, Rotation);
+
+	[Inspectable(false)]
+	public Vector3 Down => Vector3.Transform(-Vector3.UnitY, Rotation);
+
+	[Inspectable(false)]
+	public Vector3 Left => Vector3.Transform(Vector3.UnitX, Rotation);
+
+	[Inspectable(false)]
+	public Vector3 Right => Vector3.Transform(-Vector3.UnitX, Rotation);
+
+	[Inspectable(false)]
+	public bool HasChildren => children.Any();
+
+	public IReadOnlyList<Transform> GetChildren => children.ToList();
+	public Guid Guid { get; set; } = System.Guid.NewGuid();
+
+	public IReadOnlyList<Transform> ChildrenRecursive => children
+		.SelectMany(child => child.ChildrenRecursive)
+		.Concat(children).ToList();
+
+	public IEnumerable<GameObject> ChildrenAsGameObjectsRecursive => children
+		.SelectMany(child => child.ChildrenAsGameObjectsRecursive)
+		.Concat(children.Select(child => child.GameObject))
+		.WhereNotNull()
+		.Distinct()
+		.ToList() ?? Enumerable.Empty<GameObject>();
+
+	public IEnumerable<GameObject> ChildrenAsGameObjects => children
+		.Select(x => x.GameObject)
+		.WhereNotNull();
 
 	public Transform(GameObject? go)
 	{
@@ -25,23 +75,6 @@ public class Transform
 		{
 			newParent.children.Add(this);
 		}
-	}
-
-	public IReadOnlyList<Transform> GetChildren()
-	{
-		return children.SelectMany(child => child.GetChildren()).Concat(children).ToList();
-	}
-
-	public IEnumerable<GameObject> GetChildrenAsGameObjectsRecurisve()
-	{
-		return children.SelectMany(child => child.GetChildrenAsGameObjectsRecurisve())
-			.Concat(children.Select(child => child.GameObject)).WhereNotNull().Distinct()
-			.ToList() ?? Enumerable.Empty<GameObject>();
-	}
-	
-	public IEnumerable<GameObject> GetChildrenAsGameObjects()
-	{
-		return children.Select(x => x.GameObject).WhereNotNull();
 	}
 
 	public Vector3 Position
@@ -87,6 +120,7 @@ public class Transform
 
 	private Matrix4x4 modelMatrix;
 
+	[Inspectable(false)]
 	public Matrix4x4 ModelMatrix
 	{
 		get
@@ -101,16 +135,6 @@ public class Transform
 			return modelMatrix;
 		}
 	}
-
-	public Vector3 Forward => Vector3.Transform(-Vector3.UnitZ, Rotation);
-	public Vector3 Back => Vector3.Transform(Vector3.UnitZ, Rotation);
-
-	public Vector3 Up => Vector3.Transform(Vector3.UnitY, Rotation);
-	public Vector3 Down => Vector3.Transform(-Vector3.UnitY, Rotation);
-
-	public Vector3 Left => Vector3.Transform(Vector3.UnitX, Rotation);
-	public Vector3 Right => Vector3.Transform(-Vector3.UnitX, Rotation);
-	public bool HasChildren => children.Any();
 
 	public void Rotate(float xOffset, float yOffset)
 	{
