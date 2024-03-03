@@ -115,7 +115,7 @@ namespace GameCore
 				SceneController.ActiveScene.AddGameObject(cameraGo);
 				SceneController.ActiveScene.ActiveCamera = cam;
 				
-				renderer.AddScene(SceneController.ActiveScene, new Vector2D<uint>(0, 0), out _);
+				renderer.AddScene(SceneController.ActiveScene, new Vector2D<uint>(0, 0), out _, false);
 				try
 				{
 					window.SetWindowIcon(

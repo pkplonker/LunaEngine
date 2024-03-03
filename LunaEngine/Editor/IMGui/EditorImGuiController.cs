@@ -97,9 +97,9 @@ public class EditorImGuiController : IDisposable
 			}
 
 			var rt = renderer.GetSceneRenderTarget(SceneController.ActiveScene);
-			if (rt != null)
+			if (rt != null && rt is FrameBufferRenderTarget fbrtt)
 			{
-				ImGui.Image(rt.GetHandlePtr(),
+				ImGui.Image(fbrtt.GetTextureHandlePtr(),
 					new Vector2(size.X, size.Y), Vector2.Zero,
 					Vector2.One,
 					Vector4.One,

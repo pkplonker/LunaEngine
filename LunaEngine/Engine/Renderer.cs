@@ -22,13 +22,13 @@ public class Renderer
 	public int ShadersUsed { get; private set; }
 	public uint Triangles { get; set; }
 	public uint Vertices { get; set; }
-	private Dictionary<Scene, RenderTarget> sceneRenderTargets = new Dictionary<Scene, RenderTarget>();
+	private Dictionary<Scene, IRenderTarget> sceneRenderTargets = new Dictionary<Scene, IRenderTarget>();
 
-	public void AddScene(Scene scene, Vector2D<uint> size, out RenderTarget renderTarget)
+	public void AddScene(Scene scene, Vector2D<uint> size, out IRenderTarget renderTarget, bool toFrameBuffer)
 	{
 		if (!sceneRenderTargets.ContainsKey(scene))
 		{
-			renderTarget = GenerateFrameBuffer(size.X, size.Y);
+			renderTarget = GenerateIRenderTarget(size.X, size.Y,toFrameBuffer);
 			sceneRenderTargets.Add(scene, renderTarget);
 		}
 
@@ -58,11 +58,9 @@ public class Renderer
 		}
 	}
 
-	private void DrawScene(RenderTarget renderTarget, Scene scene)
+	private void DrawScene(IRenderTarget renderTarget, Scene scene)
 	{
-		Gl.Viewport(0, 0, (uint) renderTarget.ViewportSize.X, (uint) renderTarget.ViewportSize.Y);
-		Gl.BindFramebuffer(FramebufferTarget.Framebuffer, renderTarget.frameBuffer.Handle);
-
+		renderTarget.Bind(Gl);
 		Gl.Enable(EnableCap.DepthTest);
 		Gl.ClearColor(clearColor);
 		Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
@@ -71,6 +69,7 @@ public class Renderer
 			Debug.Warning("No active camera to render with");
 			return;
 		}
+
 		var renderPassData = new RenderPassData(scene.ActiveCamera.GetView(), scene.ActiveCamera.GetProjection());
 		foreach (var component in scene.GameObjects.Select(go => go?.GetComponent<IRenderableComponent>()))
 		{
@@ -78,7 +77,14 @@ public class Renderer
 		}
 	}
 
-	public void Resize(Vector2D<int> size) => WindowSize = size;
+	public void Resize(Vector2D<int> size)
+	{
+		WindowSize = size;
+		foreach (var target in sceneRenderTargets)
+		{
+			target.Value?.ResizeWindow(Gl,(uint)size.X, (uint)size.Y);
+		}
+	}
 
 	public void Load(IWindow window)
 	{
@@ -94,7 +100,24 @@ public class Renderer
 		}
 	}
 
-	private unsafe RenderTarget GenerateFrameBuffer(uint sizeX, uint sizeY)
+	private unsafe IRenderTarget GenerateIRenderTarget(uint sizeX, uint sizeY, bool useFrameBuffer)
+	{
+		if (useFrameBuffer)
+		{
+			return GenerateFrameBufferRenderTarget(sizeX, sizeY);
+		}
+		else
+		{
+			return GenerateRenderTarget();
+		}
+	}
+
+	private IRenderTarget GenerateRenderTarget()
+	{
+		return new RenderTarget(WindowSize.X,WindowSize.Y);
+	}
+
+	private unsafe FrameBufferRenderTarget GenerateFrameBufferRenderTarget(uint sizeX, uint sizeY)
 	{
 		Gl.GenFramebuffers(1, out Framebuffer framebuffer);
 		Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer.Handle);
@@ -111,7 +134,7 @@ public class Renderer
 
 		Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0,
 			TextureTarget.Texture2D, rt.Handle, 0);
-		return new RenderTarget(framebuffer, rt, new Vector2D<int>((int) sizeX, (int) sizeY));
+		return new FrameBufferRenderTarget(framebuffer, rt, new Vector2D<int>((int) sizeX, (int) sizeY));
 	}
 
 	public void SetRenderTargetSize(Scene scene, Vector2D<float> size)
@@ -120,7 +143,7 @@ public class Renderer
 		{
 			if (sceneRenderTargets.TryGetValue(scene, out var rt))
 			{
-				rt.ResizeTexture(Gl, (uint) size.X, (uint) size.Y);
+				rt.ResizeViewport(Gl, (uint) size.X, (uint) size.Y);
 			}
 		}
 	}
@@ -129,7 +152,7 @@ public class Renderer
 	{
 		unsafe
 		{
-			target.ResizeTexture(Gl, (uint) size.X, (uint) size.Y);
+			target.ResizeViewport(Gl, (uint) size.X, (uint) size.Y);
 		}
 	}
 
@@ -168,7 +191,7 @@ public class Renderer
 		material.Use(this, data, modelMatrix);
 	}
 
-	public RenderTarget? GetSceneRenderTarget(Scene scene) =>
+	public IRenderTarget? GetSceneRenderTarget(Scene scene) =>
 		sceneRenderTargets.TryGetValue(scene, out var rt) ? rt : null;
 }
 
