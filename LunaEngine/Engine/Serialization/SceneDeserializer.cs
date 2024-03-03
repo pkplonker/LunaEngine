@@ -191,13 +191,21 @@ namespace Engine
 								DeserializeProperties(elementObj, elementToken as JObject);
 							}
 
-							if (collectionInstance is IList list)
+							if (typeof(ISet<>).MakeGenericType(elementType).IsAssignableFrom(collectionType))
+							{
+								MethodInfo addMethod = collectionType.GetMethod("Add", new[] {elementType});
+								if (addMethod != null)
+								{
+									addMethod.Invoke(collectionInstance, new[] {elementObj});
+								}
+								else
+								{
+									Logger.Warning($"Add method not found for collection type '{collectionType.Name}'");
+								}
+							}
+							else if (collectionInstance is IList list)
 							{
 								list.Add(elementObj);
-							}
-							else if (collectionInstance is ISet<object> set)
-							{
-								set.Add(elementObj);
 							}
 						}
 

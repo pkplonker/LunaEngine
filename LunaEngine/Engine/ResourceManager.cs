@@ -18,6 +18,7 @@ public static class ResourceManager
 	private static Dictionary<Guid, Mesh> guidToMeshes = new Dictionary<Guid, Mesh>();
 	private static Dictionary<Guid, Shader> guidToShaders = new Dictionary<Guid, Shader>();
 	private static Dictionary<Guid, Material> guidToMaterialss = new Dictionary<Guid, Material>();
+	private static Dictionary<Guid, string> guidToPath = new Dictionary<Guid, string>();
 
 	private static GL gl;
 
@@ -43,6 +44,7 @@ public static class ResourceManager
 				{
 					textures.TryAdd(path, texture);
 					guidToTextures.TryAdd(texture.GUID, texture);
+					guidToPath[texture.GUID] = path;
 				}
 			}
 			catch (Exception e)
@@ -64,6 +66,7 @@ public static class ResourceManager
 			{
 				meshes.TryAdd(path, mesh);
 				guidToMeshes.TryAdd(mesh.GUID, mesh);
+				guidToPath[mesh.GUID] = path;
 			}
 		}
 
@@ -72,6 +75,19 @@ public static class ResourceManager
 
 	public static Shader? GetShader(string vertPath = "", string fragPath = "")
 	{
+		var split = vertPath.Split('|');
+		if (split.Length == 2)
+		{
+			vertPath = split[0];
+			fragPath = split[1];
+		}
+
+		var key = vertPath + "|" + fragPath;
+		if (shaders.ContainsKey(key))
+		{
+			return shaders[key];
+		}
+
 		if (string.IsNullOrEmpty(vertPath))
 		{
 			vertPath = DEFAULT_VERT;
@@ -80,13 +96,6 @@ public static class ResourceManager
 		if (string.IsNullOrEmpty(fragPath))
 		{
 			fragPath = DEFAULT_FRAG;
-		}
-
-		var key = vertPath + fragPath;
-
-		if (shaders.ContainsKey(key))
-		{
-			return shaders[key];
 		}
 
 		Shader shader;
@@ -105,6 +114,7 @@ public static class ResourceManager
 		{
 			shaders.TryAdd(key, shader);
 			guidToShaders.TryAdd(shader.GUID, shader);
+			guidToPath[shader.GUID] = key;
 		}
 
 		return shader;
@@ -114,6 +124,26 @@ public static class ResourceManager
 
 	public static object? GetResourceByGuid(Type resourceType, Guid guid)
 	{
+		if (resourceType == typeof(Texture) && guidToTextures.TryGetValue(guid, out var texture))
+		{
+			return texture;
+		}
+
+		if (resourceType == typeof(Mesh) && guidToMeshes.TryGetValue(guid, out var mesh))
+		{
+			return mesh;
+		}
+
+		if (resourceType == typeof(Shader) && guidToMeshes.TryGetValue(guid, out var shader))
+		{
+			return shader;
+		}
+
+		if (resourceType == typeof(Material) && guidToMeshes.TryGetValue(guid, out var material))
+		{
+			return material;
+		}
+
 		if (!guidToResourcePath.TryGetValue(guid, out var resourcePath))
 		{
 			Logger.Warning($"No resource found for GUID {guid}");
@@ -126,13 +156,20 @@ public static class ResourceManager
 			{
 				return GetTexture(resourcePath);
 			}
+
 			if (resourceType == typeof(Mesh))
 			{
 				return GetMesh(resourcePath);
 			}
+
 			if (resourceType == typeof(Shader))
 			{
 				return GetShader(resourcePath);
+			}
+
+			if (resourceType == typeof(Material))
+			{
+				return GetMaterial(resourcePath);
 			}
 		}
 		catch (Exception e)
@@ -140,6 +177,11 @@ public static class ResourceManager
 			Logger.Warning($"Failed to retrieve resource for GUID {guid}: {e}");
 		}
 
+		return null;
+	}
+
+	private static Material? GetMaterial(string resourcePath)
+	{
 		return null;
 	}
 }
