@@ -6,7 +6,6 @@ using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
 using StbImageSharp;
-using Debug = Engine.Logging.Debug;
 
 namespace GameCore
 {
@@ -31,8 +30,8 @@ namespace GameCore
 
 		private void Setup()
 		{
-			Debug.Start();
-			Debug.AddSink(new ConsoleLogSink());
+			Logger.Start();
+			Logger.AddSink(new ConsoleLogSink());
 			var options = WindowOptions.Default;
 			options.Size = new Vector2D<int>(WINDOW_SIZE_X, WINDOW_SIZE_Y);
 			options.Title = WINDOW_NAME;
@@ -70,12 +69,12 @@ namespace GameCore
 					}
 					catch (Exception ex)
 					{
-						Debug.Error("An error occurred during window run: " + ex.Message);
+						Logger.Error("An error occurred during window run: " + ex.Message);
 					}
 				}
 				catch (Exception ex)
 				{
-					Debug.Error("An error occurred during shutdown: " + ex.Message);
+					Logger.Error("An error occurred during shutdown: " + ex.Message);
 				}
 				finally
 				{
@@ -85,7 +84,7 @@ namespace GameCore
 					}
 					catch (Exception e)
 					{
-						Debug.Error("Failed to dispose");
+						Logger.Error("Failed to dispose");
 					}
 				}
 			}
@@ -125,7 +124,7 @@ namespace GameCore
 				}
 				catch (Exception e)
 				{
-					Debug.Error(e);
+					Logger.Error(e);
 				}
 			}
 			else

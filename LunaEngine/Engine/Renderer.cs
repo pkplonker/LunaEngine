@@ -66,7 +66,7 @@ public class Renderer
 		Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 		if (scene.ActiveCamera == null)
 		{
-			Debug.Warning("No active camera to render with");
+			Logger.Warning("No active camera to render with");
 			return;
 		}
 

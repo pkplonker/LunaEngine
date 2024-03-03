@@ -3,7 +3,7 @@
 public interface IComponent
 {
 	[Serializable(false)]
-	public GameObject GameObject { get; protected set; }
+	public GameObject GameObject { get; set; }
 
 	public void Update();
 }

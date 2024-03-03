@@ -9,6 +9,7 @@ using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
+using Debug = System.Diagnostics.Debug;
 using MessageBox = Editor.Controls.MessageBox;
 using Scene = Engine.Scene;
 
@@ -65,7 +66,7 @@ public class EditorImGuiController : IDisposable
 		controls.Add(new Stats(inputController), true);
 		controls.Add(new EditorCameraPanel(editorCamera), true);
 		controls.Add(new UndoRedoPanel(), true);
-		controls.Add(new HierarchyPanel(this,inputController), true);
+		controls.Add(new HierarchyPanel(this, inputController), true);
 		var inspector = new InspectorPanel(this);
 		controls.Add(inspector, true);
 		controls.Add(new ObjectPreviewPanel(inspector, inputController), true);
@@ -124,6 +125,7 @@ public class EditorImGuiController : IDisposable
 
 	private void DrawMenu()
 	{
+		var testScenePath = Path.Combine(ProjectManager.ActiveProject.Directory, "TestScene.SCENE");
 		if (ImGui.BeginMainMenuBar())
 		{
 			if (ImGui.BeginMenu("File"))
@@ -136,8 +138,7 @@ public class EditorImGuiController : IDisposable
 				if (ImGui.MenuItem("Save", "Ctrl+S"))
 				{
 					var result = new SceneSerializer(SceneController.ActiveScene,
-						Path.Combine(ProjectManager.ActiveProject.Directory, "TestScene.SCENE")).Serialize();
-					InfoBox.Show(result ? "Saved" : "Failed to save");
+						testScenePath).Serialize();
 				}
 
 				if (ImGui.MenuItem("Save As", "Ctrl+Shft+S"))
@@ -147,7 +148,11 @@ public class EditorImGuiController : IDisposable
 
 				if (ImGui.MenuItem("Open", "Ctrl+O"))
 				{
-					//LoadScene();
+					Scene? result = new SceneDeserializer(testScenePath).Deserialize();
+					if (result != null)
+					{
+						SceneController.ActiveScene = result;
+					}
 				}
 
 				ImGui.EndMenu();
@@ -180,12 +185,13 @@ public class EditorImGuiController : IDisposable
 			if (ImGui.BeginMenu("Tools")) { }
 
 			ImGui.EndMainMenuBar();
-			
+
 			if (openSettings)
 			{
 				ImGui.OpenPopup("Settings");
 				openSettings = false;
 			}
+
 			settingsPanel.Draw(renderer);
 		}
 	}

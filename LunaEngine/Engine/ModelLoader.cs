@@ -14,7 +14,7 @@ public class ModelLoader
 		var assimp = Silk.NET.Assimp.Assimp.GetApi();
 		if (!System.IO.File.Exists(path))
 		{
-			Debug.Warning($"Failed to find file {path}");
+			Logger.Warning($"Failed to find file {path}");
 			return null;
 		}
 
@@ -60,7 +60,7 @@ public class ModelLoader
 				indices.Add(face.MIndices[j]);
 		}
 
-		return new Mesh(gl, BuildVertices(vertices), BuildIndices(indices), path);
+		return new Mesh(gl, BuildVertices(vertices), BuildIndices(indices));
 	}
 
 	private static float[] BuildVertices(List<Vertex> vertexCollection)

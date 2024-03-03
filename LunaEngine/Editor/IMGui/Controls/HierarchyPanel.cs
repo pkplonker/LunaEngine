@@ -65,7 +65,7 @@ public class HierarchyPanel : IPanel
 			flags |= ImGuiTreeNodeFlags.Leaf;
 		}
 
-		bool nodeOpen = ImGui.TreeNodeEx($"{go.Name}##{go.Transform.Guid}", flags);
+		bool nodeOpen = ImGui.TreeNodeEx($"{go.Name}##{go.Transform.GUID}", flags);
 
 		if (selected)
 		{

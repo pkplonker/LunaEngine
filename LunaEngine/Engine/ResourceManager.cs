@@ -12,7 +12,12 @@ public static class ResourceManager
 	private static Dictionary<string, Mesh?> meshes = new();
 	private static Dictionary<string, Shader> shaders = new();
 	private static Dictionary<string, Texture> textures = new();
-	//private static Dictionary<string, Material> materials = new();
+	private static Dictionary<string, Material> materials = new();
+
+	private static Dictionary<Guid, Texture> guidToTextures = new Dictionary<Guid, Texture>();
+	private static Dictionary<Guid, Mesh> guidToMeshes = new Dictionary<Guid, Mesh>();
+	private static Dictionary<Guid, Shader> guidToShaders = new Dictionary<Guid, Shader>();
+	private static Dictionary<Guid, Material> guidToMaterialss = new Dictionary<Guid, Material>();
 
 	private static GL gl;
 
@@ -29,29 +34,25 @@ public static class ResourceManager
 
 	public static Texture? GetTexture(string path)
 	{
-		if (textures.ContainsKey(path))
+		if (!textures.ContainsKey(path))
 		{
-			return textures[path];
+			try
+			{
+				var texture = new Texture(gl, path);
+				if (texture != null)
+				{
+					textures.TryAdd(path, texture);
+					guidToTextures.TryAdd(texture.GUID, texture);
+				}
+			}
+			catch (Exception e)
+			{
+				Logger.Warning($"Failed to generate texture: {e}");
+				return null;
+			}
 		}
 
-		Texture texture;
-
-		try
-		{
-			texture = new Texture(gl, path);
-		}
-		catch (Exception e)
-		{
-			Debug.Warning($"Failed to generate texture{e}");
-			return null;
-		}
-
-		if (texture != null)
-		{
-			textures.TryAdd(path, texture);
-		}
-
-		return texture;
+		return textures[path];
 	}
 
 	public static Mesh? GetMesh(string path)
@@ -62,10 +63,11 @@ public static class ResourceManager
 			if (mesh != null)
 			{
 				meshes.TryAdd(path, mesh);
+				guidToMeshes.TryAdd(mesh.GUID, mesh);
 			}
 		}
 
-		return meshes.ContainsKey(path) ? meshes[path] : null;
+		return meshes[path];
 	}
 
 	public static Shader? GetShader(string vertPath = "", string fragPath = "")
@@ -95,15 +97,49 @@ public static class ResourceManager
 		}
 		catch (Exception e)
 		{
-			Debug.Warning($"Failed to generate shader{e}");
+			Logger.Warning($"Failed to generate shader{e}");
 			return null;
 		}
 
 		if (shader != null)
 		{
 			shaders.TryAdd(key, shader);
+			guidToShaders.TryAdd(shader.GUID, shader);
 		}
 
 		return shader;
+	}
+
+	private static Dictionary<Guid, string> guidToResourcePath = new Dictionary<Guid, string>();
+
+	public static object? GetResourceByGuid(Type resourceType, Guid guid)
+	{
+		if (!guidToResourcePath.TryGetValue(guid, out var resourcePath))
+		{
+			Logger.Warning($"No resource found for GUID {guid}");
+			return null;
+		}
+
+		try
+		{
+			if (resourceType == typeof(Texture))
+			{
+				return GetTexture(resourcePath);
+			}
+			if (resourceType == typeof(Mesh))
+			{
+				return GetMesh(resourcePath);
+			}
+			if (resourceType == typeof(Shader))
+			{
+				return GetShader(resourcePath);
+			}
+		}
+		catch (Exception e)
+		{
+			Logger.Warning($"Failed to retrieve resource for GUID {guid}: {e}");
+		}
+
+		return null;
 	}
 }

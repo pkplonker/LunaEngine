@@ -18,7 +18,7 @@ public class Transform
 	protected HashSet<Transform> children = new();
 
 	[Serializable(true)]
-	public IEnumerable<Guid> ChildrenGuids => children.Select(x => x.Guid);
+	public IEnumerable<Guid> ChildrenGuids => children.Select(x => x.GUID);
 	private Transform? parent = null;
 
 	[Inspectable(false)]
@@ -43,7 +43,7 @@ public class Transform
 	public bool HasChildren => children.Any();
 
 	public IReadOnlyList<Transform> GetChildren => children.ToList();
-	public Guid Guid { get; set; } = System.Guid.NewGuid();
+	public Guid GUID { get; set; } = System.Guid.NewGuid();
 
 	public IReadOnlyList<Transform> ChildrenRecursive => children
 		.SelectMany(child => child.ChildrenRecursive)

@@ -51,7 +51,7 @@ public class SettingsPanel : IPanel
 						{
 							ImGui.Text(setting.Name);
 							ImGui.SameLine();
-							Debug.Log($"{setting} {setting.GetHashCode()}");
+							Logger.Log($"{setting} {setting.GetHashCode()}");
 
 							switch (setting.Prop)
 							{

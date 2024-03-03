@@ -2,7 +2,7 @@
 
 namespace Engine.Logging;
 
-public static class Debug
+public static class Logger
 {
 	private static ConcurrentQueue<LogMessage> logQueue = new ConcurrentQueue<LogMessage>();
 	private static ConcurrentBag<ILogSink> sinks = new ConcurrentBag<ILogSink>();
@@ -10,7 +10,7 @@ public static class Debug
 	private static readonly Thread loggerThread;
 	private const int threadInterval = 10;
 
-	static Debug()
+	static Logger()
 	{
 		loggerThread = new Thread(new ThreadStart(ProcessLogs))
 		{

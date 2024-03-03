@@ -42,7 +42,7 @@ public class InspectorPanel : IPanel
 				val => go.Enabled = val
 			);
 			ImGui.SameLine();
-			ImGui.Text($"{go.Name}: {go.Transform.Guid.ToString()}");
+			ImGui.Text($"{go.Name}: {go.Transform.GUID.ToString()}");
 			ImGuiHelpers.DrawTransform(go.Transform);
 
 			foreach (var component in go.GetComponents())
@@ -53,7 +53,7 @@ public class InspectorPanel : IPanel
 				}
 				catch (Exception e)
 				{
-					Debug.Warning(e.ToString());
+					Logger.Warning(e.ToString());
 				}
 			}
 

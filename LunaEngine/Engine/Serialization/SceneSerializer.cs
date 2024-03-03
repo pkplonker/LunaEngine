@@ -40,8 +40,17 @@ namespace Engine
 			}
 			catch (Exception e)
 			{
-				Debug.Error(e);
+				Logger.Error(e);
 				result = false;
+			}
+
+			if (result)
+			{
+				Logger.Log($"Serialized scene to {absolutePath}");
+			}
+			else
+			{
+				Logger.Warning($"Failed serializing scene to {absolutePath}");
 			}
 
 			return result;
@@ -51,12 +60,19 @@ namespace Engine
 		{
 			if (go == null) return;
 			var gameObjectJObject = new JObject();
-			var components = go.GetComponents();
+			var componentsJObject = new JObject();
 			SerializeTransform(go.Transform, gameObjectJObject);
 			SerializeProperties(go, gameObjectJObject);
+
+			var components = go.GetComponents();
 			foreach (var component in components)
 			{
-				SerializeComponent(component, gameObjectJObject);
+				SerializeComponent(component, componentsJObject);
+			}
+
+			if (componentsJObject.Count > 0)
+			{
+				gameObjectJObject.Add("components", componentsJObject);
 			}
 
 			rootObject.Add(go.Name, gameObjectJObject);
@@ -64,14 +80,16 @@ namespace Engine
 
 		private void SerializeTransform(Transform transform, JObject parentObject)
 		{
-			SerializeProperties(transform, parentObject);
+			var transformJObject = new JObject();
+			SerializeProperties(transform, transformJObject);
+			parentObject.Add("transform", transformJObject);
 		}
 
 		private void SerializeComponent(IComponent component, JObject parentObject)
 		{
 			var componentJObject = new JObject();
 			SerializeProperties(component, componentJObject);
-			parentObject.Add(component.GetType().Name, componentJObject);
+			parentObject.Add(component.GetType().AssemblyQualifiedName, componentJObject);
 		}
 
 		private BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
@@ -111,7 +129,7 @@ namespace Engine
 			}
 			catch (Exception e)
 			{
-				Debug.Warning($"Err {obj.GetType()}");
+				Logger.Warning($"Err {obj.GetType()}");
 			}
 		}
 
@@ -120,8 +138,22 @@ namespace Engine
 			var value = member.GetValue(obj);
 
 			var attribute = value?.GetType().GetCustomAttribute<SerializableAttribute>();
-
-			if (value != null && attribute != null && attribute.Show)
+			var resourceAttribute = value?.GetType().GetCustomAttribute<ResourceIdentifierAttribute>();
+			if (value != null && resourceAttribute != null)
+			{
+				var guidProperty = member.MemberType.GetProperty("GUID");
+				if (guidProperty != null)
+				{
+					var guidValue = guidProperty.GetValue(value);
+					parentObject.Add(member.Name, JToken.FromObject(guidValue, serializer));
+				}
+				else
+				{
+					Logger.Warning($"GUID property null when serializing");
+					return;
+				}
+			}
+			else if (value != null && attribute != null && attribute.Show)
 			{
 				var customObjectJObject = new JObject();
 				SerializeProperties(value, customObjectJObject);
@@ -134,9 +166,29 @@ namespace Engine
 					var array = new JArray();
 					foreach (var element in collection)
 					{
-						var elementObject = new JObject();
-						SerializeProperties(element, elementObject);
-						array.Add(elementObject);
+						var elementType = element.GetType();
+						var resourceAttri = elementType.GetCustomAttribute<ResourceIdentifierAttribute>();
+
+						if (resourceAttri != null)
+						{
+							var guidProperty = elementType.GetProperty("GUID");
+							if (guidProperty != null)
+							{
+								var guidValue = guidProperty.GetValue(element);
+								array.Add(JToken.FromObject(guidValue, serializer));
+							}
+							else
+							{
+								Logger.Warning(
+									$"GUID property not found for element in collection marked with ResourceIdentifierAttribute.");
+							}
+						}
+						else
+						{
+							var elementObject = new JObject();
+							SerializeProperties(element, elementObject);
+							array.Add(elementObject);
+						}
 					}
 
 					parentObject.Add(member.Name, array);

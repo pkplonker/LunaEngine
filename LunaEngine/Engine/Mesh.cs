@@ -4,9 +4,10 @@ using Silk.NET.OpenGL;
 namespace Engine;
 
 [Serializable]
+[ResourceIdentifier]
 public class Mesh : IDisposable
 {
-	public Mesh(GL gl, float[] vertices, uint[] indices, string path)
+	public Mesh(GL gl, float[] vertices, uint[] indices)
 	{
 		GL = gl;
 		Vertices = vertices;
@@ -38,8 +39,9 @@ public class Mesh : IDisposable
 	[Serializable(false)]
 	private const int vertexSize = 14;
 
+	[Inspectable(false)]
+	[Serializable]
 	public Guid GUID { get; set; } = Guid.NewGuid();
-	public string Path { get; set; } = string.Empty;
 
 	public unsafe void SetupMesh()
 	{

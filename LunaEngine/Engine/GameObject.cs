@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Diagnostics;
-using Debug = Engine.Logging.Debug;
 
 namespace Engine;
 
@@ -81,4 +80,10 @@ public class GameObject
 	}
 
 	public HashSet<IComponent> GetComponents() => components;
+
+	public void AddComponent(IComponent component)
+	{
+		components.Add(component);
+		component.GameObject = this;
+	}
 }

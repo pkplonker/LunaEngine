@@ -5,6 +5,8 @@ namespace Engine;
 
 [Inspectable]
 [Serializable]
+[ResourceIdentifier]
+
 public class Material
 {
 	public enum TextureType
