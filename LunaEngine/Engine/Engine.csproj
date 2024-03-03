@@ -76,15 +76,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Components\" />
-      <Folder Include="Resources\Textures\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <None Remove="Resources\Shaders\grid.glsl" />
-      <Resource Include="Resources\Shaders\gridVertex.glsl">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
     </ItemGroup>
 
 </Project>

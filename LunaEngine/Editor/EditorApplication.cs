@@ -136,7 +136,7 @@ namespace Editor
 				SceneController.ActiveScene.ActiveCamera = editorCamera;
 				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera,
 					inputController);
-				renderer.AddScene(SceneController.ActiveScene, new Vector2D<uint>(0, 0), out _);
+				renderer.AddScene(SceneController.ActiveScene, new Vector2D<uint>(0, 0), out _, true);
 				try
 				{
 					window.SetWindowIcon(

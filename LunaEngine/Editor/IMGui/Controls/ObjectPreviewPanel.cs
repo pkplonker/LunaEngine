@@ -70,16 +70,16 @@ public class ObjectPreviewPanel : IPanel
 		}
 
 		var size = ImGui.GetContentRegionAvail();
-		renderer.AddScene(scene, new Vector2D<uint>((uint) size.X, (uint) size.Y), out var rt);
+		renderer.AddScene(scene, new Vector2D<uint>((uint) size.X, (uint) size.Y), out var rt, true);
 		if (size != previousSize)
 		{
 			renderer.SetRenderTargetSize(scene, new Vector2D<float>(size.X, size.Y));
 			previousSize = size;
 		}
 
-		if (rt != null)
+		if (rt != null && rt is FrameBufferRenderTarget fbrtt)
 		{
-			ImGui.Image((IntPtr) rt.texture.Handle, new Vector2(size.X, size.Y), Vector2.Zero,
+			ImGui.Image(fbrtt.GetTextureHandlePtr(), new Vector2(size.X, size.Y), Vector2.Zero,
 				Vector2.One,
 				Vector4.One,
 				Vector4.Zero);

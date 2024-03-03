@@ -10,7 +10,7 @@ public class Scene
 	{
 	}
 
-	public ICamera ActiveCamera { get; set; }
+	public ICamera? ActiveCamera { get; set; }
 
 	private void OnGameObjectCreated(GameObject obj)
 	{
