@@ -32,7 +32,7 @@ public class ObjectPreviewPanel : IPanel
 		{
 			case GameObject gameObject:
 				var dummyGo = new GameObject();
-				scene.AddGameObject(dummyGo);
+				dummyGo.Transform.SetParent(scene);
 				var mf = gameObject.GetComponent<MeshFilter>();
 				var mr = gameObject.GetComponent<MeshRenderer>();
 				var dmf = dummyGo.AddComponent<MeshFilter>();
@@ -49,8 +49,9 @@ public class ObjectPreviewPanel : IPanel
 
 				break;
 			case Material material:
-				scene.AddGameObject(materialSphere);
+				materialSphere.Transform.SetParent(scene);
 				materialSphere.GetComponent<MeshRenderer>().Material = material;
+				
 				break;
 			default:
 				// Handle default case

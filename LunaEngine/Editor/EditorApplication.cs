@@ -153,56 +153,32 @@ namespace Editor
 				throw new NullReferenceException($"{nameof(window)} cannot be null");
 			}
 
-			// for (int i = 0; i < 50; i++)
-			// {
-			// 	Debug.Log($"Testing{i}");
-			// }
-			// for (int i = 0; i < 50; i++)
-			// {
-			// 	Debug.Warning($"Testing{i}");
-			// }
-			// for (int i = 0; i < 50; i++)
-			// {
-			// 	Debug.Info($"Testing{i}");
-			// }
-			// for (int i = 0; i < 50; i++)
-			// {
-			// 	Debug.Error($"Testing");
-			// }
-			Debug.Warning("Testing22");
-			Debug.Log("Testing33");
-
 			PerformTest();
 		}
 
 		private void PerformTest()
 		{
-			// var test = new GameObject();
-			// test.AddComponent<TestComponent>();
-			// test.Name = "Test";
-
 			var cube = new GameObject();
 			cube.Name = "Cube";
 
-			// SceneController.ActiveScene.AddGameObject(cube);
-			// cube.AddComponent<RotateComponent>();
-			// cube.AddComponent<MeshFilter>()
-			// 	?.AddMesh(ResourceManager.GetMesh(@"models/TestCube.obj".MakeProjectAbsolute()));
-			// cube.AddComponent<MeshRenderer>().Material = new Material(
-			// 	ResourceManager.GetShader(
-			// 		@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
-			// 		@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
-			// 	));
-			//
-			// cube.GetComponent<MeshRenderer>().Material.Albedo =
-			// 	ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
-			// cube.GetComponent<MeshRenderer>().Material.Normal =
-			// 	ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
+			cube.AddComponent<RotateComponent>();
+			cube.AddComponent<MeshFilter>()
+				?.AddMesh(ResourceManager.GetMesh(@"models/TestCube.obj".MakeProjectAbsolute()));
+			cube.AddComponent<MeshRenderer>().Material = new Material(
+				ResourceManager.GetShader(
+					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
+					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
+				));
+
+			cube.GetComponent<MeshRenderer>().Material.Albedo =
+				ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
+			cube.GetComponent<MeshRenderer>().Material.Normal =
+				ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
+			cube.Transform.SetParent(SceneController.ActiveScene);
 
 			var sphere = new GameObject();
 			sphere.Name = "Sphere";
 
-			SceneController.ActiveScene.AddGameObject(sphere);
 			sphere.AddComponent<RotateComponent>();
 			sphere.AddComponent<MeshFilter>()
 				?.AddMesh(ResourceManager.GetMesh(@"/models/TestSphere.obj".MakeProjectAbsolute()));
@@ -212,32 +188,37 @@ namespace Editor
 					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
 					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
 				));
+			sphere.Transform.SetParent(SceneController.ActiveScene);
 
-			// sphere.GetComponent<MeshRenderer>().Material.Albedo =
-			// 	ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
-			// sphere.GetComponent<MeshRenderer>().Material.Normal =
-			// 	ResourceManager.GetTexture(@"/textures/uvgrid.png".MakeProjectAbsolute());
-			// go.GetComponent<MeshRenderer>().Material.Metallic =
-			// 	ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
-			// go.GetComponent<MeshRenderer>().Material.Roughness =
-			// 	ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
-			// go.GetComponent<MeshRenderer>().Material.AO =
-			// 	ResourceManager.GetTexture(@"/resources/textures/uvgrid.png");
-			// go.Name = "Sphere";
+			var sphereChild = new GameObject();
+			sphereChild.Name = "SphereChild";
 
-			//
-			// var go2 = new GameObject();
-			// go2.AddComponent<RotateComponent>();
-			// go2.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/TestCube.obj"));
-			// go2.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
-			// go2.Transform.Position += new Vector3(1, 0, 0);
-			// go2.Name = "Cube";
-			//
-			// var plane = new GameObject();
-			// plane.AddComponent<MeshFilter>()?.AddMesh(ResourceManager.GetMesh(@"/resources/models/plane.fbx"));
-			// plane.AddComponent<MeshRenderer>().Material = new Material(ResourceManager.GetShader());
-			// plane.Transform.Position += new Vector3(0, 3, 0);
-			// plane.Name = "Plane";
+			sphereChild.AddComponent<RotateComponent>();
+			sphereChild.AddComponent<MeshFilter>()
+				?.AddMesh(ResourceManager.GetMesh(@"/models/TestSphere.obj".MakeProjectAbsolute()));
+			sphereChild.Transform.Translate(new Vector3(-2f, 1.5f, 0));
+			sphereChild.AddComponent<MeshRenderer>().Material = new Material(
+				ResourceManager.GetShader(
+					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
+					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
+				));
+
+			sphereChild.Transform.SetParent(sphere.Transform);
+
+			var sphereChild2 = new GameObject();
+			sphereChild2.Name = "SphereChild2";
+
+			sphereChild2.AddComponent<RotateComponent>();
+			sphereChild2.AddComponent<MeshFilter>()
+				?.AddMesh(ResourceManager.GetMesh(@"/models/TestSphere.obj".MakeProjectAbsolute()));
+			sphereChild2.Transform.Translate(new Vector3(-2f, 0, 0));
+			sphereChild2.AddComponent<MeshRenderer>().Material = new Material(
+				ResourceManager.GetShader(
+					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
+					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
+				));
+
+			sphereChild2.Transform.SetParent(sphereChild.Transform);
 		}
 
 		private void OnRender(double deltaTime)

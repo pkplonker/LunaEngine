@@ -64,7 +64,7 @@ public class EditorImGuiController : IDisposable
 		controls.Add(new Stats(inputController), true);
 		controls.Add(new EditorCameraPanel(editorCamera), true);
 		controls.Add(new UndoRedoPanel(), true);
-		controls.Add(new HierarchyPanel(this), true);
+		controls.Add(new HierarchyPanel(this,inputController), true);
 		var inspector = new InspectorPanel(this);
 		controls.Add(inspector, true);
 		controls.Add(new ObjectPreviewPanel(inspector, inputController), true);

@@ -107,14 +107,15 @@ namespace GameCore
 				var inputContext = window.CreateInput();
 				inputController = new InputController(inputContext);
 				inputController.KeyPress += key => { window.Close(); };
-				
+
 				var cameraGo = new GameObject();
 				cameraGo.Transform.Translate(Vector3.UnitZ * 6);
 				var cam = cameraGo.AddComponent<PerspectiveCamera>();
 				cam.AspectRatio = WINDOW_SIZE_X / (float) WINDOW_SIZE_Y;
+				cameraGo.Transform.SetParent(SceneController.ActiveScene);
 				SceneController.ActiveScene.AddGameObject(cameraGo);
 				SceneController.ActiveScene.ActiveCamera = cam;
-				
+
 				renderer.AddScene(SceneController.ActiveScene, new Vector2D<uint>(0, 0), out _, false);
 				try
 				{

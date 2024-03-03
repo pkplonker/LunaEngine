@@ -28,7 +28,7 @@ public class Renderer
 	{
 		if (!sceneRenderTargets.ContainsKey(scene))
 		{
-			renderTarget = GenerateIRenderTarget(size.X, size.Y,toFrameBuffer);
+			renderTarget = GenerateIRenderTarget(size.X, size.Y, toFrameBuffer);
 			sceneRenderTargets.Add(scene, renderTarget);
 		}
 
@@ -71,7 +71,7 @@ public class Renderer
 		}
 
 		var renderPassData = new RenderPassData(scene.ActiveCamera.GetView(), scene.ActiveCamera.GetProjection());
-		foreach (var component in scene.GameObjects.Select(go => go?.GetComponent<IRenderableComponent>()))
+		foreach (var component in scene.AllGameObjects.Select(go => go?.GetComponent<IRenderableComponent>()))
 		{
 			component?.Render(this, renderPassData);
 		}
@@ -82,7 +82,7 @@ public class Renderer
 		WindowSize = size;
 		foreach (var target in sceneRenderTargets)
 		{
-			target.Value?.ResizeWindow(Gl,(uint)size.X, (uint)size.Y);
+			target.Value?.ResizeWindow(Gl, (uint) size.X, (uint) size.Y);
 		}
 	}
 
@@ -114,7 +114,7 @@ public class Renderer
 
 	private IRenderTarget GenerateRenderTarget()
 	{
-		return new RenderTarget(WindowSize.X,WindowSize.Y);
+		return new RenderTarget(WindowSize.X, WindowSize.Y);
 	}
 
 	private unsafe FrameBufferRenderTarget GenerateFrameBufferRenderTarget(uint sizeX, uint sizeY)

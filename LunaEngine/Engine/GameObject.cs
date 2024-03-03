@@ -11,7 +11,7 @@ public class GameObject
 	public bool Enabled = true;
 	public GameObject()
 	{
-		Transform = new Transform();
+		Transform = new Transform(this);
 	}
 
 	public T? GetComponent<T>() where T : class?, IComponent
