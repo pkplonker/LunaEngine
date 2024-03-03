@@ -185,9 +185,16 @@ namespace Engine
 						}
 						else
 						{
-							var elementObject = new JObject();
-							SerializeProperties(element, elementObject);
-							array.Add(elementObject);
+							if (IsSimpleType(element.GetType()))
+							{
+								array.Add(JToken.FromObject(element, serializer));
+							}
+							else
+							{
+								var elementObject = new JObject();
+								SerializeProperties(element, elementObject);
+								array.Add(elementObject);
+							}
 						}
 					}
 
@@ -200,6 +207,7 @@ namespace Engine
 			}
 		}
 
+		private bool IsSimpleType(Type type) => type.IsValueType || type == typeof(string) || type == typeof(Guid);
 		private bool IsCollection(Type type) => type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type);
 	}
 }

@@ -14,6 +14,7 @@ namespace Engine
 		private readonly string absolutePath;
 		private readonly JsonSerializer serializer;
 		private Dictionary<Guid, GameObject> gameObjectLookup;
+		private Dictionary<Guid, List<Guid>> parentToChildrenGuids = new();
 
 		public SceneDeserializer(string absolutePath)
 		{
@@ -34,27 +35,9 @@ namespace Engine
 				JObject rootObject = JObject.Parse(json);
 				Scene scene = new Scene();
 
-				foreach (var goToken in rootObject)
-				{
-					GameObject go = DeserializeGameObject(goToken.Key, goToken.Value as JObject);
-					if (go != null)
-					{
-						gameObjectLookup.Add(go.Transform.GUID, go);
-						scene.AddGameObject(go);
-					}
-				}
+				DeserializeGameObjects(rootObject, scene);
 
-				foreach (var go in gameObjectLookup.Values)
-				{
-					var childrenGuids = go.Transform.ChildrenGuids; 
-					foreach (var childGuid in childrenGuids)
-					{
-						if (gameObjectLookup.TryGetValue(childGuid, out var child))
-						{
-							child.Transform.SetParent(go.Transform);
-						}
-					}
-				}
+				SetParents();
 
 				return scene;
 			}
@@ -62,6 +45,39 @@ namespace Engine
 			{
 				Logger.Error($"Failed to deserialize {absolutePath} - {e}");
 				return null;
+			}
+		}
+
+		private void SetParents()
+		{
+			foreach (var kvp in parentToChildrenGuids)
+			{
+				var parentGuid = kvp.Key;
+				var childrenGuids = kvp.Value;
+
+				if (gameObjectLookup.TryGetValue(parentGuid, out var parent))
+				{
+					foreach (var childGuid in childrenGuids)
+					{
+						if (gameObjectLookup.TryGetValue(childGuid, out var child))
+						{
+							child.Transform.SetParent(parent.Transform);
+						}
+					}
+				}
+			}
+		}
+
+		private void DeserializeGameObjects(JObject rootObject, Scene scene)
+		{
+			foreach (var goToken in rootObject)
+			{
+				GameObject go = DeserializeGameObject(goToken.Key, goToken.Value as JObject);
+				if (go != null)
+				{
+					gameObjectLookup.Add(go.Transform.GUID, go);
+					scene.AddGameObject(go);
+				}
 			}
 		}
 
@@ -76,6 +92,8 @@ namespace Engine
 			if (transformObject != null)
 			{
 				DeserializeProperties(go.Transform, transformObject);
+				var childGuids = ExtractChildGuids(transformObject);
+				parentToChildrenGuids[go.Transform.GUID] = childGuids;
 			}
 
 			var componentsObject = gameObjectJObject["components"] as JObject;
@@ -92,6 +110,24 @@ namespace Engine
 			}
 
 			return go;
+		}
+
+		private List<Guid> ExtractChildGuids(JObject transformObject)
+		{
+			var childGuids = new List<Guid>();
+			var childrenGuidsToken = transformObject["ChildrenGuids"];
+			if (childrenGuidsToken is JArray childrenArray)
+			{
+				foreach (var childToken in childrenArray)
+				{
+					if (Guid.TryParse(childToken.ToString(), out Guid childGuid))
+					{
+						childGuids.Add(childGuid);
+					}
+				}
+			}
+
+			return childGuids;
 		}
 
 		private void DeserializeProperties(object obj, JObject parentObject)
@@ -169,24 +205,15 @@ namespace Engine
 					}
 					else
 					{
-						try
-						{
-							var value = prop.Value.ToObject(propertyInfo.PropertyType, serializer);
-							propertyInfo.SetValue(obj, value);
-						}
-						catch (Exception e)
-						{
-							Logger.Warning("err");
-						}
+						var value = prop.Value.ToObject(propertyInfo.PropertyType, serializer);
+						propertyInfo.SetValue(obj, value);
 					}
 				}
 			}
 		}
 
-		private bool IsCollection(Type type)
-		{
-			return type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type) && type.IsGenericType;
-		}
+		private bool IsCollection(Type type) => type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type) &&
+		                                        type.IsGenericType;
 
 		private void DeserializeComponent(Type componentType, JObject componentJObject, GameObject go)
 		{
