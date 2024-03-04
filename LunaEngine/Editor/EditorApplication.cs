@@ -162,17 +162,17 @@ namespace Editor
 
 			cube.AddComponent<RotateComponent>();
 			cube.AddComponent<MeshFilter>()
-				?.AddMesh(ResourceManager.GetMesh(@"models/TestCube.obj".MakeProjectAbsolute()));
+				?.AddMesh(ResourceManager.GetMesh(@"assets/models/TestCube.obj".MakeProjectAbsolute()));
 			cube.AddComponent<MeshRenderer>().Material = new Material(
 				ResourceManager.GetShader(
-					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
-					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
+					@"assets/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
+					@"assets/shaders/PBRFragment.glsl".MakeProjectAbsolute()
 				));
 
 			cube.GetComponent<MeshRenderer>().Material.Albedo =
-				ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
+				ResourceManager.GetTexture(@"assets/textures/uvgrid.png".MakeProjectAbsolute());
 			cube.GetComponent<MeshRenderer>().Material.Normal =
-				ResourceManager.GetTexture(@"textures/uvgrid.png".MakeProjectAbsolute());
+				ResourceManager.GetTexture(@"assets/textures/uvgrid.png".MakeProjectAbsolute());
 			cube.Transform.SetParent(SceneController.ActiveScene);
 
 			var sphere = new GameObject();
@@ -180,12 +180,12 @@ namespace Editor
 			
 			sphere.AddComponent<RotateComponent>();
 			sphere.AddComponent<MeshFilter>()
-				?.AddMesh(ResourceManager.GetMesh(@"/models/TestSphere.obj".MakeProjectAbsolute()));
+				?.AddMesh(ResourceManager.GetMesh(@"assets/models/TestSphere.obj".MakeProjectAbsolute()));
 			sphere.Transform.Translate(new Vector3(1.5f, 0, 0));
 			sphere.AddComponent<MeshRenderer>().Material = new Material(
 				ResourceManager.GetShader(
-					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
-					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
+					@"assets/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
+					@"assets/shaders/PBRFragment.glsl".MakeProjectAbsolute()
 				));
 			sphere.Transform.SetParent(SceneController.ActiveScene);
 			
@@ -194,12 +194,12 @@ namespace Editor
 			
 			sphereChild.AddComponent<RotateComponent>();
 			sphereChild.AddComponent<MeshFilter>()
-				?.AddMesh(ResourceManager.GetMesh(@"/models/TestSphere.obj".MakeProjectAbsolute()));
+				?.AddMesh(ResourceManager.GetMesh(@"assets/models/TestSphere.obj".MakeProjectAbsolute()));
 			sphereChild.Transform.Translate(new Vector3(-2f, 1.5f, 0));
 			sphereChild.AddComponent<MeshRenderer>().Material = new Material(
 				ResourceManager.GetShader(
-					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
-					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
+					@"assets/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
+					@"assets/shaders/PBRFragment.glsl".MakeProjectAbsolute()
 				));
 			
 			sphereChild.Transform.SetParent(sphere.Transform);
@@ -209,12 +209,12 @@ namespace Editor
 			
 			sphereChild2.AddComponent<RotateComponent>();
 			sphereChild2.AddComponent<MeshFilter>()
-				?.AddMesh(ResourceManager.GetMesh(@"/models/TestSphere.obj".MakeProjectAbsolute()));
+				?.AddMesh(ResourceManager.GetMesh(@"assets/models/TestSphere.obj".MakeProjectAbsolute()));
 			sphereChild2.Transform.Translate(new Vector3(-2f, 0, 0));
 			sphereChild2.AddComponent<MeshRenderer>().Material = new Material(
 				ResourceManager.GetShader(
-					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
-					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
+					@"assets/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
+					@"assets/shaders/PBRFragment.glsl".MakeProjectAbsolute()
 				));
 			
 			sphereChild2.Transform.SetParent(sphereChild.Transform);

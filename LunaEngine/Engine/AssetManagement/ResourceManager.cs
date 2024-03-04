@@ -1,4 +1,7 @@
-﻿using Engine.Logging;
+﻿using System.Collections;
+using Editor;
+using Engine.Logging;
+using Silk.NET.Assimp;
 using Silk.NET.OpenGL;
 
 namespace Engine;
@@ -17,7 +20,7 @@ public static class ResourceManager
 	private static Dictionary<Guid, Texture> guidToTextures = new Dictionary<Guid, Texture>();
 	private static Dictionary<Guid, Mesh> guidToMeshes = new Dictionary<Guid, Mesh>();
 	private static Dictionary<Guid, Shader> guidToShaders = new Dictionary<Guid, Shader>();
-	private static Dictionary<Guid, Material> guidToMaterialss = new Dictionary<Guid, Material>();
+	private static Dictionary<Guid, Material> guidToMaterials = new Dictionary<Guid, Material>();
 	private static Dictionary<Guid, string> guidToPath = new Dictionary<Guid, string>();
 
 	private static GL gl;
@@ -26,6 +29,55 @@ public static class ResourceManager
 	{
 		DEFAULT_FRAG = DEFAULT_FRAG.MakeAbsolute();
 		DEFAULT_VERT = DEFAULT_VERT.MakeAbsolute();
+
+		LoadMetadata();
+	}
+
+	public static void LoadMetadata()
+	{
+		var root = ProjectManager.ActiveProject?.Directory;
+		if (string.IsNullOrEmpty(root))
+		{
+			Logger.Warning("No active project to import metadata for");
+			return;
+		}
+
+		var files = GetFilesFromFolder(root, new List<string>() {Metadata.MetadataFileExtension});
+		int result = 0;
+		foreach (var file in files)
+		{
+			var metaData = Metadata.CreateMetadataFromMetadataFile(file);
+			if (metaData != null)
+			{
+				if (AddMetaData(metaData))
+				{
+					result++;
+				}
+			}
+			else
+			{
+				Logger.Warning($"Failed to create metadata from {file}");
+			}
+		}
+
+		Logger.Info($"Imported {result}/{files.Count()} metadata files");
+	}
+
+	public static IEnumerable<string> GetFilesFromFolder(string path, IEnumerable<string> ext = null)
+	{
+		IEnumerable<string> paths = Directory.GetFiles(path);
+
+		if (ext != null && ext.Any())
+		{
+			paths = paths.Where(p => ext.Contains(Path.GetExtension(p).TrimStart('.').ToLowerInvariant()));
+		}
+
+		foreach (var dir in Directory.GetDirectories(path))
+		{
+			paths = paths.Concat(GetFilesFromFolder(dir, ext));
+		}
+
+		return paths;
 	}
 
 	public static void Init(GL gl)
@@ -121,6 +173,7 @@ public static class ResourceManager
 	}
 
 	private static Dictionary<Guid, string> guidToResourcePath = new Dictionary<Guid, string>();
+	private static HashSet<Metadata> metadatas = new();
 
 	public static object? GetResourceByGuid(Type resourceType, Guid guid)
 	{
@@ -183,5 +236,16 @@ public static class ResourceManager
 	private static Material? GetMaterial(string resourcePath)
 	{
 		return null;
+	}
+
+	public static bool AddMetaData(Metadata metadata)
+	{
+		if (metadatas.Add(metadata))
+		{
+			return true;
+		}
+
+		Logger.Warning($"Duplicate metadata detected {metadata.GUID}");
+		return false;
 	}
 }

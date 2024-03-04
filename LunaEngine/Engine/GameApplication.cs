@@ -146,12 +146,12 @@ namespace GameCore
 			SceneController.ActiveScene.AddGameObject(sphere);
 			sphere.AddComponent<RotateComponent>();
 			sphere.AddComponent<MeshFilter>()
-				?.AddMesh(ResourceManager.GetMesh(@"/models/TestSphere.obj".MakeProjectAbsolute()));
+				?.AddMesh(ResourceManager.GetMesh(@"assets/models/TestSphere.obj".MakeProjectAbsolute()));
 			sphere.Transform.Translate(new Vector3(1.5f, 0, 0));
 			sphere.AddComponent<MeshRenderer>().Material = new Material(
 				ResourceManager.GetShader(
-					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
-					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
+					@"assets/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
+					@"assets/shaders/PBRFragment.glsl".MakeProjectAbsolute()
 				));
 		}
 

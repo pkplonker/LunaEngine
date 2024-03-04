@@ -125,7 +125,7 @@ public class EditorImGuiController : IDisposable
 
 	private void DrawMenu()
 	{
-		var testScenePath = Path.Combine(ProjectManager.ActiveProject.Directory, "TestScene.SCENE");
+		var testScenePath = Path.Combine(ProjectManager.ActiveProject.Directory, "assets/TestScene.SCENE");
 		if (ImGui.BeginMainMenuBar())
 		{
 			if (ImGui.BeginMenu("File"))
@@ -182,7 +182,33 @@ public class EditorImGuiController : IDisposable
 				ImGui.EndMenu();
 			}
 
-			if (ImGui.BeginMenu("Tools")) { }
+			if (ImGui.BeginMenu("Tools"))
+			{
+				ImGui.EndMenu();
+			}
+
+			if (ImGui.BeginMenu("Import"))
+			{
+				if (ImGui.MenuItem("File import"))
+				{
+					FileImporter.Import();
+				}
+
+				if (ImGui.MenuItem("Import All Files"))
+				{
+					if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
+					{
+						FileImporter.ImportAllFromDirectory(ProjectManager.ActiveProject.Directory);
+					}
+				}
+
+				if (ImGui.MenuItem("Import All Metadata"))
+				{
+					ResourceManager.LoadMetadata();
+				}
+
+				ImGui.EndMenu();
+			}
 
 			ImGui.EndMainMenuBar();
 

@@ -1,4 +1,5 @@
 ﻿using Editor;
+using Engine.Logging;
 
 namespace Engine;
 
@@ -6,15 +7,11 @@ public static class FileExtensions
 {
 	public static string MakeProjectAbsolute(this string relativePath)
 	{
-		var basePath = String.Empty;
-		var currentProject = ProjectManager.ActiveProject;
-		if (currentProject != null)
-		{
-			basePath = Path.GetDirectoryName(currentProject.Path);
-		}
+		var basePath = ProjectManager.ActiveProject?.Directory;
 
-		if (string.IsNullOrWhiteSpace(relativePath))
+		if (string.IsNullOrWhiteSpace(relativePath) || string.IsNullOrEmpty(basePath))
 		{
+			Logger.Warning("Failed to generate relativePath");
 			return string.Empty;
 		}
 
@@ -45,4 +42,6 @@ public static class FileExtensions
 
 		return path;
 	}
+
+	public static string MakeProjectRelative(this string path) => Path.GetRelativePath(ProjectManager.ActiveProject?.Directory, path);
 }
