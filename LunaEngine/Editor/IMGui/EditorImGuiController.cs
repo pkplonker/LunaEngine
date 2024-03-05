@@ -10,8 +10,10 @@ using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
 using Debug = System.Diagnostics.Debug;
+using File = System.IO.File;
 using Material = Engine.Material;
 using MessageBox = Editor.Controls.MessageBox;
+using Metadata = Engine.Metadata;
 using Scene = Engine.Scene;
 using Shader = Engine.Shader;
 
@@ -207,12 +209,51 @@ public class EditorImGuiController : IDisposable
 
 			if (ImGui.BeginMenu("Tools"))
 			{
-				if (ImGui.MenuItem("Test Material"))
+				if (ImGui.MenuItem("Test serialize Material"))
 				{
 					ResourceManager.TryGetResourceByGuid(Guid.Parse("5e0d8571-03d1-47b6-a658-ca6255c675a0"),
 						out var shader);
 					var mat = new Material((Shader) shader);
 					ObjectSerializer.Serialize(mat, @"Assets\\Materials\\testmat.mat".MakeProjectAbsolute());
+				}
+
+				if (ImGui.MenuItem("Test Deserialize  Material"))
+				{
+					try
+					{
+						var mat = ObjectSerializer.Deserialize(@"Assets\\Materials\\testmat.mat".MakeProjectAbsolute());
+					}
+					catch (Exception e)
+					{
+						Logger.Warning(e);
+						throw;
+					}
+				}
+
+				if (ImGui.MenuItem("Clear Metadata"))
+				{
+					try
+					{
+						MessageBox.Show("Are you sure you want to clear all metadata?", () =>
+						{
+							if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
+							{
+								var paths = ResourceManager.GetFilesFromFolder(ProjectManager.ActiveProject.Directory, new[] {Metadata.MetadataFileExtension});
+								foreach (var path in paths)
+								{
+									File.Delete(path);
+								}
+
+								ResourceManager.ClearMetadatas();
+							}
+						});
+						
+					}
+					catch (Exception e)
+					{
+						Logger.Warning(e);
+						throw;
+					}
 				}
 
 				ImGui.EndMenu();

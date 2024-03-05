@@ -20,8 +20,9 @@ public class Shader : IDisposable
 	[Serializable(true)]
 	public Guid GUID { get; private set; } = Guid.NewGuid();
 
-	public Shader(GL gl, string shaderPath)
+	public Shader(GL gl, string shaderPath, Guid metadataGuid)
 	{
+		GUID = metadataGuid;
 		this.shaderPath = shaderPath;
 		this.gl = gl;
 

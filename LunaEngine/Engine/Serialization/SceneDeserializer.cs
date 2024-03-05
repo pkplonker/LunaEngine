@@ -12,18 +12,22 @@ namespace Engine
 	public class SceneDeserializer
 	{
 		private readonly string absolutePath;
-		private readonly JsonSerializer serializer;
+		private static readonly JsonSerializer serializer;
 		private Dictionary<Guid, GameObject> gameObjectLookup;
 		private Dictionary<Guid, List<Guid>> parentToChildrenGuids = new();
 
-		public SceneDeserializer(string absolutePath)
+		static SceneDeserializer()
 		{
-			this.absolutePath = absolutePath;
 			serializer = new JsonSerializer
 			{
 				ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
 				Converters = {new GuidEnumerableConverter()}
 			};
+		}
+
+		public SceneDeserializer(string absolutePath)
+		{
+			this.absolutePath = absolutePath;
 			gameObjectLookup = new Dictionary<Guid, GameObject>();
 		}
 
@@ -130,7 +134,7 @@ namespace Engine
 			return childGuids;
 		}
 
-		private void DeserializeProperties(object obj, JObject parentObject)
+		public static void DeserializeProperties(object obj, JObject parentObject)
 		{
 			foreach (var prop in parentObject.Properties())
 			{
@@ -220,10 +224,11 @@ namespace Engine
 			}
 		}
 
-		private bool IsCollection(Type type) => type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type) &&
-		                                        type.IsGenericType;
+		private static bool IsCollection(Type type) =>
+			type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type) &&
+			type.IsGenericType;
 
-		private void DeserializeComponent(Type componentType, JObject componentJObject, GameObject go)
+		private static void DeserializeComponent(Type componentType, JObject componentJObject, GameObject go)
 		{
 			var constructor = componentType.GetConstructor(new[] {typeof(GameObject)});
 			if (constructor == null)

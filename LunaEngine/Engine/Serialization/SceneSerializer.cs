@@ -208,7 +208,7 @@ namespace Engine
 			}
 			else
 			{
-				parentObject.Add(member.Name, JToken.FromObject(value, serializer));
+				parentObject.Add(member.Name, value == null ? null : JToken.FromObject(value, serializer));
 			}
 		}
 

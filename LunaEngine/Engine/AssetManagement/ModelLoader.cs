@@ -9,7 +9,7 @@ namespace Engine;
 
 public class ModelLoader
 {
-	public static unsafe Mesh? LoadModel(GL gl, string path)
+	public static unsafe Mesh? LoadModel(GL gl, string path, Guid metadataGuid)
 	{
 		var assimp = Silk.NET.Assimp.Assimp.GetApi();
 		if (!System.IO.File.Exists(path))
@@ -60,7 +60,7 @@ public class ModelLoader
 				indices.Add(face.MIndices[j]);
 		}
 
-		return new Mesh(gl, BuildVertices(vertices), BuildIndices(indices));
+		return new Mesh(gl, BuildVertices(vertices), BuildIndices(indices), metadataGuid);
 	}
 
 	private static float[] BuildVertices(List<Vertex> vertexCollection)

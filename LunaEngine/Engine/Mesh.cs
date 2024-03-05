@@ -7,8 +7,9 @@ namespace Engine;
 [ResourceIdentifier]
 public class Mesh : IDisposable
 {
-	public Mesh(GL gl, float[] vertices, uint[] indices)
+	public Mesh(GL gl, float[] vertices, uint[] indices, Guid metadataGuid)
 	{
+		this.GUID = metadataGuid;
 		GL = gl;
 		Vertices = vertices;
 		Indices = indices;

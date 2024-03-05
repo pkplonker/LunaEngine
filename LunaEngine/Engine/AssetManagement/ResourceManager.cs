@@ -155,7 +155,7 @@ public static class ResourceManager
 	{
 		try
 		{
-			return new Texture(gl, metadata.Path.MakeProjectAbsolute());
+			return new Texture(gl, metadata.Path.MakeProjectAbsolute(), metadata.GUID);
 		}
 		catch (Exception e)
 		{
@@ -168,7 +168,7 @@ public static class ResourceManager
 	{
 		try
 		{
-			return null;
+			return (Material)ObjectSerializer.Deserialize(metadata.Path.MakeProjectAbsolute());
 		}
 		catch (Exception e)
 		{
@@ -181,7 +181,7 @@ public static class ResourceManager
 	{
 		try
 		{
-			return new Shader(gl, metadata.Path.MakeProjectAbsolute());
+			return new Shader(gl, metadata.Path.MakeProjectAbsolute(),metadata.GUID);
 		}
 		catch (Exception e)
 		{
@@ -194,7 +194,7 @@ public static class ResourceManager
 	{
 		try
 		{
-			return ModelLoader.LoadModel(gl, metadata.Path.MakeProjectAbsolute());
+			return ModelLoader.LoadModel(gl, metadata.Path.MakeProjectAbsolute(), metadata.GUID);
 		}
 		catch (Exception e)
 		{
@@ -219,4 +219,9 @@ public static class ResourceManager
 
 	public static bool MetadataExistsWithPath(string path) =>
 		metadatas.Values.Any(m => m.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
+
+	public static void ClearMetadatas()
+	{
+		metadatas.Clear();
+	}
 }

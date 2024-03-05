@@ -6,7 +6,6 @@ namespace Engine;
 [Inspectable]
 [Serializable]
 [ResourceIdentifier]
-
 public class Material
 {
 	public enum TextureType
@@ -23,35 +22,31 @@ public class Material
 	public Guid GUID { get; private set; } = Guid.NewGuid();
 
 	[Inspectable]
-	[Serializable(false)]
 	public Shader? Shader { get; set; }
 
 	[Inspectable]
-	[Serializable(false)]
-
 	public Texture? Albedo { get; set; }
 
 	[Inspectable]
-	[Serializable(false)]
-
 	public Texture? Normal { get; set; }
 
 	[Inspectable]
-	[Serializable(false)]
-
 	public Texture? Metallic { get; set; }
 
 	[Inspectable]
-	[Serializable(false)]
-
 	public Texture? Roughness { get; set; }
 
 	[Inspectable]
-	[Serializable(false)]
-
 	public Texture? AO { get; set; }
 
 	public Material(Shader? shader)
+	{
+		this.Shader = shader;
+	}
+
+	public Material() { }
+
+	public void SetShader(Shader? shader)
 	{
 		this.Shader = shader;
 	}
