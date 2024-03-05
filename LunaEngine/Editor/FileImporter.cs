@@ -24,6 +24,12 @@ public static class FileImporter
 	public static bool Import(string path)
 	{
 		string metadataFilePath = Path.ChangeExtension(path, Metadata.MetadataFileExtension);
+		string relativePath = path.MakeProjectRelative();
+
+		if (ResourceManager.MetadataExistsWithPath(relativePath))
+		{
+			return false; 
+		}
 
 		if (File.Exists(metadataFilePath))
 		{
@@ -32,7 +38,7 @@ public static class FileImporter
 
 		var ext = Path.GetExtension(path);
 		Type type = FileTypeExtensions.GetTypeFromExtension(ext);
-		var metadata = Metadata.Create(type, path.MakeProjectRelative());
+		var metadata = Metadata.Create(type, relativePath);
 
 		if (!ResourceManager.AddMetaData(metadata))
 		{

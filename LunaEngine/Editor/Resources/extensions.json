@@ -2,5 +2,5 @@
   "Engine.Texture": ["png", "jpg", "jpeg"],
   "Engine.Material": ["mat"],
   "Engine.Mesh": ["fbx", "obj"],
-  "Engine.Shader": ["shader"]
+  "Engine.Shader": ["glsl"]
 }

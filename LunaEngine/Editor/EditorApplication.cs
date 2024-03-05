@@ -38,6 +38,7 @@ namespace Editor
 		{
 			Logger.Start();
 			Logger.AddSink(new ConsoleLogSink());
+
 			var options = WindowOptions.Default;
 			options.Size = new Vector2D<int>(WINDOW_SIZE_X, WINDOW_SIZE_Y);
 			options.Title = WINDOW_NAME;

@@ -10,8 +10,10 @@ using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
 using Debug = System.Diagnostics.Debug;
+using Material = Engine.Material;
 using MessageBox = Editor.Controls.MessageBox;
 using Scene = Engine.Scene;
+using Shader = Engine.Shader;
 
 namespace Editor;
 
@@ -71,6 +73,7 @@ public class EditorImGuiController : IDisposable
 		controls.Add(inspector, true);
 		controls.Add(new ObjectPreviewPanel(inspector, inputController), true);
 		controls.Add(new ImGuiLoggerWindow(), true);
+		controls.Add(new MetadataViewer(), true);
 		settingsPanel = new SettingsPanel();
 	}
 
@@ -184,6 +187,14 @@ public class EditorImGuiController : IDisposable
 
 			if (ImGui.BeginMenu("Tools"))
 			{
+				if (ImGui.MenuItem("Test Material"))
+				{
+					ResourceManager.TryGetResourceByGuid(Guid.Parse("5e0d8571-03d1-47b6-a658-ca6255c675a0"),
+						out var shader);
+					var mat = new Material((Shader) shader);
+					ObjectSerializer.Serialize(mat, @"Assets\\Materials\\testmat.mat".MakeProjectAbsolute());
+				}
+
 				ImGui.EndMenu();
 			}
 

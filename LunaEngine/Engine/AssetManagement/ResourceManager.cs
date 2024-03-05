@@ -79,6 +79,18 @@ public static class ResourceManager
 	public static void Init(GL gl)
 	{
 		ResourceManager.gl = gl;
+
+		//test
+		// try
+		// {
+		// 	var shader = new Shader(gl, @"assets/Shaders\unlit.glsl".MakeProjectAbsolute());
+		// 	var pbr = new Shader(gl, @"assets/Shaders\unlit.glsl".MakeProjectAbsolute());
+		// }
+		// catch (Exception e)
+		// {
+		// 	Console.WriteLine(e);
+		// 	throw;
+		// }
 	}
 
 	public static bool TryGetResourceByGuid(Guid guid, out object? result)
@@ -181,8 +193,7 @@ public static class ResourceManager
 	{
 		try
 		{
-			//return new Shader(gl, metadata.Path.MakeProjectAbsolute());
-			return null;
+			return new Shader(gl, metadata.Path.MakeProjectAbsolute());
 		}
 		catch (Exception e)
 		{
@@ -214,4 +225,10 @@ public static class ResourceManager
 		Logger.Warning($"Duplicate metadata detected {metadata.GUID}");
 		return false;
 	}
+
+	public static IEnumerable<Metadata> GetMetadata(MetadataType? filterType = null) =>
+		metadatas.Values.Where(metadata => filterType == null || metadata.MetadataType == filterType);
+
+	public static bool MetadataExistsWithPath(string path) =>
+		metadatas.Values.Any(m => m.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
 }

@@ -12,18 +12,25 @@ namespace Engine
 	{
 		private readonly Scene scene;
 		private readonly string absolutePath;
-		private JObject rootObject;
+		private static JObject rootObject;
+		private BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+		private static JsonSerializer serializer;
 
-		public SceneSerializer(Scene scene, string absolutePath)
+		static SceneSerializer()
 		{
-			this.scene = scene;
-			this.absolutePath = absolutePath;
-			this.rootObject = new JObject();
 			serializer = new JsonSerializer
 			{
 				ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
 				Converters = {new GuidEnumerableConverter()}
 			};
+			rootObject = new JObject();
+		}
+
+		public SceneSerializer(Scene scene, string absolutePath)
+		{
+			this.scene = scene;
+			this.absolutePath = absolutePath;
+			rootObject = new JObject();
 		}
 
 		public bool Serialize()
@@ -67,7 +74,8 @@ namespace Engine
 			var components = go.GetComponents();
 			foreach (var component in components)
 			{
-				SerializeComponent(component, componentsJObject);
+				componentsJObject.Add(component.GetType().AssemblyQualifiedName,
+					SerializeComponent(component));
 			}
 
 			if (componentsJObject.Count > 0)
@@ -85,17 +93,14 @@ namespace Engine
 			parentObject.Add("transform", transformJObject);
 		}
 
-		private void SerializeComponent(IComponent component, JObject parentObject)
+		public static JObject SerializeComponent(object component)
 		{
 			var componentJObject = new JObject();
 			SerializeProperties(component, componentJObject);
-			parentObject.Add(component.GetType().AssemblyQualifiedName, componentJObject);
+			return componentJObject;
 		}
 
-		private BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-		private JsonSerializer serializer;
-
-		private void SerializeProperties(object obj, JObject parentObject)
+		private static void SerializeProperties(object obj, JObject parentObject)
 		{
 			try
 			{
@@ -133,7 +138,7 @@ namespace Engine
 			}
 		}
 
-		private void CreateObjectFromProperty(object obj, JObject parentObject, IMemberAdapter member)
+		private static void CreateObjectFromProperty(object obj, JObject parentObject, IMemberAdapter member)
 		{
 			var value = member.GetValue(obj);
 
@@ -207,7 +212,10 @@ namespace Engine
 			}
 		}
 
-		private bool IsSimpleType(Type type) => type.IsValueType || type == typeof(string) || type == typeof(Guid);
-		private bool IsCollection(Type type) => type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type);
+		private static bool IsSimpleType(Type type) =>
+			type.IsValueType || type == typeof(string) || type == typeof(Guid);
+
+		private static bool IsCollection(Type type) =>
+			type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type);
 	}
 }

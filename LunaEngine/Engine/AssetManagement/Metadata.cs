@@ -62,9 +62,9 @@ public abstract class Metadata
 				throw new InvalidOperationException("Path is not set for the metadata object.");
 			}
 
-			var filePath = System.IO.Path.ChangeExtension(Path, MetadataFileExtension);
-			var jsonString = JsonConvert.SerializeObject(this, Formatting.Indented);
-			File.WriteAllText(filePath.MakeProjectAbsolute(), jsonString);
+			File.WriteAllText(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path),
+					$"{GUID.ToString()}.{MetadataFileExtension}").MakeProjectAbsolute(),
+				JsonConvert.SerializeObject(this, Formatting.Indented));
 		}
 		catch (Exception ex)
 		{
