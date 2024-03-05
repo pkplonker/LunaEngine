@@ -4,6 +4,14 @@ using Newtonsoft.Json.Linq;
 
 namespace Engine;
 
+public enum MetadataType
+{
+	Texture,
+	Material,
+	Shader,
+	Mesh
+}
+
 public abstract class Metadata
 {
 	public Metadata() { }
@@ -12,7 +20,7 @@ public abstract class Metadata
 	public string Path { get; set; } = string.Empty;
 	public Guid GUID { get; set; } = Guid.NewGuid();
 	public int MetaDataVersion { get; set; } = 1;
-	public string MetadataType { get; set; }
+	public MetadataType MetadataType { get; set; }
 
 	public static Metadata Create(Type? type, string path)
 	{
@@ -73,17 +81,22 @@ public abstract class Metadata
 
 		var json = File.ReadAllText(path);
 		var jObject = JObject.Parse(json);
-		var type = jObject["MetadataType"]?.ToString();
 
-		switch (type)
+		// Assuming "Type" is the enum property name in JSON
+		if (!Enum.TryParse<MetadataType>(jObject["MetadataType"]?.ToString(), out var metadataType))
 		{
-			case "Texture":
+			return null; // Or handle unknown/invalid type
+		}
+
+		switch (metadataType)
+		{
+			case MetadataType.Texture:
 				return JsonConvert.DeserializeObject<TextureMetadata>(json);
-			case "Material":
+			case MetadataType.Material:
 				return JsonConvert.DeserializeObject<MaterialMetadata>(json);
-			case "Shader":
+			case MetadataType.Shader:
 				return JsonConvert.DeserializeObject<ShaderMetadata>(json);
-			case "Mesh":
+			case MetadataType.Mesh:
 				return JsonConvert.DeserializeObject<MeshMetadata>(json);
 			default:
 				return null; // Or handle unknown type
@@ -95,7 +108,7 @@ public class TextureMetadata : Metadata
 {
 	public TextureMetadata() : base()
 	{
-		MetadataType = "Texture";
+		MetadataType = MetadataType.Texture;
 	}
 }
 
@@ -103,7 +116,7 @@ public class MaterialMetadata : Metadata
 {
 	public MaterialMetadata() : base()
 	{
-		MetadataType = "Material";
+		MetadataType = MetadataType.Material;
 	}
 }
 
@@ -111,7 +124,7 @@ public class ShaderMetadata : Metadata
 {
 	public ShaderMetadata() : base()
 	{
-		MetadataType = "Shader";
+		MetadataType = MetadataType.Shader;
 	}
 }
 
@@ -119,6 +132,6 @@ public class MeshMetadata : Metadata
 {
 	public MeshMetadata() : base()
 	{
-		MetadataType = "Mesh";
+		MetadataType = MetadataType.Mesh;
 	}
 }

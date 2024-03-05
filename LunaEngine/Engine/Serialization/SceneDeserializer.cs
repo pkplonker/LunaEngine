@@ -144,7 +144,7 @@ namespace Engine
 							Guid guid;
 							if (Guid.TryParse(prop.Value.ToString(), out guid))
 							{
-								var resource = ResourceManager.GetResourceByGuid(propertyInfo.PropertyType, guid);
+								ResourceManager.TryGetResourceByGuid(guid, out var resource);
 								propertyInfo.SetValue(obj, resource);
 							}
 							else
@@ -171,7 +171,7 @@ namespace Engine
 									Guid guid;
 									if (Guid.TryParse(elementToken.ToString(), out guid))
 									{
-										elementObj = ResourceManager.GetResourceByGuid(elementType, guid);
+										ResourceManager.TryGetResourceByGuid(guid, out elementObj);
 									}
 									else
 									{

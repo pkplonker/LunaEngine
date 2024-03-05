@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Concurrent;
 using Editor;
 using Engine.Logging;
 using Silk.NET.Assimp;
@@ -12,16 +13,11 @@ public static class ResourceManager
 
 	private readonly static string DEFAULT_VERT = @"/resources/shaders/unlitvertex.glsl";
 
-	private static Dictionary<string, Mesh?> meshes = new();
-	private static Dictionary<string, Shader> shaders = new();
-	private static Dictionary<string, Texture> textures = new();
-	private static Dictionary<string, Material> materials = new();
-
-	private static Dictionary<Guid, Texture> guidToTextures = new Dictionary<Guid, Texture>();
-	private static Dictionary<Guid, Mesh> guidToMeshes = new Dictionary<Guid, Mesh>();
-	private static Dictionary<Guid, Shader> guidToShaders = new Dictionary<Guid, Shader>();
-	private static Dictionary<Guid, Material> guidToMaterials = new Dictionary<Guid, Material>();
-	private static Dictionary<Guid, string> guidToPath = new Dictionary<Guid, string>();
+	private static ConcurrentDictionary<Guid, Mesh?> meshes = new();
+	private static ConcurrentDictionary<Guid, Shader?> shaders = new();
+	private static ConcurrentDictionary<Guid, Texture?> textures = new();
+	private static ConcurrentDictionary<Guid, Material?> materials = new();
+	private static ConcurrentDictionary<Guid, Metadata> metadatas = new();
 
 	private static GL gl;
 
@@ -85,162 +81,132 @@ public static class ResourceManager
 		ResourceManager.gl = gl;
 	}
 
-	public static Texture? GetTexture(string path)
+	public static bool TryGetResourceByGuid(Guid guid, out object? result)
 	{
-		if (!textures.ContainsKey(path))
+		result = null;
+		if (!metadatas.TryGetValue(guid, out var metadata))
 		{
-			try
-			{
-				var texture = new Texture(gl, path);
-				if (texture != null)
+			return false;
+		}
+
+		switch (metadata.MetadataType)
+		{
+			case MetadataType.Texture:
+				if (!textures.TryGetValue(metadata.GUID, out var texture))
 				{
-					textures.TryAdd(path, texture);
-					guidToTextures.TryAdd(texture.GUID, texture);
-					guidToPath[texture.GUID] = path;
+					texture = LoadTexture(metadata);
+					if (texture != null)
+					{
+						textures[metadata.GUID] = texture;
+					}
 				}
-			}
-			catch (Exception e)
-			{
-				Logger.Warning($"Failed to generate texture: {e}");
-				return null;
-			}
+
+				result = texture;
+				break;
+
+			case MetadataType.Material:
+				if (!materials.TryGetValue(metadata.GUID, out var material))
+				{
+					material = LoadMaterial(metadata);
+					if (material != null)
+					{
+						materials[metadata.GUID] = material;
+					}
+				}
+
+				result = material;
+				break;
+
+			case MetadataType.Shader:
+				if (!shaders.TryGetValue(metadata.GUID, out var shader))
+				{
+					shader = LoadShader(metadata);
+					if (shader != null)
+					{
+						shaders[metadata.GUID] = shader;
+					}
+				}
+
+				result = shader;
+				break;
+
+			case MetadataType.Mesh:
+				if (!meshes.TryGetValue(metadata.GUID, out var mesh))
+				{
+					mesh = LoadMesh(metadata);
+					if (mesh != null)
+					{
+						meshes[metadata.GUID] = mesh;
+					}
+				}
+
+				result = mesh;
+				break;
+
+			default:
+				result = null;
+				break;
 		}
 
-		return textures[path];
+		return result != null;
 	}
 
-	public static Mesh? GetMesh(string path)
+	private static Texture? LoadTexture(Metadata metadata)
 	{
-		if (!meshes.ContainsKey(path))
-		{
-			var mesh = ModelLoader.LoadModel(gl, path);
-			if (mesh != null)
-			{
-				meshes.TryAdd(path, mesh);
-				guidToMeshes.TryAdd(mesh.GUID, mesh);
-				guidToPath[mesh.GUID] = path;
-			}
-		}
-
-		return meshes[path];
-	}
-
-	public static Shader? GetShader(string vertPath = "", string fragPath = "")
-	{
-		var split = vertPath.Split('|');
-		if (split.Length == 2)
-		{
-			vertPath = split[0];
-			fragPath = split[1];
-		}
-
-		var key = vertPath + "|" + fragPath;
-		if (shaders.ContainsKey(key))
-		{
-			return shaders[key];
-		}
-
-		if (string.IsNullOrEmpty(vertPath))
-		{
-			vertPath = DEFAULT_VERT;
-		}
-
-		if (string.IsNullOrEmpty(fragPath))
-		{
-			fragPath = DEFAULT_FRAG;
-		}
-
-		Shader shader;
-
 		try
 		{
-			shader = new Shader(gl, vertPath, fragPath);
+			return new Texture(gl, metadata.Path.MakeProjectAbsolute());
 		}
 		catch (Exception e)
 		{
-			Logger.Warning($"Failed to generate shader{e}");
+			Logger.Warning($"Failed to load texture {e}");
 			return null;
 		}
-
-		if (shader != null)
-		{
-			shaders.TryAdd(key, shader);
-			guidToShaders.TryAdd(shader.GUID, shader);
-			guidToPath[shader.GUID] = key;
-		}
-
-		return shader;
 	}
 
-	private static Dictionary<Guid, string> guidToResourcePath = new Dictionary<Guid, string>();
-	private static HashSet<Metadata> metadatas = new();
-
-	public static object? GetResourceByGuid(Type resourceType, Guid guid)
+	private static Material? LoadMaterial(Metadata metadata)
 	{
-		if (resourceType == typeof(Texture) && guidToTextures.TryGetValue(guid, out var texture))
-		{
-			return texture;
-		}
-
-		if (resourceType == typeof(Mesh) && guidToMeshes.TryGetValue(guid, out var mesh))
-		{
-			return mesh;
-		}
-
-		if (resourceType == typeof(Shader) && guidToMeshes.TryGetValue(guid, out var shader))
-		{
-			return shader;
-		}
-
-		if (resourceType == typeof(Material) && guidToMeshes.TryGetValue(guid, out var material))
-		{
-			return material;
-		}
-
-		if (!guidToResourcePath.TryGetValue(guid, out var resourcePath))
-		{
-			Logger.Warning($"No resource found for GUID {guid}");
-			return null;
-		}
-
 		try
 		{
-			if (resourceType == typeof(Texture))
-			{
-				return GetTexture(resourcePath);
-			}
-
-			if (resourceType == typeof(Mesh))
-			{
-				return GetMesh(resourcePath);
-			}
-
-			if (resourceType == typeof(Shader))
-			{
-				return GetShader(resourcePath);
-			}
-
-			if (resourceType == typeof(Material))
-			{
-				return GetMaterial(resourcePath);
-			}
+			return null;
 		}
 		catch (Exception e)
 		{
-			Logger.Warning($"Failed to retrieve resource for GUID {guid}: {e}");
+			Logger.Warning($"Failed to load material {e}");
+			return null;
 		}
-
-		return null;
 	}
 
-	private static Material? GetMaterial(string resourcePath)
+	private static Shader? LoadShader(Metadata metadata)
 	{
-		return null;
+		try
+		{
+			//return new Shader(gl, metadata.Path.MakeProjectAbsolute());
+			return null;
+		}
+		catch (Exception e)
+		{
+			Logger.Warning($"Failed to generate shader {e}");
+			return null;
+		}
+	}
+
+	private static Mesh? LoadMesh(Metadata metadata)
+	{
+		try
+		{
+			return ModelLoader.LoadModel(gl, metadata.Path.MakeProjectAbsolute());
+		}
+		catch (Exception e)
+		{
+			Logger.Warning($"Failed to load mesh {e}");
+			return null;
+		}
 	}
 
 	public static bool AddMetaData(Metadata metadata)
 	{
-		if (metadatas.Add(metadata))
+		if (metadatas.TryAdd(metadata.GUID, metadata))
 		{
 			return true;
 		}

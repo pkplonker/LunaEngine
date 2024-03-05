@@ -20,8 +20,8 @@ public class ObjectPreviewPanel : IPanel
 
 		materialSphere = new GameObject();
 		materialSphere.AddComponent<RotateComponent>();
-		materialSphere.AddComponent<MeshFilter>()
-			?.AddMesh(ResourceManager.GetMesh(@"Resources/models/TestSphere.obj".MakeAbsolute()));
+		// materialSphere.AddComponent<MeshFilter>()
+		// 	?.AddMesh(ResourceManager.GetMesh(@"Resources/models/TestSphere.obj".MakeAbsolute()));
 		scene.ActiveCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, 1024 / (float) 1024);
 	}
 
