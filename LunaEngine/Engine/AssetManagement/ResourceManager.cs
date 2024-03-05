@@ -79,18 +79,6 @@ public static class ResourceManager
 	public static void Init(GL gl)
 	{
 		ResourceManager.gl = gl;
-
-		//test
-		// try
-		// {
-		// 	var shader = new Shader(gl, @"assets/Shaders\unlit.glsl".MakeProjectAbsolute());
-		// 	var pbr = new Shader(gl, @"assets/Shaders\unlit.glsl".MakeProjectAbsolute());
-		// }
-		// catch (Exception e)
-		// {
-		// 	Console.WriteLine(e);
-		// 	throw;
-		// }
 	}
 
 	public static bool TryGetResourceByGuid(Guid guid, out object? result)

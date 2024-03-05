@@ -30,6 +30,8 @@ public class EditorImGuiController : IDisposable
 	private readonly InputController inputController;
 	private SettingsPanel settingsPanel;
 	private bool openSettings;
+	private bool showDemo;
+	private const string EDITOR_CATEGORY = "EditorPanels";
 
 	public GameObject? SelectedGameObject
 	{
@@ -61,6 +63,7 @@ public class EditorImGuiController : IDisposable
 		this.editorCamera = editorCamera;
 		this.inputController = inputController;
 		CreateControls(editorCamera);
+		showDemo = EditorSettings.GetSetting("showDemo", EDITOR_CATEGORY, false, false);
 	}
 
 	private void CreateControls(EditorCamera editorCamera)
@@ -74,6 +77,12 @@ public class EditorImGuiController : IDisposable
 		controls.Add(new ObjectPreviewPanel(inspector, inputController), true);
 		controls.Add(new ImGuiLoggerWindow(), true);
 		controls.Add(new MetadataViewer(), true);
+		foreach (var control in controls)
+		{
+			controls[control.Key] =
+				EditorSettings.GetSetting(control.Key.PanelName, EDITOR_CATEGORY, false, control.Value);
+		}
+
 		settingsPanel = new SettingsPanel();
 	}
 
@@ -120,7 +129,11 @@ public class EditorImGuiController : IDisposable
 			control.Draw(renderer);
 		}
 
-		ImGui.ShowDemoWindow();
+		if (showDemo)
+		{
+			ImGui.ShowDemoWindow();
+		}
+
 		MessageBox.Render();
 		InfoBox.Render();
 		DrawMenu();
@@ -179,7 +192,14 @@ public class EditorImGuiController : IDisposable
 					if (ImGui.MenuItem(control.Key.PanelName, null, isVisible))
 					{
 						controls[control.Key] = !isVisible;
+						EditorSettings.SaveSetting(control.Key.PanelName, controls[control.Key]);
 					}
+				}
+
+				if (ImGui.MenuItem("Show IMGUI Demo", null, showDemo))
+				{
+					showDemo = !showDemo;
+					EditorSettings.SaveSetting("showDemo", showDemo);
 				}
 
 				ImGui.EndMenu();
