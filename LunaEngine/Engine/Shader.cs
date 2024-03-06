@@ -5,7 +5,6 @@ using Silk.NET.OpenGL;
 namespace Engine;
 
 [Inspectable]
-[ResourceIdentifier]
 [Serializable]
 public class Shader : IDisposable
 {

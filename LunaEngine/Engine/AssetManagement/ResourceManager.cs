@@ -81,71 +81,78 @@ public static class ResourceManager
 		ResourceManager.gl = gl;
 	}
 
-	public static bool TryGetResourceByGuid(Guid guid, out object? result)
+	public static bool TryGetResourceByGuid<T>(Guid guid, out T? result) where T : class
 	{
 		result = null;
+
+		// Check if the metadata exists for the provided GUID
 		if (!metadatas.TryGetValue(guid, out var metadata))
 		{
 			return false;
 		}
 
+		// Depending on the metadata type, try to get or load the resource
 		switch (metadata.MetadataType)
 		{
 			case MetadataType.Texture:
-				if (!textures.TryGetValue(metadata.GUID, out var texture))
+				Texture? texture = null;
+				if (typeof(T) == typeof(Texture) && !textures.TryGetValue(guid, out texture))
 				{
-					texture = LoadTexture(metadata);
+					texture = LoadTexture(metadata) as Texture;
 					if (texture != null)
 					{
-						textures[metadata.GUID] = texture;
+						textures[guid] = texture;
 					}
 				}
 
-				result = texture;
+				result = texture as T;
 				break;
 
 			case MetadataType.Material:
-				if (!materials.TryGetValue(metadata.GUID, out var material))
+				Material? material = null;
+				if (typeof(T) == typeof(Material) && !materials.TryGetValue(guid, out material))
 				{
-					material = LoadMaterial(metadata);
+					material = LoadMaterial(metadata) as Material;
 					if (material != null)
 					{
-						materials[metadata.GUID] = material;
+						materials[guid] = material;
 					}
 				}
 
-				result = material;
+				result = material as T;
 				break;
 
 			case MetadataType.Shader:
-				if (!shaders.TryGetValue(metadata.GUID, out var shader))
+				Shader? shader = null;
+				if (typeof(T) == typeof(Shader) && !shaders.TryGetValue(guid, out shader))
 				{
-					shader = LoadShader(metadata);
+					shader = LoadShader(metadata) as Shader;
 					if (shader != null)
 					{
-						shaders[metadata.GUID] = shader;
+						shaders[guid] = shader;
 					}
 				}
 
-				result = shader;
+				result = shader as T;
 				break;
 
 			case MetadataType.Mesh:
-				if (!meshes.TryGetValue(metadata.GUID, out var mesh))
+				Mesh? mesh = null;
+				if (typeof(T) == typeof(Mesh) && !meshes.TryGetValue(guid, out mesh))
 				{
-					mesh = LoadMesh(metadata);
+					mesh = LoadMesh(metadata) as Mesh;
 					if (mesh != null)
 					{
-						meshes[metadata.GUID] = mesh;
+						meshes[guid] = mesh;
 					}
 				}
 
-				result = mesh;
+				result = mesh as T;
 				break;
 
 			default:
-				result = null;
-				break;
+				Logger.Warning($"Trying to request invalid resource type from guid");
+				return false;
 		}
 
 		return result != null;
@@ -168,7 +175,7 @@ public static class ResourceManager
 	{
 		try
 		{
-			return (Material)ObjectSerializer.Deserialize(metadata.Path.MakeProjectAbsolute());
+			return (Material) ObjectSerializer.Deserialize(metadata.Path.MakeProjectAbsolute());
 		}
 		catch (Exception e)
 		{
@@ -181,7 +188,7 @@ public static class ResourceManager
 	{
 		try
 		{
-			return new Shader(gl, metadata.Path.MakeProjectAbsolute(),metadata.GUID);
+			return new Shader(gl, metadata.Path.MakeProjectAbsolute(), metadata.GUID);
 		}
 		catch (Exception e)
 		{

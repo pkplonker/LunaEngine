@@ -141,23 +141,7 @@ namespace Engine
 				var propertyInfo = obj.GetType().GetProperty(prop.Name);
 				if (propertyInfo != null && propertyInfo.CanWrite)
 				{
-					if (Attribute.IsDefined(propertyInfo.PropertyType, typeof(ResourceIdentifierAttribute)))
-					{
-						if (prop.Value.Type == JTokenType.String)
-						{
-							Guid guid;
-							if (Guid.TryParse(prop.Value.ToString(), out guid))
-							{
-								ResourceManager.TryGetResourceByGuid(guid, out var resource);
-								propertyInfo.SetValue(obj, resource);
-							}
-							else
-							{
-								Logger.Warning($"Invalid GUID format for property '{prop.Name}'");
-							}
-						}
-					}
-					else if (IsCollection(propertyInfo.PropertyType) && prop.Value is JArray array)
+					if (IsCollection(propertyInfo.PropertyType) && prop.Value is JArray array)
 					{
 						Type collectionType = propertyInfo.PropertyType;
 						Type elementType = collectionType.GetGenericArguments()[0];
@@ -168,26 +152,9 @@ namespace Engine
 						{
 							object elementObj = null;
 
-							if (Attribute.IsDefined(elementType, typeof(ResourceIdentifierAttribute)))
+							if (IsSimpleType(elementType))
 							{
-								if (elementToken.Type == JTokenType.String)
-								{
-									Guid guid;
-									if (Guid.TryParse(elementToken.ToString(), out guid))
-									{
-										ResourceManager.TryGetResourceByGuid(guid, out elementObj);
-									}
-									else
-									{
-										Logger.Warning($"Invalid GUID format for property '{elementType.Name}'");
-									}
-								}
-								else
-								{
-									Logger.Warning(
-										$"Expected a GUID for resource identifier, but got: {elementToken.Type}");
-									continue;
-								}
+								elementObj = elementToken.ToObject(elementType);
 							}
 							else
 							{
@@ -223,6 +190,9 @@ namespace Engine
 				}
 			}
 		}
+
+		private static bool IsSimpleType(Type type) =>
+			type.IsValueType || type == typeof(string) || type == typeof(Guid);
 
 		private static bool IsCollection(Type type) =>
 			type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type) &&

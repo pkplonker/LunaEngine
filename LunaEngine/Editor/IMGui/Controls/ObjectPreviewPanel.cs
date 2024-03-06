@@ -50,7 +50,7 @@ public class ObjectPreviewPanel : IPanel
 				break;
 			case Material material:
 				materialSphere.Transform.SetParent(scene);
-				materialSphere.GetComponent<MeshRenderer>().Material = material;
+				materialSphere.GetComponent<MeshRenderer>().MaterialGuid = material.GUID;
 				
 				break;
 			default:

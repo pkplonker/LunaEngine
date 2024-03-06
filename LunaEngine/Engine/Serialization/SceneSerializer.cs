@@ -143,22 +143,7 @@ namespace Engine
 			var value = member.GetValue(obj);
 
 			var attribute = value?.GetType().GetCustomAttribute<SerializableAttribute>();
-			var resourceAttribute = value?.GetType().GetCustomAttribute<ResourceIdentifierAttribute>();
-			if (value != null && resourceAttribute != null)
-			{
-				var guidProperty = member.MemberType.GetProperty("GUID");
-				if (guidProperty != null)
-				{
-					var guidValue = guidProperty.GetValue(value);
-					parentObject.Add(member.Name, JToken.FromObject(guidValue, serializer));
-				}
-				else
-				{
-					Logger.Warning($"GUID property null when serializing");
-					return;
-				}
-			}
-			else if (value != null && attribute != null && attribute.Show)
+			if (value != null && attribute != null && attribute.Show)
 			{
 				var customObjectJObject = new JObject();
 				SerializeProperties(value, customObjectJObject);
@@ -171,35 +156,15 @@ namespace Engine
 					var array = new JArray();
 					foreach (var element in collection)
 					{
-						var elementType = element.GetType();
-						var resourceAttri = elementType.GetCustomAttribute<ResourceIdentifierAttribute>();
-
-						if (resourceAttri != null)
+						if (IsSimpleType(element.GetType()))
 						{
-							var guidProperty = elementType.GetProperty("GUID");
-							if (guidProperty != null)
-							{
-								var guidValue = guidProperty.GetValue(element);
-								array.Add(JToken.FromObject(guidValue, serializer));
-							}
-							else
-							{
-								Logger.Warning(
-									$"GUID property not found for element in collection marked with ResourceIdentifierAttribute.");
-							}
+							array.Add(JToken.FromObject(element, serializer));
 						}
 						else
 						{
-							if (IsSimpleType(element.GetType()))
-							{
-								array.Add(JToken.FromObject(element, serializer));
-							}
-							else
-							{
-								var elementObject = new JObject();
-								SerializeProperties(element, elementObject);
-								array.Add(elementObject);
-							}
+							var elementObject = new JObject();
+							SerializeProperties(element, elementObject);
+							array.Add(elementObject);
 						}
 					}
 

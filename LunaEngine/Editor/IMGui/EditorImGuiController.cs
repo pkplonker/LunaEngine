@@ -109,7 +109,7 @@ public class EditorImGuiController : IDisposable
 			if (size != CurrentSize)
 			{
 				renderer.SetRenderTargetSize(SceneController.ActiveScene, new Vector2D<float>(size.X, size.Y));
-				
+
 				CurrentSize = size;
 			}
 
@@ -212,17 +212,16 @@ public class EditorImGuiController : IDisposable
 			{
 				if (ImGui.MenuItem("Test serialize Material"))
 				{
-					ResourceManager.TryGetResourceByGuid(Guid.Parse("5e0d8571-03d1-47b6-a658-ca6255c675a0"),
-						out var shader);
-					var mat = new Material((Shader) shader);
-					ObjectSerializer.Serialize(mat, @"Assets\\Materials\\testmat.mat".MakeProjectAbsolute());
+					var mat = new Material(new Guid("5e0d8571-03d1-47b6-a658-ca6255c675a0"));
+					ObjectSerializer.Serialize(mat, @"Assets\\Materials\\testmat2.mat".MakeProjectAbsolute());
 				}
 
 				if (ImGui.MenuItem("Test Deserialize  Material"))
 				{
 					try
 					{
-						var mat = ObjectSerializer.Deserialize(@"Assets\\Materials\\testmat.mat".MakeProjectAbsolute());
+						var mat = ObjectSerializer.Deserialize(@"Assets\\Materials\\testmat2.mat"
+							.MakeProjectAbsolute());
 					}
 					catch (Exception e)
 					{
@@ -239,7 +238,8 @@ public class EditorImGuiController : IDisposable
 						{
 							if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
 							{
-								var paths = ResourceManager.GetFilesFromFolder(ProjectManager.ActiveProject.Directory, new[] {Metadata.MetadataFileExtension});
+								var paths = ResourceManager.GetFilesFromFolder(ProjectManager.ActiveProject.Directory,
+									new[] {Metadata.MetadataFileExtension});
 								foreach (var path in paths)
 								{
 									File.Delete(path);
@@ -248,7 +248,6 @@ public class EditorImGuiController : IDisposable
 								ResourceManager.ClearMetadatas();
 							}
 						});
-						
 					}
 					catch (Exception e)
 					{

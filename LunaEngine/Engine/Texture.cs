@@ -6,7 +6,6 @@ namespace Engine;
 
 [Inspectable]
 [Serializable]
-[ResourceIdentifier]
 public class Texture : IDisposable
 {
 	private uint textureHandle;
