@@ -210,73 +210,89 @@ public class EditorImGuiController : IDisposable
 
 			if (ImGui.BeginMenu("Tools"))
 			{
-				if (ImGui.MenuItem("Test serialize Material"))
-				{
-					var mat = new Material(new Guid("5e0d8571-03d1-47b6-a658-ca6255c675a0"));
-					ObjectSerializer.Serialize(mat, @"Assets\\Materials\\testmat2.mat".MakeProjectAbsolute());
-				}
-
-				if (ImGui.MenuItem("Test Deserialize  Material"))
-				{
-					try
-					{
-						var mat = ObjectSerializer.Deserialize(@"Assets\\Materials\\testmat2.mat"
-							.MakeProjectAbsolute());
-					}
-					catch (Exception e)
-					{
-						Logger.Warning(e);
-						throw;
-					}
-				}
-
-				if (ImGui.MenuItem("Clear Metadata"))
-				{
-					try
-					{
-						MessageBox.Show("Are you sure you want to clear all metadata?", () =>
-						{
-							if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
-							{
-								var paths = ResourceManager.GetFilesFromFolder(ProjectManager.ActiveProject.Directory,
-									new[] {Metadata.MetadataFileExtension});
-								foreach (var path in paths)
-								{
-									File.Delete(path);
-								}
-
-								ResourceManager.ClearMetadatas();
-							}
-						});
-					}
-					catch (Exception e)
-					{
-						Logger.Warning(e);
-						throw;
-					}
-				}
-
 				ImGui.EndMenu();
 			}
 
-			if (ImGui.BeginMenu("Import"))
+			if (ImGui.BeginMenu("Development"))
 			{
-				if (ImGui.MenuItem("File import"))
+				if (ImGui.BeginMenu("Test Actions"))
 				{
-					FileImporter.Import();
-				}
-
-				if (ImGui.MenuItem("Import All Files"))
-				{
-					if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
+					if (ImGui.MenuItem("Test Serialize Material"))
 					{
-						FileImporter.ImportAllFromDirectory(ProjectManager.ActiveProject.Directory);
+						var mat = new Material(new Guid("5e0d8571-03d1-47b6-a658-ca6255c675a0"));
+						ObjectSerializer.Serialize(mat, @"Assets\\Materials\\testmat2.mat".MakeProjectAbsolute());
 					}
+
+					if (ImGui.MenuItem("Test Deserialize  Material"))
+					{
+						try
+						{
+							var mat = ObjectSerializer.Deserialize(@"Assets\\Materials\\testmat2.mat"
+								.MakeProjectAbsolute());
+						}
+						catch (Exception e)
+						{
+							Logger.Warning(e);
+							throw;
+						}
+					}
+
+					ImGui.EndMenu();
 				}
 
-				if (ImGui.MenuItem("Import All Metadata"))
+				if (ImGui.BeginMenu("Metadata"))
 				{
-					ResourceManager.LoadMetadata();
+					if (ImGui.MenuItem("Clear Metadata"))
+					{
+						try
+						{
+							MessageBox.Show("Are you sure you want to clear all metadata?", () =>
+							{
+								if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
+								{
+									var paths = ResourceManager.GetFilesFromFolder(
+										ProjectManager.ActiveProject.Directory,
+										new[] {Metadata.MetadataFileExtension});
+									foreach (var path in paths)
+									{
+										File.Delete(path);
+									}
+
+									ResourceManager.ClearMetadatas();
+								}
+							});
+						}
+						catch (Exception e)
+						{
+							Logger.Warning(e);
+							throw;
+						}
+					}
+
+					if (ImGui.MenuItem("Import All Metadata"))
+					{
+						ResourceManager.LoadMetadata();
+					}
+
+					ImGui.EndMenu();
+				}
+
+				if (ImGui.BeginMenu("File Import"))
+				{
+					if (ImGui.MenuItem("File Import Selection"))
+					{
+						FileImporter.Import();
+					}
+
+					if (ImGui.MenuItem("Import All Files"))
+					{
+						if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
+						{
+							FileImporter.ImportAllFromDirectory(ProjectManager.ActiveProject.Directory);
+						}
+					}
+
+					ImGui.EndMenu();
 				}
 
 				ImGui.EndMenu();
