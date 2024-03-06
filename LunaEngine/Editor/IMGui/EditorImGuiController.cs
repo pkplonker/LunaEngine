@@ -23,7 +23,7 @@ public class EditorImGuiController : IDisposable
 {
 	private readonly Renderer renderer;
 	private ImGuiController imGuiController;
-	private Vector2 previousSize;
+	public Vector2 CurrentSize { get; private set; }
 	private Dictionary<IPanel, bool> controls = new();
 	private readonly EditorCamera editorCamera;
 	private const string iniSaveLocation = "imgui.ini";
@@ -106,10 +106,11 @@ public class EditorImGuiController : IDisposable
 
 		if (SceneController.ActiveScene != null)
 		{
-			if (size != previousSize)
+			if (size != CurrentSize)
 			{
 				renderer.SetRenderTargetSize(SceneController.ActiveScene, new Vector2D<float>(size.X, size.Y));
-				previousSize = size;
+				
+				CurrentSize = size;
 			}
 
 			var rt = renderer.GetSceneRenderTarget(SceneController.ActiveScene);

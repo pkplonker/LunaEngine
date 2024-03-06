@@ -136,7 +136,16 @@ namespace Editor
 				SceneController.ActiveScene.ActiveCamera = editorCamera;
 				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera,
 					inputController);
-				renderer.AddScene(SceneController.ActiveScene, new Vector2D<uint>(0, 0), out _, true);
+
+				// hack
+				SceneController.OnActiveSceneChanged += scene =>
+				{
+					renderer.AddScene(scene, new Vector2D<uint>(0, 0), out _, true);
+					scene.ActiveCamera = editorCamera;
+					var size = imGuiController.CurrentSize;
+					renderer.SetRenderTargetSize(SceneController.ActiveScene, new Vector2D<float>(size.X, size.Y));
+				};
+
 				try
 				{
 					window.SetWindowIcon(
