@@ -12,8 +12,8 @@ using Silk.NET.Windowing;
 using Debug = System.Diagnostics.Debug;
 using File = System.IO.File;
 using Material = Engine.Material;
-using MessageBox = Editor.Controls.MessageBox;
 using Metadata = Engine.Metadata;
+using ProgressBar = Editor.Controls.ProgressBar;
 using Scene = Engine.Scene;
 using Shader = Engine.Shader;
 
@@ -137,8 +137,9 @@ public class EditorImGuiController : IDisposable
 			ImGui.ShowDemoWindow();
 		}
 
-		MessageBox.Render();
+		DecisionBox.Render();
 		InfoBox.Render();
+		ProgressBar.Render();
 		DrawMenu();
 	}
 
@@ -156,8 +157,11 @@ public class EditorImGuiController : IDisposable
 
 				if (ImGui.MenuItem("Save", "Ctrl+S"))
 				{
+					var pu = new ProgressUpdater();
+					ProgressBar.Show("Opening Scene",progressUpdate: pu);
 					var result = new SceneSerializer(SceneController.ActiveScene,
-						testScenePath).Serialize();
+						testScenePath).Serialize(progress:pu);
+					ProgressBar.Close();
 				}
 
 				if (ImGui.MenuItem("Save As", "Ctrl+Shft+S"))
@@ -167,7 +171,11 @@ public class EditorImGuiController : IDisposable
 
 				if (ImGui.MenuItem("Open", "Ctrl+O"))
 				{
-					Scene? result = new SceneDeserializer(testScenePath).Deserialize();
+					var pu = new ProgressUpdater();
+					ProgressBar.Show("Opening Scene",progressUpdate: pu);
+					Scene? result = new SceneDeserializer(testScenePath).Deserialize(ProgressUpdater:pu);
+					ProgressBar.Close();
+
 					if (result != null)
 					{
 						SceneController.ActiveScene = result;
@@ -236,7 +244,16 @@ public class EditorImGuiController : IDisposable
 							throw;
 						}
 					}
-
+					
+					if (ImGui.MenuItem("Show progress"))
+					{
+						ProgressBar.Show("Test Title");
+					}
+					if (ImGui.MenuItem("CancelProgress"))
+					{
+						ProgressBar.Close();
+					}
+					
 					ImGui.EndMenu();
 				}
 
@@ -246,7 +263,7 @@ public class EditorImGuiController : IDisposable
 					{
 						try
 						{
-							MessageBox.Show("Are you sure you want to clear all metadata?", () =>
+							DecisionBox.Show("Are you sure you want to clear all metadata?", () =>
 							{
 								if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
 								{

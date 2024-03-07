@@ -5,6 +5,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using Editor.Controls;
 using Engine.Logging;
 
 namespace Engine
@@ -31,7 +32,7 @@ namespace Engine
 			gameObjectLookup = new Dictionary<Guid, GameObject>();
 		}
 
-		public Scene? Deserialize()
+		public Scene? Deserialize(IProgressUpdater ProgressUpdater)
 		{
 			try
 			{
@@ -39,7 +40,7 @@ namespace Engine
 				JObject rootObject = JObject.Parse(json);
 				Scene scene = new Scene();
 
-				DeserializeGameObjects(rootObject, scene);
+				DeserializeGameObjects(rootObject, scene, ProgressUpdater);
 
 				SetParents();
 
@@ -72,8 +73,11 @@ namespace Engine
 			}
 		}
 
-		private void DeserializeGameObjects(JObject rootObject, Scene scene)
+		private void DeserializeGameObjects(JObject rootObject, Scene scene, IProgressUpdater progressUpdater)
 		{
+			int currentIndex = 0;
+			int total = rootObject.Count;
+
 			foreach (var goToken in rootObject)
 			{
 				GameObject go = DeserializeGameObject(goToken.Key, goToken.Value as JObject);
@@ -82,6 +86,8 @@ namespace Engine
 					gameObjectLookup.Add(go.Transform.GUID, go);
 					scene.AddGameObject(go);
 				}
+
+				progressUpdater.Value = (float) currentIndex / total;
 			}
 		}
 

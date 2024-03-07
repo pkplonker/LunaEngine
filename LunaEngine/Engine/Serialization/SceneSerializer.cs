@@ -4,6 +4,7 @@ using Engine.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using Editor.Controls;
 using Editor.Properties;
 
 namespace Engine
@@ -33,14 +34,17 @@ namespace Engine
 			rootObject = new JObject();
 		}
 
-		public bool Serialize()
+		public bool Serialize(IProgressUpdater progress)
 		{
 			bool result = true;
 			try
 			{
-				foreach (var go in scene?.ChildrenAsGameObjectsRecursive)
+				var gos = scene?.ChildrenAsGameObjectsRecursive;
+				float total = gos.Count();
+				for (int i = 0; i < total; i++)
 				{
-					SerializeGameObject(go);
+					SerializeGameObject(scene?.ChildrenAsGameObjectsRecursive.ElementAt(i));
+					progress.Value = i / total;
 				}
 
 				File.WriteAllText(absolutePath, rootObject.ToString());

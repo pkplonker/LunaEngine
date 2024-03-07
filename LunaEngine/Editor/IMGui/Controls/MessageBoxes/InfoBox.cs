@@ -3,7 +3,7 @@
 using ImGuiNET;
 using System;
 
-public class InfoBox
+public static class InfoBox
 {
 	private static bool isVisible = false;
 	private static string message = string.Empty;

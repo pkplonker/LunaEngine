@@ -10,7 +10,6 @@ using Silk.NET.Maths;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
 using StbImageSharp;
-using MessageBox = Editor.Controls.MessageBox;
 
 namespace Editor
 {
@@ -27,6 +26,7 @@ namespace Editor
 		private static Vector2 LastMousePosition;
 		private IKeyboard? primaryKeyboard;
 		private InputController inputController;
+		private FileWatcher fileWatcher;
 
 		private EditorApplication()
 		{
@@ -128,7 +128,7 @@ namespace Editor
 				{
 					if (key == InputController.Key.Escape)
 					{
-						MessageBox.Show("Are you sure you want to do close?",
+						DecisionBox.Show("Are you sure you want to do close?",
 							() => { window.Close(); });
 					}
 				};
@@ -163,6 +163,7 @@ namespace Editor
 			}
 
 			//PerformTest();
+			fileWatcher = new FileWatcher(ProjectManager.ActiveProject.Directory);
 		}
 
 		// private void PerformTest()
