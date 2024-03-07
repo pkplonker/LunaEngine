@@ -2,7 +2,7 @@
 
 namespace Editor.Properties;
 
-public class PropertyAdapter : IMemberAdapter
+public struct PropertyAdapter : IMemberAdapter
 {
 	private readonly PropertyInfo property;
 

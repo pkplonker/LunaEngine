@@ -21,7 +21,7 @@ public class EditorCamera : ICamera
 
 	public void Reset()
 	{
-		Transform = new Transform
+		Transform = new Transform(null)
 		{
 			Position = startPosition,
 			Rotation = Quaternion.Identity

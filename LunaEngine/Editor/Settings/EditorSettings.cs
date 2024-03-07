@@ -100,7 +100,7 @@ public static class EditorSettings
 		}
 		else
 		{
-			Debug.Warning("Tried to save setting {name} with incorrect value Type");
+			Logger.Warning("Tried to save setting {name} with incorrect value Type");
 		}
 	}
 }

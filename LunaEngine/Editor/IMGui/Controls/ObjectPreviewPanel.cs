@@ -20,8 +20,8 @@ public class ObjectPreviewPanel : IPanel
 
 		materialSphere = new GameObject();
 		materialSphere.AddComponent<RotateComponent>();
-		materialSphere.AddComponent<MeshFilter>()
-			?.AddMesh(ResourceManager.GetMesh(@"Resources/models/TestSphere.obj".MakeAbsolute()));
+		// materialSphere.AddComponent<MeshFilter>()
+		// 	?.AddMesh(ResourceManager.GetMesh(@"Resources/models/TestSphere.obj".MakeAbsolute()));
 		scene.ActiveCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, 1024 / (float) 1024);
 	}
 
@@ -32,7 +32,7 @@ public class ObjectPreviewPanel : IPanel
 		{
 			case GameObject gameObject:
 				var dummyGo = new GameObject();
-				scene.AddGameObject(dummyGo);
+				dummyGo.Transform.SetParent(scene);
 				var mf = gameObject.GetComponent<MeshFilter>();
 				var mr = gameObject.GetComponent<MeshRenderer>();
 				var dmf = dummyGo.AddComponent<MeshFilter>();
@@ -49,8 +49,9 @@ public class ObjectPreviewPanel : IPanel
 
 				break;
 			case Material material:
-				scene.AddGameObject(materialSphere);
-				materialSphere.GetComponent<MeshRenderer>().Material = material;
+				materialSphere.Transform.SetParent(scene);
+				materialSphere.GetComponent<MeshRenderer>().MaterialGuid = material.GUID;
+				
 				break;
 			default:
 				// Handle default case

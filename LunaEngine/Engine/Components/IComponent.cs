@@ -2,7 +2,8 @@
 
 public interface IComponent
 {
-	public GameObject GameObject { get; protected set; }
+	[Serializable(false)]
+	public GameObject GameObject { get; set; }
 
 	public void Update();
 }

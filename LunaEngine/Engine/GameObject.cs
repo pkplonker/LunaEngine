@@ -1,17 +1,21 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 
 namespace Engine;
-[Serializable(false)]
+
+[Inspectable(false)]
+[Serializable]
 public class GameObject
 {
 	public string Name = "DEFAULT_NAME";
-	public Guid Guid = System.Guid.NewGuid();
 	private HashSet<IComponent> components = new();
+	[Serializable(false)]
 	public Transform Transform { get; private set; }
 	public bool Enabled = true;
+
 	public GameObject()
 	{
-		Transform = new Transform();
+		Transform = new Transform(this);
 	}
 
 	public T? GetComponent<T>() where T : class?, IComponent
@@ -29,7 +33,7 @@ public class GameObject
 	{
 		T component = default(T);
 
-		if (!typeof(T).GetInterfaces().Where(x=> x == typeof(IComponent)).Any())
+		if (!typeof(T).GetInterfaces().Where(x => x == typeof(IComponent)).Any())
 		{
 			return component;
 		}
@@ -44,6 +48,7 @@ public class GameObject
 		{
 			components.Add(component);
 		}
+
 		return component;
 	}
 
@@ -75,4 +80,10 @@ public class GameObject
 	}
 
 	public HashSet<IComponent> GetComponents() => components;
+
+	public void AddComponent(IComponent component)
+	{
+		components.Add(component);
+		component.GameObject = this;
+	}
 }

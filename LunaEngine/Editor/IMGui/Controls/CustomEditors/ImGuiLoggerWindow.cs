@@ -34,7 +34,7 @@ public class ImGuiLoggerWindow : ILogSink, IPanel
 
 	public ImGuiLoggerWindow()
 	{
-		Debug.AddSink(this);
+		Logger.AddSink(this);
 
 		currentLevel = EditorSettings.GetSetting(loglevelSettingName, settingsCategory, false, (int) 0);
 	}
@@ -96,10 +96,10 @@ public class ImGuiLoggerWindow : ILogSink, IPanel
 		{
 			for (var i = 0; i < 5; i++)
 			{
-				Debug.Log("l");
-				Debug.Info("i");
-				Debug.Warning("w");
-				Debug.Error("e");
+				Logger.Log("l");
+				Logger.Info("i");
+				Logger.Warning("w");
+				Logger.Error("e");
 			}
 		}
 

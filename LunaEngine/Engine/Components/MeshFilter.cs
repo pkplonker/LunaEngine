@@ -5,14 +5,17 @@ namespace Engine;
 
 public class MeshFilter : Component
 {
-	public HashSet<Mesh?> meshes = new();
+	[Inspectable(false)]
+	[Serializable]
+	public HashSet<Guid> meshes { get; set; } = new();
+
 	public MeshFilter(GameObject gameObject) : base(gameObject) { }
 
-	public void AddMesh(Mesh? mesh)
+	public void AddMesh(Guid guid)
 	{
-		meshes.Add(mesh);
+		meshes.Add(guid);
 	}
-	
+
 	public MeshFilter Clone(MeshFilter newMeshFilter)
 	{
 		foreach (var mesh in meshes)
@@ -20,6 +23,7 @@ public class MeshFilter : Component
 			newMeshFilter.meshes.Clear();
 			newMeshFilter.AddMesh(mesh);
 		}
+
 		return newMeshFilter;
 	}
 }

@@ -6,7 +6,6 @@ using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
 using StbImageSharp;
-using Debug = Engine.Logging.Debug;
 
 namespace GameCore
 {
@@ -31,8 +30,8 @@ namespace GameCore
 
 		private void Setup()
 		{
-			Debug.Start();
-			Debug.AddSink(new ConsoleLogSink());
+			Logger.Start();
+			Logger.AddSink(new ConsoleLogSink());
 			var options = WindowOptions.Default;
 			options.Size = new Vector2D<int>(WINDOW_SIZE_X, WINDOW_SIZE_Y);
 			options.Title = WINDOW_NAME;
@@ -70,12 +69,12 @@ namespace GameCore
 					}
 					catch (Exception ex)
 					{
-						Debug.Error("An error occurred during window run: " + ex.Message);
+						Logger.Error("An error occurred during window run: " + ex.Message);
 					}
 				}
 				catch (Exception ex)
 				{
-					Debug.Error("An error occurred during shutdown: " + ex.Message);
+					Logger.Error("An error occurred during shutdown: " + ex.Message);
 				}
 				finally
 				{
@@ -85,7 +84,7 @@ namespace GameCore
 					}
 					catch (Exception e)
 					{
-						Debug.Error("Failed to dispose");
+						Logger.Error("Failed to dispose");
 					}
 				}
 			}
@@ -107,14 +106,15 @@ namespace GameCore
 				var inputContext = window.CreateInput();
 				inputController = new InputController(inputContext);
 				inputController.KeyPress += key => { window.Close(); };
-				
+
 				var cameraGo = new GameObject();
 				cameraGo.Transform.Translate(Vector3.UnitZ * 6);
 				var cam = cameraGo.AddComponent<PerspectiveCamera>();
 				cam.AspectRatio = WINDOW_SIZE_X / (float) WINDOW_SIZE_Y;
+				cameraGo.Transform.SetParent(SceneController.ActiveScene);
 				SceneController.ActiveScene.AddGameObject(cameraGo);
 				SceneController.ActiveScene.ActiveCamera = cam;
-				
+
 				renderer.AddScene(SceneController.ActiveScene, new Vector2D<uint>(0, 0), out _, false);
 				try
 				{
@@ -124,7 +124,7 @@ namespace GameCore
 				}
 				catch (Exception e)
 				{
-					Debug.Error(e);
+					Logger.Error(e);
 				}
 			}
 			else
@@ -132,28 +132,28 @@ namespace GameCore
 				throw new NullReferenceException($"{nameof(window)} cannot be null");
 			}
 
-			PerformTest();
+			//PerformTest();
 		}
 
-		private void PerformTest()
-		{
-			var cube = new GameObject();
-			cube.Name = "Cube";
-
-			var sphere = new GameObject();
-			sphere.Name = "Sphere";
-
-			SceneController.ActiveScene.AddGameObject(sphere);
-			sphere.AddComponent<RotateComponent>();
-			sphere.AddComponent<MeshFilter>()
-				?.AddMesh(ResourceManager.GetMesh(@"/models/TestSphere.obj".MakeProjectAbsolute()));
-			sphere.Transform.Translate(new Vector3(1.5f, 0, 0));
-			sphere.AddComponent<MeshRenderer>().Material = new Material(
-				ResourceManager.GetShader(
-					@"/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
-					@"shaders/PBRFragment.glsl".MakeProjectAbsolute()
-				));
-		}
+		// private void PerformTest()
+		// {
+		// 	var cube = new GameObject();
+		// 	cube.Name = "Cube";
+		//
+		// 	var sphere = new GameObject();
+		// 	sphere.Name = "Sphere";
+		//
+		// 	SceneController.ActiveScene.AddGameObject(sphere);
+		// 	sphere.AddComponent<RotateComponent>();
+		// 	sphere.AddComponent<MeshFilter>()
+		// 		?.AddMesh(ResourceManager.GetMesh(@"assets/models/TestSphere.obj".MakeProjectAbsolute()));
+		// 	sphere.Transform.Translate(new Vector3(1.5f, 0, 0));
+		// 	sphere.AddComponent<MeshRenderer>().Material = new Material(
+		// 		ResourceManager.GetShader(
+		// 			@"assets/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
+		// 			@"assets/shaders/PBRFragment.glsl".MakeProjectAbsolute()
+		// 		));
+		// }
 
 		private void OnRender(double deltaTime)
 		{

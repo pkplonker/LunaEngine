@@ -4,6 +4,7 @@ using File = System.IO.File;
 
 namespace Engine;
 
+[Inspectable]
 [Serializable]
 public class Texture : IDisposable
 {
@@ -14,7 +15,11 @@ public class Texture : IDisposable
 
 	public string Path { get; set; }
 
-	public unsafe Texture(GL gl, string path)
+	[Serializable]
+	[Inspectable(false)]
+	public Guid GUID { get; set; } = Guid.NewGuid();
+
+	public unsafe Texture(GL gl, string path, Guid guid)
 	{
 		this.gl = gl;
 		Path = path;

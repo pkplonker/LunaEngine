@@ -4,7 +4,6 @@ using Editor.Properties;
 using Engine;
 using Engine.Logging;
 using ImGuiNET;
-using SerializableAttribute = Engine.SerializableAttribute;
 
 namespace Editor.Controls;
 
@@ -76,7 +75,7 @@ public class PropertyDrawer : IPropertyDrawer
 			return;
 		}
 
-		var attribute = memberInfo.GetCustomAttribute<SerializableAttribute>();
+		var attribute = memberInfo.GetCustomAttribute<InspectableAttribute>();
 
 		if (memberInfo.GetMemberInfo() is FieldInfo && (attribute == null || !attribute.Show))
 		{
@@ -93,7 +92,7 @@ public class PropertyDrawer : IPropertyDrawer
 
 		object propertyValue = memberInfo.GetValue(component);
 		Type? memberType = memberInfo?.MemberType ?? null;
-		var typeAttribute = memberType?.GetCustomAttribute<SerializableAttribute>();
+		var typeAttribute = memberType?.GetCustomAttribute<InspectableAttribute>();
 
 		if (propertyValue != null && typeAttribute != null)
 		{
@@ -119,11 +118,11 @@ public class PropertyDrawer : IPropertyDrawer
 		}
 		catch (Exception e)
 		{
-			Debug.Warning(e.ToString());
+			Logger.Warning(e.ToString());
 		}
 	}
 
-	private void DrawProperty(object component, IMemberAdapter member, SerializableAttribute? attribute,
+	private void DrawProperty(object component, IMemberAdapter member, InspectableAttribute? attribute,
 		object? propertyValue)
 	{
 		if (member == null) return;
@@ -192,7 +191,7 @@ public class PropertyDrawer : IPropertyDrawer
 		}
 	}
 
-	private bool HasCustomEditor(object component, IMemberAdapter member, SerializableAttribute? attribute)
+	private bool HasCustomEditor(object component, IMemberAdapter member, InspectableAttribute? attribute)
 	{
 		return false;
 	}

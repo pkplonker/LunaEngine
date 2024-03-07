@@ -9,7 +9,13 @@ using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
-using MessageBox = Editor.Controls.MessageBox;
+using Debug = System.Diagnostics.Debug;
+using File = System.IO.File;
+using Material = Engine.Material;
+using Metadata = Engine.Metadata;
+using ProgressBar = Editor.Controls.ProgressBar;
+using Scene = Engine.Scene;
+using Shader = Engine.Shader;
 
 namespace Editor;
 
@@ -17,7 +23,7 @@ public class EditorImGuiController : IDisposable
 {
 	private readonly Renderer renderer;
 	private ImGuiController imGuiController;
-	private Vector2 previousSize;
+	public Vector2 CurrentSize { get; private set; }
 	private Dictionary<IPanel, bool> controls = new();
 	private readonly EditorCamera editorCamera;
 	private const string iniSaveLocation = "imgui.ini";
@@ -26,6 +32,8 @@ public class EditorImGuiController : IDisposable
 	private readonly InputController inputController;
 	private SettingsPanel settingsPanel;
 	private bool openSettings;
+	private bool showDemo;
+	private const string EDITOR_CATEGORY = "EditorPanels";
 
 	public GameObject? SelectedGameObject
 	{
@@ -57,6 +65,7 @@ public class EditorImGuiController : IDisposable
 		this.editorCamera = editorCamera;
 		this.inputController = inputController;
 		CreateControls(editorCamera);
+		showDemo = EditorSettings.GetSetting("showDemo", EDITOR_CATEGORY, false, false);
 	}
 
 	private void CreateControls(EditorCamera editorCamera)
@@ -64,11 +73,18 @@ public class EditorImGuiController : IDisposable
 		controls.Add(new Stats(inputController), true);
 		controls.Add(new EditorCameraPanel(editorCamera), true);
 		controls.Add(new UndoRedoPanel(), true);
-		controls.Add(new HierarchyPanel(this), true);
+		controls.Add(new HierarchyPanel(this, inputController), true);
 		var inspector = new InspectorPanel(this);
 		controls.Add(inspector, true);
 		controls.Add(new ObjectPreviewPanel(inspector, inputController), true);
 		controls.Add(new ImGuiLoggerWindow(), true);
+		controls.Add(new MetadataViewer(), true);
+		foreach (var control in controls)
+		{
+			controls[control.Key] =
+				EditorSettings.GetSetting(control.Key.PanelName, EDITOR_CATEGORY, false, control.Value);
+		}
+
 		settingsPanel = new SettingsPanel();
 	}
 
@@ -90,10 +106,11 @@ public class EditorImGuiController : IDisposable
 
 		if (SceneController.ActiveScene != null)
 		{
-			if (size != previousSize)
+			if (size != CurrentSize)
 			{
 				renderer.SetRenderTargetSize(SceneController.ActiveScene, new Vector2D<float>(size.X, size.Y));
-				previousSize = size;
+
+				CurrentSize = size;
 			}
 
 			var rt = renderer.GetSceneRenderTarget(SceneController.ActiveScene);
@@ -115,25 +132,36 @@ public class EditorImGuiController : IDisposable
 			control.Draw(renderer);
 		}
 
-		ImGui.ShowDemoWindow();
-		MessageBox.Render();
+		if (showDemo)
+		{
+			ImGui.ShowDemoWindow();
+		}
+
+		DecisionBox.Render();
+		InfoBox.Render();
+		ProgressBar.Render();
 		DrawMenu();
 	}
 
 	private void DrawMenu()
 	{
+		var testScenePath = Path.Combine(ProjectManager.ActiveProject.Directory, "assets/TestScene.SCENE");
 		if (ImGui.BeginMainMenuBar())
 		{
 			if (ImGui.BeginMenu("File"))
 			{
 				if (ImGui.MenuItem("New", "Ctrl+N"))
 				{
-					//New();
+					SceneController.ActiveScene = new Scene();
 				}
 
 				if (ImGui.MenuItem("Save", "Ctrl+S"))
 				{
-					//Save();
+					var pu = new ProgressUpdater();
+					ProgressBar.Show("Opening Scene",progressUpdate: pu);
+					var result = new SceneSerializer(SceneController.ActiveScene,
+						testScenePath).Serialize(progress:pu);
+					ProgressBar.Close();
 				}
 
 				if (ImGui.MenuItem("Save As", "Ctrl+Shft+S"))
@@ -143,7 +171,15 @@ public class EditorImGuiController : IDisposable
 
 				if (ImGui.MenuItem("Open", "Ctrl+O"))
 				{
-					//LoadScene();
+					var pu = new ProgressUpdater();
+					ProgressBar.Show("Opening Scene",progressUpdate: pu);
+					Scene? result = new SceneDeserializer(testScenePath).Deserialize(ProgressUpdater:pu);
+					ProgressBar.Close();
+
+					if (result != null)
+					{
+						SceneController.ActiveScene = result;
+					}
 				}
 
 				ImGui.EndMenu();
@@ -167,21 +203,126 @@ public class EditorImGuiController : IDisposable
 					if (ImGui.MenuItem(control.Key.PanelName, null, isVisible))
 					{
 						controls[control.Key] = !isVisible;
+						EditorSettings.SaveSetting(control.Key.PanelName, controls[control.Key]);
 					}
+				}
+
+				if (ImGui.MenuItem("Show IMGUI Demo", null, showDemo))
+				{
+					showDemo = !showDemo;
+					EditorSettings.SaveSetting("showDemo", showDemo);
 				}
 
 				ImGui.EndMenu();
 			}
 
-			if (ImGui.BeginMenu("Tools")) { }
+			if (ImGui.BeginMenu("Tools"))
+			{
+				ImGui.EndMenu();
+			}
+
+			if (ImGui.BeginMenu("Development"))
+			{
+				if (ImGui.BeginMenu("Test Actions"))
+				{
+					if (ImGui.MenuItem("Test Serialize Material"))
+					{
+						var mat = new Material(new Guid("5e0d8571-03d1-47b6-a658-ca6255c675a0"));
+						ObjectSerializer.Serialize(mat, @"Assets\\Materials\\testmat2.mat".MakeProjectAbsolute());
+					}
+
+					if (ImGui.MenuItem("Test Deserialize  Material"))
+					{
+						try
+						{
+							var mat = ObjectSerializer.Deserialize(@"Assets\\Materials\\testmat2.mat"
+								.MakeProjectAbsolute());
+						}
+						catch (Exception e)
+						{
+							Logger.Warning(e);
+							throw;
+						}
+					}
+					
+					if (ImGui.MenuItem("Show progress"))
+					{
+						ProgressBar.Show("Test Title");
+					}
+					if (ImGui.MenuItem("CancelProgress"))
+					{
+						ProgressBar.Close();
+					}
+					
+					ImGui.EndMenu();
+				}
+
+				if (ImGui.BeginMenu("Metadata"))
+				{
+					if (ImGui.MenuItem("Clear Metadata"))
+					{
+						try
+						{
+							DecisionBox.Show("Are you sure you want to clear all metadata?", () =>
+							{
+								if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
+								{
+									var paths = ResourceManager.GetFilesFromFolder(
+										ProjectManager.ActiveProject.Directory,
+										new[] {Metadata.MetadataFileExtension});
+									foreach (var path in paths)
+									{
+										File.Delete(path);
+									}
+
+									ResourceManager.ClearMetadatas();
+								}
+							});
+						}
+						catch (Exception e)
+						{
+							Logger.Warning(e);
+							throw;
+						}
+					}
+
+					if (ImGui.MenuItem("Import All Metadata"))
+					{
+						ResourceManager.LoadMetadata();
+					}
+
+					ImGui.EndMenu();
+				}
+
+				if (ImGui.BeginMenu("File Import"))
+				{
+					if (ImGui.MenuItem("File Import Selection"))
+					{
+						FileImporter.Import();
+					}
+
+					if (ImGui.MenuItem("Import All Files"))
+					{
+						if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
+						{
+							FileImporter.ImportAllFromDirectory(ProjectManager.ActiveProject.Directory);
+						}
+					}
+
+					ImGui.EndMenu();
+				}
+
+				ImGui.EndMenu();
+			}
 
 			ImGui.EndMainMenuBar();
-			
+
 			if (openSettings)
 			{
 				ImGui.OpenPopup("Settings");
 				openSettings = false;
 			}
+
 			settingsPanel.Draw(renderer);
 		}
 	}

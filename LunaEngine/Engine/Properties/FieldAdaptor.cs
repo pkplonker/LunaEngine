@@ -2,7 +2,7 @@
 
 namespace Editor.Properties;
 
-public class FieldAdapter : IMemberAdapter
+public struct FieldAdapter : IMemberAdapter
 {
 	private readonly FieldInfo field;
 

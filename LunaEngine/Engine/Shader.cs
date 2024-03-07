@@ -4,25 +4,28 @@ using Silk.NET.OpenGL;
 
 namespace Engine;
 
+[Inspectable]
 [Serializable]
 public class Shader : IDisposable
 {
 	private uint handle;
 	private GL gl;
 	private Dictionary<string, int> uniformDict = new();
-	public string vertexPath { get; private set; }
-	public string fragmentPath { get; private set; }
-	[Serializable(false)]
-	public Guid guid { get; private set; } = Guid.NewGuid();
 
-	public Shader(GL gl, string vertexPath, string fragmentPath)
+	[Serializable(false)]
+	public string shaderPath { get; private set; }
+
+	[Inspectable(false)]
+	[Serializable(true)]
+	public Guid GUID { get; private set; } = Guid.NewGuid();
+
+	public Shader(GL gl, string shaderPath, Guid metadataGuid)
 	{
-		this.fragmentPath = fragmentPath;
-		this.vertexPath = vertexPath;
+		GUID = metadataGuid;
+		this.shaderPath = shaderPath;
 		this.gl = gl;
 
-		uint vertex = LoadShader(ShaderType.VertexShader, vertexPath);
-		uint fragment = LoadShader(ShaderType.FragmentShader, fragmentPath);
+		LoadShader(shaderPath, out uint vertex, out uint fragment);
 
 		handle = this.gl.CreateProgram();
 		this.gl.AttachShader(handle, vertex);
@@ -103,14 +106,8 @@ public class Shader : IDisposable
 		gl.Uniform1(location, value ? 1 : 0);
 	}
 
-	private uint LoadShader(ShaderType type, string path)
+	private uint LoadShader(ShaderType type, string src)
 	{
-		if (!File.Exists(path))
-		{
-			throw new FileNotFoundException(path);
-		}
-
-		string src = File.ReadAllText(path);
 		uint handle = gl.CreateShader(type);
 		gl.ShaderSource(handle, src);
 		gl.CompileShader(handle);
@@ -121,6 +118,28 @@ public class Shader : IDisposable
 		}
 
 		return handle;
+	}
+
+	private void LoadShader(string path, out uint vertex, out uint fragment)
+	{
+		if (!File.Exists(path))
+		{
+			throw new FileNotFoundException($"Shader file not found: {path}");
+		}
+
+		var src = File.ReadAllText(path);
+
+		var shaderParts = src.Split(new string[] {"#####"}, StringSplitOptions.RemoveEmptyEntries);
+		if (shaderParts.Length != 2)
+		{
+			throw new InvalidOperationException("Shader source must contain exactly two parts separated by '#####'");
+		}
+
+		var vertexSrc = shaderParts[0];
+		var fragmentSrc = shaderParts[1];
+
+		vertex = LoadShader(ShaderType.VertexShader, vertexSrc);
+		fragment = LoadShader(ShaderType.FragmentShader, fragmentSrc);
 	}
 
 	public void Dispose()

@@ -28,7 +28,7 @@ public class Renderer
 	{
 		if (!sceneRenderTargets.ContainsKey(scene))
 		{
-			renderTarget = GenerateIRenderTarget(size.X, size.Y,toFrameBuffer);
+			renderTarget = GenerateIRenderTarget(size.X, size.Y, toFrameBuffer);
 			sceneRenderTargets.Add(scene, renderTarget);
 		}
 
@@ -66,12 +66,13 @@ public class Renderer
 		Gl.Clear((uint) (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 		if (scene.ActiveCamera == null)
 		{
-			Debug.Warning("No active camera to render with");
+			Logger.Warning("No active camera to render with");
 			return;
 		}
 
 		var renderPassData = new RenderPassData(scene.ActiveCamera.GetView(), scene.ActiveCamera.GetProjection());
-		foreach (var component in scene.GameObjects.Select(go => go?.GetComponent<IRenderableComponent>()))
+		foreach (var component in scene.ChildrenAsGameObjectsRecursive.Select(go =>
+			         go?.GetComponent<IRenderableComponent>()))
 		{
 			component?.Render(this, renderPassData);
 		}
@@ -82,7 +83,7 @@ public class Renderer
 		WindowSize = size;
 		foreach (var target in sceneRenderTargets)
 		{
-			target.Value?.ResizeWindow(Gl,(uint)size.X, (uint)size.Y);
+			target.Value?.ResizeWindow(Gl, (uint) size.X, (uint) size.Y);
 		}
 	}
 
@@ -114,7 +115,7 @@ public class Renderer
 
 	private IRenderTarget GenerateRenderTarget()
 	{
-		return new RenderTarget(WindowSize.X,WindowSize.Y);
+		return new RenderTarget(WindowSize.X, WindowSize.Y);
 	}
 
 	private unsafe FrameBufferRenderTarget GenerateFrameBufferRenderTarget(uint sizeX, uint sizeY)
@@ -184,11 +185,14 @@ public class Renderer
 
 	public void UseMaterial(Material material, RenderPassData data, Matrix4x4 modelMatrix)
 	{
-		if (material == null || material.Shader == null) return;
-		var shader = material.Shader;
-		UseShader(shader);
-		MaterialsUsed++;
-		material.Use(this, data, modelMatrix);
+		if (material == null || material.ShaderGUID == null) return;
+		var shaderGuid = material.ShaderGUID;
+		if (ResourceManager.TryGetResourceByGuid<Shader>(shaderGuid, out var shader))
+		{
+			UseShader(shader);
+			MaterialsUsed++;
+			material.Use(this, data, modelMatrix);
+		}
 	}
 
 	public IRenderTarget? GetSceneRenderTarget(Scene scene) =>

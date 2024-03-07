@@ -1,47 +1,41 @@
 ﻿using Silk.NET.Assimp;
 
 namespace Engine;
-
-public class Scene
+[Inspectable]
+public class Scene : Transform
 {
-	public HashSet<GameObject> GameObjects = new();
-
-	public Scene()
-	{
-	}
-
+	public Scene() : base(null) { }
+	public string Name { get; set; } = "Default Scene";
 	public ICamera? ActiveCamera { get; set; }
-
-	private void OnGameObjectCreated(GameObject obj)
-	{
-		if (obj == null)
-		{
-			return;
-		}
-
-		GameObjects.Add(obj);
-	}
 
 	public void Update()
 	{
-		foreach (var go in GameObjects)
+		foreach (var go in ChildrenAsGameObjectsRecursive)
 		{
 			go?.Update();
 		}
 	}
 
-	public void AddGameObject(GameObject go)
-	{
-		if (go == null)
-		{
-			return;
-		}
-
-		GameObjects.Add(go);
-	}
-
 	public void Clear()
 	{
-		GameObjects.Clear();
+		ClearRelationshipsRecursive(this);
+	}
+
+	private void ClearRelationshipsRecursive(Transform node)
+	{
+		if (node == null) return;
+
+		foreach (var child in node.ChildrenRecursive)
+		{
+			node.SetParent(null);
+			ClearRelationshipsRecursive(child);
+		}
+
+		children.Clear();
+	}
+
+	public void AddGameObject(GameObject cameraGo)
+	{
+		cameraGo.Transform.SetParent(this);
 	}
 }
