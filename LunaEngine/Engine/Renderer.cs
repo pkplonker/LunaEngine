@@ -30,6 +30,7 @@ public class Renderer
 		{
 			renderTarget = GenerateIRenderTarget(size.X, size.Y, toFrameBuffer);
 			sceneRenderTargets.Add(scene, renderTarget);
+			Logger.Info($"Added scene to renderer {scene.Name}");
 		}
 
 		renderTarget = sceneRenderTargets[scene];
@@ -197,6 +198,15 @@ public class Renderer
 
 	public IRenderTarget? GetSceneRenderTarget(Scene scene) =>
 		sceneRenderTargets.TryGetValue(scene, out var rt) ? rt : null;
+
+	public void RemoveScene(Scene? oldScene)
+	{
+		if (oldScene != null && sceneRenderTargets.ContainsKey(oldScene))
+		{
+			sceneRenderTargets.Remove(oldScene);
+			Logger.Info($"Removed scene from renderer {oldScene.Name}");
+		}
+	}
 }
 
 public struct RenderPassData

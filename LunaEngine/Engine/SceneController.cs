@@ -11,9 +11,10 @@ public static class SceneController
 		{
 			if (value != activeScene)
 			{
+				var oldScene = activeScene;
 				activeScene = value;
-				OnActiveSceneChanged?.Invoke(activeScene);
+				OnActiveSceneChanged?.Invoke(activeScene,oldScene);
 			}
 		} }
-	public static Action<Scene?> OnActiveSceneChanged { get; set; }
+	public static Action<Scene?, Scene?> OnActiveSceneChanged { get; set; }
 }
