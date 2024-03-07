@@ -3,7 +3,7 @@
 using ImGuiNET;
 using System;
 
-public class MessageBox
+public class DecisionBox
 {
 	private static bool isVisible = false;
 	private static string message = string.Empty;
@@ -12,20 +12,20 @@ public class MessageBox
 
 	public static void Show(string message, Action onConfirm, Action onCancel)
 	{
-		MessageBox.message = message;
-		MessageBox.onConfirm = onConfirm;
-		MessageBox.onCancel = onCancel;
+		DecisionBox.message = message;
+		DecisionBox.onConfirm = onConfirm;
+		DecisionBox.onCancel = onCancel;
 		isVisible = true;
 	}
 	public static void Show(string message, Action onConfirm)
 	{
-		MessageBox.message = message;
-		MessageBox.onConfirm = onConfirm;
+		DecisionBox.message = message;
+		DecisionBox.onConfirm = onConfirm;
 		isVisible = true;
 	}
 	public static void Show(string message)
 	{
-		MessageBox.message = message;
+		DecisionBox.message = message;
 		isVisible = true;
 	}
 

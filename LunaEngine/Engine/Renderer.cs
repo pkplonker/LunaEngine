@@ -71,7 +71,8 @@ public class Renderer
 		}
 
 		var renderPassData = new RenderPassData(scene.ActiveCamera.GetView(), scene.ActiveCamera.GetProjection());
-		foreach (var component in scene.ChildrenAsGameObjectsRecursive.Select(go => go?.GetComponent<IRenderableComponent>()))
+		foreach (var component in scene.ChildrenAsGameObjectsRecursive.Select(go =>
+			         go?.GetComponent<IRenderableComponent>()))
 		{
 			component?.Render(this, renderPassData);
 		}
@@ -184,11 +185,14 @@ public class Renderer
 
 	public void UseMaterial(Material material, RenderPassData data, Matrix4x4 modelMatrix)
 	{
-		if (material == null || material.Shader == null) return;
-		var shader = material.Shader;
-		UseShader(shader);
-		MaterialsUsed++;
-		material.Use(this, data, modelMatrix);
+		if (material == null || material.ShaderGUID == null) return;
+		var shaderGuid = material.ShaderGUID;
+		if (ResourceManager.TryGetResourceByGuid<Shader>(shaderGuid, out var shader))
+		{
+			UseShader(shader);
+			MaterialsUsed++;
+			material.Use(this, data, modelMatrix);
+		}
 	}
 
 	public IRenderTarget? GetSceneRenderTarget(Scene scene) =>

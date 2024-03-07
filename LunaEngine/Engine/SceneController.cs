@@ -2,5 +2,18 @@
 
 public static class SceneController
 {
-	public static Scene? ActiveScene { get; set; }
+	private static Scene? activeScene;
+
+	public static Scene? ActiveScene
+	{
+		get => activeScene;
+		set
+		{
+			if (value != activeScene)
+			{
+				activeScene = value;
+				OnActiveSceneChanged?.Invoke(activeScene);
+			}
+		} }
+	public static Action<Scene?> OnActiveSceneChanged { get; set; }
 }

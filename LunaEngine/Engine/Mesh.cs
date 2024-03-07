@@ -4,11 +4,11 @@ using Silk.NET.OpenGL;
 namespace Engine;
 
 [Serializable]
-[ResourceIdentifier]
 public class Mesh : IDisposable
 {
-	public Mesh(GL gl, float[] vertices, uint[] indices)
+	public Mesh(GL gl, float[] vertices, uint[] indices, Guid metadataGuid)
 	{
+		this.GUID = metadataGuid;
 		GL = gl;
 		Vertices = vertices;
 		Indices = indices;
@@ -45,6 +45,7 @@ public class Mesh : IDisposable
 
 	public unsafe void SetupMesh()
 	{
+		GL.BindVertexArray(0);
 		EBO = new BufferObject<uint>(GL, Indices, BufferTargetARB.ElementArrayBuffer);
 		VBO = new BufferObject<float>(GL, Vertices, BufferTargetARB.ArrayBuffer);
 		VAO = new VertexArrayObject<float, uint>(GL, VBO, EBO);

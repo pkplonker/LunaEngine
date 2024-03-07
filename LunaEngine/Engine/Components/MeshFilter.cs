@@ -7,13 +7,13 @@ public class MeshFilter : Component
 {
 	[Inspectable(false)]
 	[Serializable]
-	public HashSet<Mesh?> meshes { get; set; } = new();
+	public HashSet<Guid> meshes { get; set; } = new();
 
 	public MeshFilter(GameObject gameObject) : base(gameObject) { }
 
-	public void AddMesh(Mesh? mesh)
+	public void AddMesh(Guid guid)
 	{
-		meshes.Add(mesh);
+		meshes.Add(guid);
 	}
 
 	public MeshFilter Clone(MeshFilter newMeshFilter)

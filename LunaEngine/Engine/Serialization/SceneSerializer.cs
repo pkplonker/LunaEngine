@@ -4,6 +4,7 @@ using Engine.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using Editor.Controls;
 using Editor.Properties;
 
 namespace Engine
@@ -12,28 +13,38 @@ namespace Engine
 	{
 		private readonly Scene scene;
 		private readonly string absolutePath;
-		private JObject rootObject;
+		private static JObject rootObject;
+		private BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+		private static JsonSerializer serializer;
 
-		public SceneSerializer(Scene scene, string absolutePath)
+		static SceneSerializer()
 		{
-			this.scene = scene;
-			this.absolutePath = absolutePath;
-			this.rootObject = new JObject();
 			serializer = new JsonSerializer
 			{
 				ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
 				Converters = {new GuidEnumerableConverter()}
 			};
+			rootObject = new JObject();
 		}
 
-		public bool Serialize()
+		public SceneSerializer(Scene scene, string absolutePath)
+		{
+			this.scene = scene;
+			this.absolutePath = absolutePath;
+			rootObject = new JObject();
+		}
+
+		public bool Serialize(IProgressUpdater progress)
 		{
 			bool result = true;
 			try
 			{
-				foreach (var go in scene?.ChildrenAsGameObjectsRecursive)
+				var gos = scene?.ChildrenAsGameObjectsRecursive;
+				float total = gos.Count();
+				for (int i = 0; i < total; i++)
 				{
-					SerializeGameObject(go);
+					SerializeGameObject(scene?.ChildrenAsGameObjectsRecursive.ElementAt(i));
+					progress.Value = i / total;
 				}
 
 				File.WriteAllText(absolutePath, rootObject.ToString());
@@ -67,7 +78,8 @@ namespace Engine
 			var components = go.GetComponents();
 			foreach (var component in components)
 			{
-				SerializeComponent(component, componentsJObject);
+				componentsJObject.Add(component.GetType().AssemblyQualifiedName,
+					SerializeComponent(component));
 			}
 
 			if (componentsJObject.Count > 0)
@@ -85,17 +97,14 @@ namespace Engine
 			parentObject.Add("transform", transformJObject);
 		}
 
-		private void SerializeComponent(IComponent component, JObject parentObject)
+		public static JObject SerializeComponent(object component)
 		{
 			var componentJObject = new JObject();
 			SerializeProperties(component, componentJObject);
-			parentObject.Add(component.GetType().AssemblyQualifiedName, componentJObject);
+			return componentJObject;
 		}
 
-		private BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-		private JsonSerializer serializer;
-
-		private void SerializeProperties(object obj, JObject parentObject)
+		private static void SerializeProperties(object obj, JObject parentObject)
 		{
 			try
 			{
@@ -133,27 +142,12 @@ namespace Engine
 			}
 		}
 
-		private void CreateObjectFromProperty(object obj, JObject parentObject, IMemberAdapter member)
+		private static void CreateObjectFromProperty(object obj, JObject parentObject, IMemberAdapter member)
 		{
 			var value = member.GetValue(obj);
 
 			var attribute = value?.GetType().GetCustomAttribute<SerializableAttribute>();
-			var resourceAttribute = value?.GetType().GetCustomAttribute<ResourceIdentifierAttribute>();
-			if (value != null && resourceAttribute != null)
-			{
-				var guidProperty = member.MemberType.GetProperty("GUID");
-				if (guidProperty != null)
-				{
-					var guidValue = guidProperty.GetValue(value);
-					parentObject.Add(member.Name, JToken.FromObject(guidValue, serializer));
-				}
-				else
-				{
-					Logger.Warning($"GUID property null when serializing");
-					return;
-				}
-			}
-			else if (value != null && attribute != null && attribute.Show)
+			if (value != null && attribute != null && attribute.Show)
 			{
 				var customObjectJObject = new JObject();
 				SerializeProperties(value, customObjectJObject);
@@ -166,35 +160,15 @@ namespace Engine
 					var array = new JArray();
 					foreach (var element in collection)
 					{
-						var elementType = element.GetType();
-						var resourceAttri = elementType.GetCustomAttribute<ResourceIdentifierAttribute>();
-
-						if (resourceAttri != null)
+						if (IsSimpleType(element.GetType()))
 						{
-							var guidProperty = elementType.GetProperty("GUID");
-							if (guidProperty != null)
-							{
-								var guidValue = guidProperty.GetValue(element);
-								array.Add(JToken.FromObject(guidValue, serializer));
-							}
-							else
-							{
-								Logger.Warning(
-									$"GUID property not found for element in collection marked with ResourceIdentifierAttribute.");
-							}
+							array.Add(JToken.FromObject(element, serializer));
 						}
 						else
 						{
-							if (IsSimpleType(element.GetType()))
-							{
-								array.Add(JToken.FromObject(element, serializer));
-							}
-							else
-							{
-								var elementObject = new JObject();
-								SerializeProperties(element, elementObject);
-								array.Add(elementObject);
-							}
+							var elementObject = new JObject();
+							SerializeProperties(element, elementObject);
+							array.Add(elementObject);
 						}
 					}
 
@@ -203,11 +177,14 @@ namespace Engine
 			}
 			else
 			{
-				parentObject.Add(member.Name, JToken.FromObject(value, serializer));
+				parentObject.Add(member.Name, value == null ? null : JToken.FromObject(value, serializer));
 			}
 		}
 
-		private bool IsSimpleType(Type type) => type.IsValueType || type == typeof(string) || type == typeof(Guid);
-		private bool IsCollection(Type type) => type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type);
+		private static bool IsSimpleType(Type type) =>
+			type.IsValueType || type == typeof(string) || type == typeof(Guid);
+
+		private static bool IsCollection(Type type) =>
+			type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type);
 	}
 }

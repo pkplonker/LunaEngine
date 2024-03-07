@@ -6,7 +6,6 @@ namespace Engine;
 
 [Inspectable]
 [Serializable]
-[ResourceIdentifier]
 public class Texture : IDisposable
 {
 	private uint textureHandle;
@@ -20,7 +19,7 @@ public class Texture : IDisposable
 	[Inspectable(false)]
 	public Guid GUID { get; set; } = Guid.NewGuid();
 
-	public unsafe Texture(GL gl, string path)
+	public unsafe Texture(GL gl, string path, Guid guid)
 	{
 		this.gl = gl;
 		Path = path;

@@ -5,8 +5,6 @@ namespace Engine;
 
 [Inspectable]
 [Serializable]
-[ResourceIdentifier]
-
 public class Material
 {
 	public enum TextureType
@@ -23,56 +21,60 @@ public class Material
 	public Guid GUID { get; private set; } = Guid.NewGuid();
 
 	[Inspectable]
-	[Serializable(false)]
-	public Shader? Shader { get; set; }
+	public Guid ShaderGUID { get; set; }
 
 	[Inspectable]
-	[Serializable(false)]
-
-	public Texture? Albedo { get; set; }
+	public Guid AlbedoGUID { get; set; }
+	
+	[Inspectable]
+	public Guid NormalGUID { get; set; }
 
 	[Inspectable]
-	[Serializable(false)]
-
-	public Texture? Normal { get; set; }
+	public Guid MetallicGUID { get; set; }
 
 	[Inspectable]
-	[Serializable(false)]
-
-	public Texture? Metallic { get; set; }
+	public Guid RoughnessGUID { get; set; }
 
 	[Inspectable]
-	[Serializable(false)]
+	public Guid AOGUID { get; set; }
 
-	public Texture? Roughness { get; set; }
-
-	[Inspectable]
-	[Serializable(false)]
-
-	public Texture? AO { get; set; }
-
-	public Material(Shader? shader)
+	public Material(Guid shaderGuid)
 	{
-		this.Shader = shader;
+		this.ShaderGUID = shaderGuid;
+	}
+
+	public Material() { }
+
+	public void SetShader(Guid shader)
+	{
+		this.ShaderGUID = shader;
 	}
 
 	public void Use(Renderer renderer, RenderPassData data, Matrix4x4 modelMatrix)
 	{
-		if (Shader == null || renderer == null) return;
-		renderer.UseShader(Shader);
-		BindTexture(Albedo, Material.TextureType.Albedo);
-		BindTexture(Normal, Material.TextureType.Normal);
-		BindTexture(Metallic, Material.TextureType.Metallic);
-		BindTexture(Roughness, Material.TextureType.Roughness);
-		BindTexture(AO, Material.TextureType.AO);
+		if (renderer == null) return;
+		Shader? shader = null;
+		if (!ResourceManager.TryGetResourceByGuid<Shader>(ShaderGUID, out shader))
+		{
+			return;
+		}
 
-		Shader.SetUniform("uView", data.View);
-		Shader.SetUniform("uProjection", data.Projection);
-		Shader.SetUniform("uModel", modelMatrix);
+		if (shader == null) return;
+		renderer.UseShader(shader);
+		BindTexture(AlbedoGUID, Material.TextureType.Albedo, shader);
+		BindTexture(NormalGUID, Material.TextureType.Normal, shader);
+		BindTexture(MetallicGUID, Material.TextureType.Metallic, shader);
+		BindTexture(RoughnessGUID, Material.TextureType.Roughness, shader);
+		BindTexture(AOGUID, Material.TextureType.AO, shader);
+
+		shader.SetUniform("uView", data.View);
+		shader.SetUniform("uProjection", data.Projection);
+		shader.SetUniform("uModel", modelMatrix);
 	}
 
-	private void BindTexture(Texture? texture, Material.TextureType textureType)
+	private void BindTexture(Guid textureGuid, Material.TextureType textureType, Shader shader)
 	{
+		if (!ResourceManager.TryGetResourceByGuid<Texture>(textureGuid, out var texture)) return;
 		int textureUnit = -1;
 		if (texture != null)
 		{
@@ -80,6 +82,6 @@ public class Material
 			texture?.Bind(TextureUnit.Texture0 + textureUnit);
 		}
 
-		Shader.SetUniform($"u{Enum.GetName(textureType)}", textureUnit);
+		shader.SetUniform($"u{Enum.GetName(textureType)}", textureUnit);
 	}
 }

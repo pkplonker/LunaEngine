@@ -4,14 +4,14 @@ namespace Editor;
 
 public static class FileDialog
 {
-	public static IEnumerable<string> OpenFileDialog(string? filterString)
+	public static IEnumerable<string> OpenFileDialog(string? filterString = "", bool multiSelect = false)
 	{
-		var dir = ProjectManager.ActiveProject?.Directory;
 		OpenFileDialog openFileDialog = new OpenFileDialog();
 		openFileDialog.InitialDirectory = ProjectManager.ActiveProject?.Directory ?? string.Empty;
 		openFileDialog.Filter = filterString ?? "";
 		openFileDialog.FilterIndex = 2;
 		openFileDialog.RestoreDirectory = true;
+		openFileDialog.Multiselect = multiSelect;
 		if (openFileDialog.ShowDialog() == DialogResult.OK)
 		{
 			return openFileDialog.FileNames;
