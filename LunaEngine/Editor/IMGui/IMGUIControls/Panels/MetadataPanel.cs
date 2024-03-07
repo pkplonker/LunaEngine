@@ -3,7 +3,7 @@ using ImGuiNET;
 
 namespace Editor.Controls
 {
-	public class MetadataViewer : IPanel
+	public class MetadataPanel : IPanel
 	{
 		public string PanelName { get; set; } = "Metadata Viewer";
 		private MetadataType? selectedTypeFilter = null;

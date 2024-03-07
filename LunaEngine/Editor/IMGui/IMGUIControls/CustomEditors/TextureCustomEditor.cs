@@ -12,7 +12,7 @@ namespace Editor.Controls;
 public class TextureCustomEditor : ICustomEditor
 {
 	private static PropertyDrawer? propertyDrawer;
-	private static TexturePropertyDrawIntercept? interceptStrategy;
+	private static IPropertyDrawInterceptStrategy? interceptStrategy;
 
 	public void Draw(IMemberAdapter? memberInfo, object propertyValue, Renderer renderer, int depth)
 	{

@@ -76,7 +76,11 @@ public class PropertyDrawer : IPropertyDrawer
 		}
 
 		var attribute = memberInfo.GetCustomAttribute<InspectableAttribute>();
-
+		if (attribute != null && !attribute.Show)
+		{
+			return;
+		}
+		
 		if (memberInfo.GetMemberInfo() is FieldInfo && (attribute == null || !attribute.Show))
 		{
 			return;

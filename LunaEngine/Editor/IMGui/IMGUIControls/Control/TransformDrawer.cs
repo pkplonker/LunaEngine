@@ -4,7 +4,7 @@ using ImGuiNET;
 
 namespace Editor.Controls;
 
-public static class TransformControl
+public static class TransformDrawer
 {
 	// public static bool DrawVector(string vectorName, ref Vector3 vector, int hashCode)
 	// {

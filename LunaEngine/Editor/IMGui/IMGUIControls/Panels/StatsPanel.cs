@@ -5,7 +5,7 @@ using Engine.Logging;
 
 namespace Editor.Controls;
 
-public class Stats : IPanel
+public class StatsPanel : IPanel
 {
 	public string PanelName { get; set; } = "Stats";
 
@@ -15,7 +15,7 @@ public class Stats : IPanel
 	private int bufferIndex = 0;
 	private readonly InputController inputController;
 
-	public Stats(InputController inputController)
+	public StatsPanel(InputController inputController)
 	{
 		this.inputController = inputController;
 	}

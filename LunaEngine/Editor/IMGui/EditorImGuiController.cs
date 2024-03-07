@@ -70,7 +70,7 @@ public class EditorImGuiController : IDisposable
 
 	private void CreateControls(EditorCamera editorCamera)
 	{
-		controls.Add(new Stats(inputController), true);
+		controls.Add(new StatsPanel(inputController), true);
 		controls.Add(new EditorCameraPanel(editorCamera), true);
 		controls.Add(new UndoRedoPanel(), true);
 		controls.Add(new HierarchyPanel(this, inputController), true);
@@ -78,7 +78,7 @@ public class EditorImGuiController : IDisposable
 		controls.Add(inspector, true);
 		controls.Add(new ObjectPreviewPanel(inspector, inputController), true);
 		controls.Add(new ImGuiLoggerWindow(), true);
-		controls.Add(new MetadataViewer(), true);
+		controls.Add(new MetadataPanel(), true);
 		foreach (var control in controls)
 		{
 			controls[control.Key] =
