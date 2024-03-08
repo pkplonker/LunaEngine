@@ -25,6 +25,7 @@ public class InspectorPanel : IPanel
 	}
 
 	public string PanelName { get; set; } = "Inspector";
+	const float RIGHT_PADDING = 20.0f;
 
 	public void Draw(Renderer renderer)
 	{
@@ -56,7 +57,6 @@ public class InspectorPanel : IPanel
 					Logger.Warning(e.ToString());
 				}
 			}
-
 			ImGui.End();
 		}
 	}

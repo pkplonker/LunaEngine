@@ -9,24 +9,26 @@ using Texture = Engine.Texture;
 namespace Editor.Controls;
 
 [CustomEditor(typeof(Engine.Texture))]
-public class TextureCustomEditor : ICustomEditor
+public class CustomEditor : ICustomEditor
 {
 	private static PropertyDrawer? propertyDrawer;
 	private static IPropertyDrawInterceptStrategy? interceptStrategy;
 
 	public void Draw(IMemberAdapter? memberInfo, object propertyValue, Renderer renderer, int depth)
 	{
-		propertyDrawer ??= new PropertyDrawer(renderer);
-		interceptStrategy ??= new TexturePropertyDrawIntercept();
+		CustomEditor.propertyDrawer ??= new PropertyDrawer(renderer);
+		CustomEditor.interceptStrategy ??= new TexturePropertyDrawIntercept();
 		var memberType = memberInfo.MemberType;
 		var upperName = CamelCaseRenamer.GetFormattedName(memberInfo.Name);
 		var shownName = upperName == memberType.Name ? upperName : $"{memberType.Name} - {upperName}";
-		propertyDrawer.DrawObject(propertyValue, depth, interceptStrategy, shownName);
+		CustomEditor.propertyDrawer.DrawObject(propertyValue, depth, CustomEditor.interceptStrategy, shownName);
 	}
 }
 
 public class TexturePropertyDrawIntercept : IPropertyDrawInterceptStrategy
 {
+	Vector2 imageSize = new(175, 175);
+
 	public bool Draw(object component, IMemberAdapter member, Renderer renderer)
 	{
 		if (component is Texture tex)
@@ -42,10 +44,8 @@ public class TexturePropertyDrawIntercept : IPropertyDrawInterceptStrategy
 				IntPtr texturePtr = new IntPtr(textureId);
 
 				renderer.Gl.BindTexture(TextureTarget.Texture2D, textureId);
-				var size = ImGui.GetWindowSize();
-				var floatSize = Math.Min(size.X, size.Y) / 2;
-				size = new Vector2(floatSize, floatSize);
-				ImGui.Image(texturePtr, size);
+
+				ImGui.Image(texturePtr, imageSize);
 				renderer.Gl.BindTexture(TextureTarget.Texture2D, 0);
 				ImGui.Text($"{tex.Width} x {tex.Height}");
 

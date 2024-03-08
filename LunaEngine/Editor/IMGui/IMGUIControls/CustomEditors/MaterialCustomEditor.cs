@@ -30,42 +30,43 @@ public class MaterialPropertyDrawIntercept : IPropertyDrawInterceptStrategy
 {
 	public bool Draw(object component, IMemberAdapter member, Renderer renderer)
 	{
-		if (component is Texture tex)
-		{
-			if (member.Name == "textureHandle")
-			{
-				uint textureId = (uint) member.GetValue(component);
-				if (textureId == 0)
-				{
-					return true;
-				}
-
-				IntPtr texturePtr = new IntPtr(textureId);
-
-				renderer.Gl.BindTexture(TextureTarget.Texture2D, textureId);
-				var size = ImGui.GetWindowSize();
-				var floatSize = Math.Min(size.X, size.Y) / 2;
-				size = new Vector2(floatSize, floatSize);
-				ImGui.Image(texturePtr, size);
-				renderer.Gl.BindTexture(TextureTarget.Texture2D, 0);
-				ImGui.Text($"{tex.Width} x {tex.Height}");
-
-				return true;
-			}
-
-			if (member.Name == nameof(Texture.Width) || member.Name == nameof(Texture.Height))
-			{
-				return true;
-			}
-
-			if (member.Name == nameof(Texture.Path))
-			{
-				ImGui.Text($"{member.Name} : {(string) member?.GetValue(component)}");
-				return true;
-			}
-			ImGui.Text("BLASfojhdsjknfljdshnfsnjdf");
-		}
-
 		return false;
-	}
+	// 	if (component is Texture tex)
+	// 	{
+	// 		if (member.Name == "textureHandle")
+	// 		{
+	// 			uint textureId = (uint) member.GetValue(component);
+	// 			if (textureId == 0)
+	// 			{
+	// 				return true;
+	// 			}
+	//
+	// 			IntPtr texturePtr = new IntPtr(textureId);
+	//
+	// 			renderer.Gl.BindTexture(TextureTarget.Texture2D, textureId);
+	// 			var size = ImGui.GetWindowSize();
+	// 			var floatSize = Math.Min(size.X, size.Y) / 2;
+	// 			size = new Vector2(floatSize, floatSize);
+	// 			ImGui.Image(texturePtr, size);
+	// 			renderer.Gl.BindTexture(TextureTarget.Texture2D, 0);
+	// 			ImGui.Text($"{tex.Width} x {tex.Height}");
+	//
+	// 			return true;
+	// 		}
+	//
+	// 		if (member.Name == nameof(Texture.Width) || member.Name == nameof(Texture.Height))
+	// 		{
+	// 			return true;
+	// 		}
+	//
+	// 		if (member.Name == nameof(Texture.Path))
+	// 		{
+	// 			ImGui.Text($"{member.Name} : {(string) member?.GetValue(component)}");
+	// 			return true;
+	// 		}
+	// 		ImGui.Text("BLASfojhdsjknfljdshnfsnjdf");
+	// 	}
+	//
+	// 	return false;
+	 }
 }

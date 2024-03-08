@@ -83,26 +83,24 @@ public class PropertyDrawer : IPropertyDrawer
 				switch (resourceGuidAttri.Type)
 				{
 					case { } type when type == typeof(Material):
-						if (ResourceManager.TryGetResourceByGuid<Material>((Guid) memberInfo.GetValue(component),
-							    out var mat))
-						{
-							if (CustomEditorLoader.TryGetEditor(type, out var customEditor))
-							{
-								customEditor.Draw(memberInfo, mat, renderer, ++depth);
-							}
-							else
-							{
-								var upperName = CamelCaseRenamer.GetFormattedName(memberInfo.Name);
-								var shownName = upperName == type.Name ? upperName : $"{type.Name} - {upperName}";
-								DrawObject(memberInfo.GetValue(component), ++depth, interceptStrategy, shownName);
-							}
-							return;
-						}
-						else
-						{
-							Logger.Warning($"Failed to get material from {(Guid) memberInfo.GetValue(component)}");
-						}
-
+						if (ProcessResourceGuidAttribute<Material>(component, memberInfo, depth, interceptStrategy,
+							    type)) return;
+						break;
+					case { } type when type == typeof(Shader):
+						if (ProcessResourceGuidAttribute<Shader>(component, memberInfo, depth, interceptStrategy,
+							    type)) return;
+						break;
+					case { } type when type == typeof(Texture):
+						if (ProcessResourceGuidAttribute<Texture>(component, memberInfo, depth, interceptStrategy,
+							    type)) return;
+						break;
+					case { } type when type == typeof(Mesh):
+						if (ProcessResourceGuidAttribute<Mesh>(component, memberInfo, depth, interceptStrategy,
+							    type)) return;
+						break;
+					default:
+						Logger.Warning(
+							$"Property marked with {resourceGuidAttri.Type.Name} not matched in {this.GetType()}");
 						break;
 				}
 			}
@@ -157,6 +155,32 @@ public class PropertyDrawer : IPropertyDrawer
 		{
 			Logger.Warning(e.ToString());
 		}
+	}
+
+	private bool ProcessResourceGuidAttribute<T>(object? component, IMemberAdapter memberInfo, int depth,
+		IPropertyDrawInterceptStrategy? interceptStrategy, Type type) where T : class
+	{
+		if ((Guid) memberInfo.GetValue(component) == Guid.Empty) return false;
+		if (ResourceManager.TryGetResourceByGuid<T>((Guid) memberInfo.GetValue(component),
+			    out var mat))
+		{
+			if (CustomEditorLoader.TryGetEditor(type, out var customEditor))
+			{
+				customEditor.Draw(memberInfo, mat, renderer, ++depth);
+			}
+			else
+			{
+				var upperName = CamelCaseRenamer.GetFormattedName(memberInfo.Name);
+				var shownName = upperName == type.Name ? upperName : $"{type.Name} - {upperName}";
+				DrawObject(memberInfo.GetValue(component), ++depth, interceptStrategy, shownName);
+			}
+
+			return true;
+		}
+
+		Logger.Warning($"Failed to get {typeof(T).Name} from {(Guid) memberInfo.GetValue(component)}");
+
+		return false;
 	}
 
 	private void DrawProperty(object component, IMemberAdapter member, InspectableAttribute? attribute,
