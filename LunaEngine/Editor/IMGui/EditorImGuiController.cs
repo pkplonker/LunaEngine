@@ -90,14 +90,14 @@ public class EditorImGuiController : IDisposable
 
 	public void ImGuiControllerUpdate(float deltaTime)
 	{
-		using var tracker = new PerformanceTracker(nameof(ImGuiControllerUpdate));
+		using PerformanceTracker tracker = new PerformanceTracker(nameof(ImGuiControllerUpdate));
 
 		imGuiController.Update(deltaTime);
 		ImGui.DockSpaceOverViewport(ImGui.GetMainViewport());
 		ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 0);
 		ImGui.Begin("Viewport",
 			ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
-		var size = ImGui.GetContentRegionAvail();
+		Vector2 size = ImGui.GetContentRegionAvail();
 		if (ImGui.IsWindowFocused() || (ImGui.IsWindowHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Right)))
 		{
 			ImGui.SetWindowFocus();
@@ -106,18 +106,32 @@ public class EditorImGuiController : IDisposable
 
 		if (SceneController.ActiveScene != null)
 		{
+			float aspectRatio = 16f / 9f;
+			Vector2D<float> aspectSize = CalculateSizeForAspectRatio(new Vector2D<float>(size.X, size.Y), aspectRatio);
+
 			if (size != CurrentSize)
 			{
-				renderer.SetRenderTargetSize(SceneController.ActiveScene, new Vector2D<float>(size.X, size.Y));
-
+				renderer.SetRenderTargetSize(SceneController.ActiveScene, aspectSize);
+				editorCamera.AspectRatio = aspectRatio;
 				CurrentSize = size;
 			}
 
-			var rt = renderer.GetSceneRenderTarget(SceneController.ActiveScene);
+			IRenderTarget? rt = renderer.GetSceneRenderTarget(SceneController.ActiveScene);
 			if (rt != null && rt is FrameBufferRenderTarget fbrtt)
 			{
+				Vector2 offset = new Vector2((size.X - aspectSize.X) * 0.5f, (size.Y - aspectSize.Y) * 0.5f);
+
+				var drawList = ImGui.GetWindowDrawList();
+				var windowPos = ImGui.GetWindowPos();
+				var windowSize = ImGui.GetWindowSize();
+				var barColor = new Vector4(0, 0, 0, 1);
+				drawList.AddRectFilled(windowPos, windowPos + new Vector2(windowSize.X, windowSize.Y),
+					ImGui.ColorConvertFloat4ToU32(barColor));
+
+				ImGui.SetCursorPos(offset);
+
 				ImGui.Image(fbrtt.GetTextureHandlePtr(),
-					new Vector2(size.X, size.Y), Vector2.Zero,
+					(Vector2) aspectSize, Vector2.Zero,
 					Vector2.One,
 					Vector4.One,
 					Vector4.Zero);
@@ -127,7 +141,7 @@ public class EditorImGuiController : IDisposable
 		ImGui.End();
 		ImGui.PopStyleVar();
 
-		foreach (var control in controls.Where(x => x.Value).Select(x => x.Key))
+		foreach (IPanel control in controls.Where(x => x.Value).Select(x => x.Key))
 		{
 			control.Draw(renderer);
 		}
@@ -141,6 +155,26 @@ public class EditorImGuiController : IDisposable
 		InfoBox.Render();
 		ProgressBar.Render();
 		DrawMenu();
+	}
+
+	private Vector2D<float> CalculateSizeForAspectRatio(Vector2D<float> currentSize, float aspectRatio)
+	{
+		float currentAspectRatio = currentSize.X / currentSize.Y;
+
+		float newWidth, newHeight;
+
+		if (currentAspectRatio > aspectRatio)
+		{
+			newHeight = currentSize.Y;
+			newWidth = newHeight * aspectRatio;
+		}
+		else
+		{
+			newWidth = currentSize.X;
+			newHeight = newWidth / aspectRatio;
+		}
+
+		return new Vector2D<float>(newWidth, newHeight);
 	}
 
 	private void DrawMenu()
@@ -158,9 +192,9 @@ public class EditorImGuiController : IDisposable
 				if (ImGui.MenuItem("Save", "Ctrl+S"))
 				{
 					var pu = new ProgressUpdater();
-					ProgressBar.Show("Opening Scene",progressUpdate: pu);
+					ProgressBar.Show("Opening Scene", progressUpdate: pu);
 					var result = new SceneSerializer(SceneController.ActiveScene,
-						testScenePath).Serialize(progress:pu);
+						testScenePath).Serialize(progress: pu);
 					ProgressBar.Close();
 				}
 
@@ -172,8 +206,8 @@ public class EditorImGuiController : IDisposable
 				if (ImGui.MenuItem("Open", "Ctrl+O"))
 				{
 					var pu = new ProgressUpdater();
-					ProgressBar.Show("Opening Scene",progressUpdate: pu);
-					Scene? result = new SceneDeserializer(testScenePath).Deserialize(ProgressUpdater:pu);
+					ProgressBar.Show("Opening Scene", progressUpdate: pu);
+					Scene? result = new SceneDeserializer(testScenePath).Deserialize(ProgressUpdater: pu);
 					ProgressBar.Close();
 
 					if (result != null)
@@ -244,16 +278,17 @@ public class EditorImGuiController : IDisposable
 							throw;
 						}
 					}
-					
+
 					if (ImGui.MenuItem("Show progress"))
 					{
 						ProgressBar.Show("Test Title");
 					}
+
 					if (ImGui.MenuItem("CancelProgress"))
 					{
 						ProgressBar.Close();
 					}
-					
+
 					ImGui.EndMenu();
 				}
 

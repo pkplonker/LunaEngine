@@ -150,14 +150,6 @@ public class Renderer
 		}
 	}
 
-	public void SetRenderTargetSize(RenderTarget target, Vector2D<float> size)
-	{
-		unsafe
-		{
-			target.ResizeViewport(Gl, (uint) size.X, (uint) size.Y);
-		}
-	}
-
 	public void Close()
 	{
 		texture?.Dispose();

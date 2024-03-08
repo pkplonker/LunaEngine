@@ -88,4 +88,5 @@ public class ObjectPreviewPanel : IPanel
 
 		ImGui.End();
 	}
+
 }

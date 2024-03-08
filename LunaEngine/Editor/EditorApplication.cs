@@ -134,7 +134,7 @@ namespace Editor
 							() => { window.Close(); });
 					}
 				};
-				editorCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, WINDOW_SIZE_X / (float) WINDOW_SIZE_Y);
+				editorCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, 16f/9f);
 				SceneController.ActiveScene.ActiveCamera = editorCamera;
 				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera,
 					inputController);
