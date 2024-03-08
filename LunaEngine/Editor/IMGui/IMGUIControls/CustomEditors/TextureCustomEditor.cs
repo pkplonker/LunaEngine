@@ -2,6 +2,7 @@
 using System.Numerics;
 using Editor.Properties;
 using Engine;
+using Engine.Logging;
 using ImGuiNET;
 using Silk.NET.OpenGL;
 using Texture = Engine.Texture;
@@ -9,19 +10,24 @@ using Texture = Engine.Texture;
 namespace Editor.Controls;
 
 [CustomEditor(typeof(Engine.Texture))]
-public class CustomEditor : ICustomEditor
+public class TextureCustomEditor : ICustomEditor
 {
 	private static PropertyDrawer? propertyDrawer;
 	private static IPropertyDrawInterceptStrategy? interceptStrategy;
 
 	public void Draw(IMemberAdapter? memberInfo, object propertyValue, Renderer renderer, int depth)
 	{
-		CustomEditor.propertyDrawer ??= new PropertyDrawer(renderer);
-		CustomEditor.interceptStrategy ??= new TexturePropertyDrawIntercept();
-		var memberType = memberInfo.MemberType;
-		var upperName = CamelCaseRenamer.GetFormattedName(memberInfo.Name);
-		var shownName = upperName == memberType.Name ? upperName : $"{memberType.Name} - {upperName}";
-		CustomEditor.propertyDrawer.DrawObject(propertyValue, depth, CustomEditor.interceptStrategy, shownName);
+		TextureCustomEditor.propertyDrawer ??= new PropertyDrawer(renderer);
+		TextureCustomEditor.interceptStrategy ??= new TexturePropertyDrawIntercept();
+		if (propertyValue != null)
+		{
+			TextureCustomEditor.propertyDrawer.DrawObject(propertyValue, depth, TextureCustomEditor.interceptStrategy,
+				CustomEditorBase.GenerateName<Texture>(memberInfo));
+		}
+		else
+		{
+			interceptStrategy.DrawEmpty(++depth, CustomEditorBase.GenerateName<Texture>(memberInfo), propertyDrawer,memberInfo);
+		}
 	}
 }
 
@@ -29,13 +35,13 @@ public class TexturePropertyDrawIntercept : IPropertyDrawInterceptStrategy
 {
 	Vector2 imageSize = new(175, 175);
 
-	public bool Draw(object component, IMemberAdapter member, Renderer renderer)
+	public bool Draw(object component, IMemberAdapter memberInfo, Renderer renderer)
 	{
 		if (component is Texture tex)
 		{
-			if (member.Name == "textureHandle")
+			if (memberInfo.Name == "textureHandle")
 			{
-				uint textureId = (uint) member.GetValue(component);
+				uint textureId = (uint) memberInfo.GetValue(component);
 				if (textureId == 0)
 				{
 					return true;
@@ -52,18 +58,26 @@ public class TexturePropertyDrawIntercept : IPropertyDrawInterceptStrategy
 				return true;
 			}
 
-			if (member.Name == nameof(Texture.Width) || member.Name == nameof(Texture.Height))
+			if (memberInfo.Name == nameof(Texture.Width) || memberInfo.Name == nameof(Texture.Height))
 			{
 				return true;
 			}
 
-			if (member.Name == nameof(Texture.Path))
+			if (memberInfo.Name == nameof(Texture.Path))
 			{
-				ImGui.Text($"{member.Name} : {(string) member?.GetValue(component)}");
+				ImGui.Text($"{memberInfo.Name} : {(string) memberInfo?.GetValue(component)}");
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	public void DrawEmptyContent(IMemberAdapter? memberInfo)
+	{
+		if (ImGui.Button("Select Texture"))
+		{
+			Logger.Info("Pressed");
+		}
 	}
 }

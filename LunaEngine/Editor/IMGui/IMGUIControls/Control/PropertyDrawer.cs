@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using System.Reflection;
 using Editor.Properties;
 using Engine;
@@ -20,6 +20,13 @@ public class PropertyDrawer : IPropertyDrawer
 		string? name = null)
 	{
 		var type = component.GetType();
+		CreateNestedHeader(depth, name ?? type.Name,
+			() => ProcessProps(component, type, depth, interceptStrategy));
+	}
+
+	public void CreateNestedHeader(int depth,
+		string? name, Action content)
+	{
 		if (depth > 0)
 		{
 			ImGui.Indent();
@@ -35,9 +42,9 @@ public class PropertyDrawer : IPropertyDrawer
 			ImGui.PushStyleColor(ImGuiCol.Header, darkerColor);
 		}
 
-		if (ImGui.CollapsingHeader(name ?? type.Name, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.Framed))
+		if (ImGui.CollapsingHeader(name, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.Framed))
 		{
-			ProcessProps(component, type, depth, interceptStrategy);
+			content?.Invoke();
 		}
 
 		if (depth > 0)
@@ -160,25 +167,21 @@ public class PropertyDrawer : IPropertyDrawer
 	private bool ProcessResourceGuidAttribute<T>(object? component, IMemberAdapter memberInfo, int depth,
 		IPropertyDrawInterceptStrategy? interceptStrategy, Type type) where T : class
 	{
-		if ((Guid) memberInfo.GetValue(component) == Guid.Empty) return false;
-		if (ResourceManager.TryGetResourceByGuid<T>((Guid) memberInfo.GetValue(component),
-			    out var mat))
-		{
-			if (CustomEditorLoader.TryGetEditor(type, out var customEditor))
-			{
-				customEditor.Draw(memberInfo, mat, renderer, ++depth);
-			}
-			else
-			{
-				var upperName = CamelCaseRenamer.GetFormattedName(memberInfo.Name);
-				var shownName = upperName == type.Name ? upperName : $"{type.Name} - {upperName}";
-				DrawObject(memberInfo.GetValue(component), ++depth, interceptStrategy, shownName);
-			}
+		ResourceManager.TryGetResourceByGuid<T>((Guid) memberInfo.GetValue(component),
+			out var obj);
 
-			return true;
+		if (CustomEditorLoader.TryGetEditor(type, out var customEditor))
+		{
+			customEditor.Draw(memberInfo, obj, renderer, ++depth);
+		}
+		else
+		{
+			var upperName = CamelCaseRenamer.GetFormattedName(memberInfo.Name);
+			var shownName = upperName == type.Name ? upperName : $"{type.Name} - {upperName}";
+			DrawObject(memberInfo.GetValue(component), ++depth, interceptStrategy, shownName);
 		}
 
-		Logger.Warning($"Failed to get {typeof(T).Name} from {(Guid) memberInfo.GetValue(component)}");
+		return true;
 
 		return false;
 	}

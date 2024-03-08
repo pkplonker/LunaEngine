@@ -137,12 +137,7 @@ namespace Editor
 				SceneController.ActiveScene.ActiveCamera = editorCamera;
 				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera,
 					inputController);
-				Scene? result = new SceneDeserializer(Path.Combine(ProjectManager.ActiveProject.Directory, "assets/TestScene.SCENE")).Deserialize();
 
-				if (result != null)
-				{
-					SceneController.ActiveScene = result;
-				}
 				// hack
 				SceneController.OnActiveSceneChanged += (newScene, oldScene) =>
 				{
@@ -152,6 +147,15 @@ namespace Editor
 					var size = imGuiController.CurrentSize;
 					renderer.SetRenderTargetSize(SceneController.ActiveScene, new Vector2D<float>(size.X, size.Y));
 				};
+
+				Scene? result =
+					new SceneDeserializer(
+						Path.Combine(ProjectManager.ActiveProject.Directory, "assets/TestScene.SCENE")).Deserialize();
+
+				if (result != null)
+				{
+					SceneController.ActiveScene = result;
+				}
 
 				try
 				{
