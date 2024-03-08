@@ -123,6 +123,7 @@ namespace Editor
 			{
 				renderer?.Load(window);
 				ResourceManager.Init(renderer.Gl);
+				IconLoader.Init(renderer.Gl);
 				var inputContext = window.CreateInput();
 				inputController = new InputController(inputContext);
 				inputController.KeyPress += key =>

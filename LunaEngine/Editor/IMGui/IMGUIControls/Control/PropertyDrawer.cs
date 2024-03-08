@@ -142,7 +142,7 @@ public class PropertyDrawer : IPropertyDrawer
 
 			if (CustomEditorLoader.TryGetEditor(memberType, out var customEditor))
 			{
-				customEditor.Draw(memberInfo, propertyValue, renderer, depth);
+				customEditor.Draw(component, memberInfo, propertyValue, renderer, depth);
 			}
 			else
 			{
@@ -172,7 +172,7 @@ public class PropertyDrawer : IPropertyDrawer
 
 		if (CustomEditorLoader.TryGetEditor(type, out var customEditor))
 		{
-			customEditor.Draw(memberInfo, obj, renderer, ++depth);
+			customEditor.Draw(component, memberInfo, obj, renderer, ++depth);
 		}
 		else
 		{

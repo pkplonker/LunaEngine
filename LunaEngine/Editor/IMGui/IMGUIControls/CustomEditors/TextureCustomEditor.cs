@@ -4,7 +4,9 @@ using Editor.Properties;
 using Engine;
 using Engine.Logging;
 using ImGuiNET;
+using Silk.NET.Core;
 using Silk.NET.OpenGL;
+using StbImageSharp;
 using Texture = Engine.Texture;
 
 namespace Editor.Controls;
@@ -15,7 +17,7 @@ public class TextureCustomEditor : ICustomEditor
 	private static PropertyDrawer? propertyDrawer;
 	private static IPropertyDrawInterceptStrategy? interceptStrategy;
 
-	public void Draw(IMemberAdapter? memberInfo, object propertyValue, Renderer renderer, int depth)
+	public void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, Renderer renderer, int depth)
 	{
 		TextureCustomEditor.propertyDrawer ??= new PropertyDrawer(renderer);
 		TextureCustomEditor.interceptStrategy ??= new TexturePropertyDrawIntercept();
@@ -26,7 +28,8 @@ public class TextureCustomEditor : ICustomEditor
 		}
 		else
 		{
-			interceptStrategy.DrawEmpty(++depth, CustomEditorBase.GenerateName<Texture>(memberInfo), propertyDrawer,memberInfo);
+			interceptStrategy.DrawEmpty(++depth, CustomEditorBase.GenerateName<Texture>(memberInfo), propertyDrawer,
+				memberInfo, component);
 		}
 	}
 }
@@ -49,10 +52,8 @@ public class TexturePropertyDrawIntercept : IPropertyDrawInterceptStrategy
 
 				IntPtr texturePtr = new IntPtr(textureId);
 
-				renderer.Gl.BindTexture(TextureTarget.Texture2D, textureId);
-
 				ImGui.Image(texturePtr, imageSize);
-				renderer.Gl.BindTexture(TextureTarget.Texture2D, 0);
+
 				ImGui.Text($"{tex.Width} x {tex.Height}");
 
 				return true;
@@ -65,7 +66,7 @@ public class TexturePropertyDrawIntercept : IPropertyDrawInterceptStrategy
 
 			if (memberInfo.Name == nameof(Texture.Path))
 			{
-				ImGui.Text($"{memberInfo.Name} : {(string) memberInfo?.GetValue(component)}");
+				ImGui.Text($"{memberInfo.Name} : {((string) memberInfo?.GetValue(component)).MakeProjectRelative()}");
 				return true;
 			}
 		}
@@ -73,11 +74,9 @@ public class TexturePropertyDrawIntercept : IPropertyDrawInterceptStrategy
 		return false;
 	}
 
-	public void DrawEmptyContent(IMemberAdapter? memberInfo)
+	public void DrawEmptyContent(IMemberAdapter? memberInfo, object component)
 	{
-		if (ImGui.Button("Select Texture"))
-		{
-			Logger.Info("Pressed");
-		}
+		if (ImGui.ImageButton("Select Texture", IconLoader.LoadIcon(@"resources/icons/AddTexture.png".MakeAbsolute()),
+			    imageSize)) { }
 	}
 }

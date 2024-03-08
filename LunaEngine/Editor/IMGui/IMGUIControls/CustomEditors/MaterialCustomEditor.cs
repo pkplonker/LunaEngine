@@ -15,7 +15,7 @@ public class MaterialCustomEditor : ICustomEditor
 	private static PropertyDrawer? propertyDrawer;
 	private static IPropertyDrawInterceptStrategy? interceptStrategy;
 
-	public void Draw(IMemberAdapter? memberInfo, object propertyValue, Renderer renderer, int depth)
+	public void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, Renderer renderer, int depth)
 	{
 		propertyDrawer ??= new PropertyDrawer(renderer);
 		interceptStrategy ??= new MaterialPropertyDrawIntercept();
@@ -27,7 +27,7 @@ public class MaterialCustomEditor : ICustomEditor
 		else
 		{
 			interceptStrategy.DrawEmpty(++depth, CustomEditorBase.GenerateName<Material>(memberInfo), propertyDrawer,
-				memberInfo);
+				memberInfo,component);
 		}
 	}
 }
@@ -39,7 +39,7 @@ public class MaterialPropertyDrawIntercept : IPropertyDrawInterceptStrategy
 		return false;
 	}
 
-	public void DrawEmptyContent(IMemberAdapter? memberInfo)
+	public void DrawEmptyContent(IMemberAdapter? memberInfo, object component)
 	{
 		if (ImGui.Button("Select Material"))
 		{

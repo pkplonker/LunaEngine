@@ -15,7 +15,7 @@ public class ShaderCustomEditor : ICustomEditor
 	private static PropertyDrawer? propertyDrawer;
 	private static IPropertyDrawInterceptStrategy? interceptStrategy;
 
-	public void Draw(IMemberAdapter? memberInfo, object propertyValue, Renderer renderer, int depth)
+	public void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, Renderer renderer, int depth)
 	{
 		propertyDrawer ??= new PropertyDrawer(renderer);
 		interceptStrategy ??= new ShaderPropertyDrawIntercept();
@@ -27,7 +27,7 @@ public class ShaderCustomEditor : ICustomEditor
 		else
 		{
 			interceptStrategy.DrawEmpty(++depth, CustomEditorBase.GenerateName<Shader>(memberInfo),
-				propertyDrawer, memberInfo);
+				propertyDrawer, memberInfo,component);
 		}
 	}
 
@@ -51,7 +51,7 @@ public class ShaderCustomEditor : ICustomEditor
 			return false;
 		}
 
-		public void DrawEmptyContent(IMemberAdapter? memberInfo)
+		public void DrawEmptyContent(IMemberAdapter? memberInfo, object component)
 		{
 			if (ImGui.Button($"Select Shader##{memberInfo.Name}"))
 			{

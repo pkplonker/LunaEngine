@@ -8,10 +8,10 @@ public interface IPropertyDrawInterceptStrategy
 	bool Draw(object component, IMemberAdapter memberInfo, Renderer renderer);
 
 	void DrawEmpty(int depth, string name,
-		PropertyDrawer propertyDrawer, IMemberAdapter? memberInfo)
+		PropertyDrawer propertyDrawer, IMemberAdapter? memberInfo, object component)
 	{
-		propertyDrawer.CreateNestedHeader(depth, name, () => DrawEmptyContent(memberInfo));
+		propertyDrawer.CreateNestedHeader(depth, name, () => DrawEmptyContent(memberInfo, component));
 	}
 
-	void DrawEmptyContent(IMemberAdapter? memberInfo);
+	void DrawEmptyContent(IMemberAdapter? memberInfo,object component);
 }

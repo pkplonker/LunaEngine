@@ -23,6 +23,7 @@ public class Texture : IDisposable
 	{
 		this.gl = gl;
 		Path = path;
+		this.GUID = guid;
 		textureHandle = this.gl.GenTexture();
 		Bind();
 
