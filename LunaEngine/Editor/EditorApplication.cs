@@ -42,6 +42,7 @@ namespace Editor
 			var options = WindowOptions.Default;
 			options.Size = new Vector2D<int>(WINDOW_SIZE_X, WINDOW_SIZE_Y);
 			options.Title = WINDOW_NAME;
+			options.WindowState = WindowState.Maximized;
 			window = Window.Create(options);
 			window.Load += OnLoad;
 			window.Update += OnUpdate;
