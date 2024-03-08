@@ -20,7 +20,8 @@ public class MaterialCustomEditor : ICustomEditor
 		interceptStrategy ??= new MaterialPropertyDrawIntercept();
 		var memberType = memberInfo.MemberType;
 		var upperName = CamelCaseRenamer.GetFormattedName(memberInfo.Name);
-		var shownName = upperName == memberType.Name ? upperName : $"{memberType.Name} - {upperName}";
+		var typeName = typeof(Material).Name;
+		var shownName = upperName == typeName ? upperName : $"{typeName} - {upperName}";
 		propertyDrawer.DrawObject(propertyValue, depth, interceptStrategy, shownName);
 	}
 }

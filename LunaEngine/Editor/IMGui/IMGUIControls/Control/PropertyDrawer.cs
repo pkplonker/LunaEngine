@@ -75,20 +75,53 @@ public class PropertyDrawer : IPropertyDrawer
 			return;
 		}
 
-		var attribute = memberInfo.GetCustomAttribute<InspectableAttribute>();
-		if (attribute != null && !attribute.Show)
+		var resourceGuidAttri = memberInfo.GetCustomAttribute<ResourceGuidAttribute>();
+		if (resourceGuidAttri != null)
+		{
+			if (memberInfo.MemberType == typeof(Guid))
+			{
+				switch (resourceGuidAttri.Type)
+				{
+					case { } type when type == typeof(Material):
+						if (ResourceManager.TryGetResourceByGuid<Material>((Guid) memberInfo.GetValue(component),
+							    out var mat))
+						{
+							if (CustomEditorLoader.TryGetEditor(type, out var customEditor))
+							{
+								customEditor.Draw(memberInfo, mat, renderer, ++depth);
+							}
+							else
+							{
+								var upperName = CamelCaseRenamer.GetFormattedName(memberInfo.Name);
+								var shownName = upperName == type.Name ? upperName : $"{type.Name} - {upperName}";
+								DrawObject(memberInfo.GetValue(component), ++depth, interceptStrategy, shownName);
+							}
+							return;
+						}
+						else
+						{
+							Logger.Warning($"Failed to get material from {(Guid) memberInfo.GetValue(component)}");
+						}
+
+						break;
+				}
+			}
+		}
+
+		var inspectableAttribute = memberInfo.GetCustomAttribute<InspectableAttribute>();
+		if (inspectableAttribute != null && !inspectableAttribute.Show)
 		{
 			return;
 		}
-		
-		if (memberInfo.GetMemberInfo() is FieldInfo && (attribute == null || !attribute.Show))
+
+		if (memberInfo.GetMemberInfo() is FieldInfo && (inspectableAttribute == null || !inspectableAttribute.Show))
 		{
 			return;
 		}
 
 		if (memberInfo.GetMemberInfo() is PropertyInfo propertyInfo)
 		{
-			if (propertyInfo.GetGetMethod(true)?.IsPublic != true || (attribute?.Show ?? true) == false)
+			if (propertyInfo.GetGetMethod(true)?.IsPublic != true || (inspectableAttribute?.Show ?? true) == false)
 			{
 				return;
 			}
@@ -118,7 +151,7 @@ public class PropertyDrawer : IPropertyDrawer
 
 		try
 		{
-			DrawProperty(component, memberInfo, attribute, propertyValue);
+			DrawProperty(component, memberInfo, inspectableAttribute, propertyValue);
 		}
 		catch (Exception e)
 		{

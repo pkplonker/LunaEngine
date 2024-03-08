@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Engine;
 
 namespace Editor;
 
@@ -18,6 +19,7 @@ public static class CamelCaseRenamer
 			return formattedName;
 		}
 
+		camelCaseName = camelCaseName.RemoveSubstring("guid");
 		formattedName = ConvertCamelCaseToProperCase(camelCaseName);
 
 		nameCache[camelCaseName] = formattedName;

@@ -6,6 +6,7 @@ namespace Engine;
 
 public class MeshRenderer : Component, IRenderableComponent
 {
+	[ResourceGuid(typeof(Material))]
 	public Guid MaterialGuid { get; set; }
 
 	public MeshRenderer(GameObject gameObject) : base(gameObject)
