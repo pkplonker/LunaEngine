@@ -15,12 +15,12 @@ namespace GameCore
 		public const int WINDOW_SIZE_Y = 2160;
 		private const string WINDOW_NAME = "Luna Game - Stuart Heath - WIP";
 		private IWindow? window;
-		private Renderer? renderer;
+		private IRenderer? renderer;
 		private static GameApplication application;
 
 		private static Vector2 LastMousePosition;
 		private IKeyboard? primaryKeyboard;
-		private InputController inputController;
+		private IInputController inputController;
 
 		public GameApplication()
 		{

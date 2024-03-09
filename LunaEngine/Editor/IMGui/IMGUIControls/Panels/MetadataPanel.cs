@@ -8,7 +8,7 @@ namespace Editor.Controls
 		public string PanelName { get; set; } = "Metadata Viewer";
 		private MetadataType? selectedTypeFilter = null;
 
-		public void Draw(Renderer renderer)
+		public void Draw(IRenderer renderer)
 		{
 			ImGui.Begin(PanelName);
 

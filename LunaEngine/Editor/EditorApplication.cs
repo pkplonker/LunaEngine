@@ -19,13 +19,13 @@ namespace Editor
 		public const int WINDOW_SIZE_Y = 2160;
 		private const string WINDOW_NAME = "Luna Engine - Stuart Heath - WIP";
 		private IWindow? window;
-		private Renderer? renderer;
+		private IRenderer? renderer;
 		private static EditorApplication application;
 		private EditorImGuiController? imGuiController;
-		private EditorCamera? editorCamera;
+		private IEditorCamera? editorCamera;
 		private static Vector2 LastMousePosition;
 		private IKeyboard? primaryKeyboard;
-		private InputController inputController;
+		private IInputController inputController;
 		private FileWatcher fileWatcher;
 
 		private EditorApplication()

@@ -3,8 +3,10 @@ using Silk.NET.OpenGL;
 
 namespace Engine;
 
+
+
 [Serializable]
-public class Mesh : IDisposable
+public class Mesh : IDisposable, IMesh
 {
 	public Mesh(GL gl, float[] vertices, uint[] indices, Guid metadataGuid)
 	{

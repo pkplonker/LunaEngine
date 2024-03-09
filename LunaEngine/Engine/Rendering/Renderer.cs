@@ -8,23 +8,22 @@ using Silk.NET.Windowing;
 
 namespace Engine;
 
-public class Renderer
+public class Renderer : IRenderer
 {
 	public GL Gl { get; private set; }
 
 	private const int colorVal = 50;
 	private Vector4D<int> clearColor = new(colorVal, colorVal, colorVal, 255);
-	private Texture texture;
-	public Vector2D<int> WindowSize;
-	private Shader lastShader;
+	public Vector2D<int> WindowSize { get; set; }
+	private IShader lastShader;
 	public int DrawCalls { get; private set; }
 	public int MaterialsUsed { get; private set; }
 	public int ShadersUsed { get; private set; }
 	public uint Triangles { get; set; }
 	public uint Vertices { get; set; }
-	private Dictionary<Scene, IRenderTarget> sceneRenderTargets = new Dictionary<Scene, IRenderTarget>();
+	private Dictionary<IScene, IRenderTarget> sceneRenderTargets = new Dictionary<IScene, IRenderTarget>();
 
-	public void AddScene(Scene scene, Vector2D<uint> size, out IRenderTarget renderTarget, bool toFrameBuffer)
+	public void AddScene(IScene scene, Vector2D<uint> size, out IRenderTarget renderTarget, bool toFrameBuffer)
 	{
 		if (!sceneRenderTargets.ContainsKey(scene))
 		{
@@ -59,7 +58,7 @@ public class Renderer
 		}
 	}
 
-	private void DrawScene(IRenderTarget renderTarget, Scene scene)
+	private void DrawScene(IRenderTarget renderTarget, IScene scene)
 	{
 		renderTarget.Bind(Gl);
 		Gl.Enable(EnableCap.DepthTest);
@@ -139,7 +138,7 @@ public class Renderer
 		return new FrameBufferRenderTarget(framebuffer, rt, new Vector2D<int>((int) sizeX, (int) sizeY));
 	}
 
-	public void SetRenderTargetSize(Scene scene, Vector2D<float> size)
+	public void SetRenderTargetSize(IScene scene, Vector2D<float> size)
 	{
 		unsafe
 		{
@@ -152,7 +151,7 @@ public class Renderer
 
 	public void Close()
 	{
-		texture?.Dispose();
+		
 	}
 
 	public unsafe void DrawElements(PrimitiveType primativeType, uint indicesLength, DrawElementsType elementsTyp)
@@ -164,7 +163,7 @@ public class Renderer
 		Gl.DrawElements(primativeType, indicesLength, elementsTyp, null);
 	}
 
-	public void UseShader(Shader? shader)
+	public void UseShader(IShader? shader)
 	{
 		if (shader == null) return;
 
@@ -176,7 +175,7 @@ public class Renderer
 		}
 	}
 
-	public void UseMaterial(Material material, RenderPassData data, Matrix4x4 modelMatrix)
+	public void UseMaterial(IMaterial material, RenderPassData data, Matrix4x4 modelMatrix)
 	{
 		if (material == null || material.ShaderGUID == null) return;
 		var shaderGuid = material.ShaderGUID;
@@ -188,10 +187,10 @@ public class Renderer
 		}
 	}
 
-	public IRenderTarget? GetSceneRenderTarget(Scene scene) =>
+	public IRenderTarget? GetSceneRenderTarget(IScene scene) =>
 		sceneRenderTargets.TryGetValue(scene, out var rt) ? rt : null;
 
-	public void RemoveScene(Scene? oldScene)
+	public void RemoveScene(IScene? oldScene)
 	{
 		if (oldScene != null && sceneRenderTargets.ContainsKey(oldScene))
 		{
@@ -201,14 +200,3 @@ public class Renderer
 	}
 }
 
-public struct RenderPassData
-{
-	public readonly Matrix4x4 View;
-	public readonly Matrix4x4 Projection;
-
-	public RenderPassData(Matrix4x4 view, Matrix4x4 projection)
-	{
-		View = view;
-		Projection = projection;
-	}
-}

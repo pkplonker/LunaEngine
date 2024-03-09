@@ -9,9 +9,9 @@ namespace Editor.Controls;
 
 public class PropertyDrawer : IPropertyDrawer
 {
-	private Renderer renderer;
+	private IRenderer renderer;
 
-	public PropertyDrawer(Renderer renderer)
+	public PropertyDrawer(IRenderer renderer)
 	{
 		this.renderer = renderer;
 	}

@@ -5,7 +5,7 @@ namespace Editor.Controls;
 
 public interface IPropertyDrawInterceptStrategy
 {
-	bool Draw(object component, IMemberAdapter memberInfo, Renderer renderer);
+	bool Draw(object component, IMemberAdapter memberInfo, IRenderer renderer);
 
 	void DrawEmpty(int depth, string name,
 		PropertyDrawer propertyDrawer, IMemberAdapter? memberInfo, object component)

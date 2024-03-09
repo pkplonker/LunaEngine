@@ -2,9 +2,9 @@
 
 public static class SceneController
 {
-	private static Scene? activeScene;
+	private static IScene? activeScene;
 
-	public static Scene? ActiveScene
+	public static IScene? ActiveScene
 	{
 		get => activeScene;
 		set
@@ -16,5 +16,5 @@ public static class SceneController
 				OnActiveSceneChanged?.Invoke(activeScene,oldScene);
 			}
 		} }
-	public static Action<Scene?, Scene?> OnActiveSceneChanged { get; set; }
+	public static Action<IScene?, IScene?> OnActiveSceneChanged { get; set; }
 }

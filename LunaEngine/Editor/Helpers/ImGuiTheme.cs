@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using ImGuiNET;
 
 namespace Editor;
@@ -74,7 +74,8 @@ public class ImGuiTheme
         style.Colors[(int)ImGuiCol.FrameBgActive] = new Vector4(0.4705882370471954f, 0.4705882370471954f, 0.4705882370471954f,
                                                       0.6700000166893005f);
         style.Colors[(int)ImGuiCol.TitleBg] = new Vector4(0.03921568766236305f, 0.03921568766236305f, 0.03921568766236305f, 1.0f);
-        style.Colors[(int)ImGuiCol.TitleBgActive] = new Vector4(0.0f, 0.0f, 0.0f, 0.5099999904632568f);
+        style.Colors[(int)ImGuiCol.TitleBgActive] = new Vector4(0.2705882489681244f, 0.2862745225429535f, 0.2901960909366608f,
+	        0.800000011920929f);
         style.Colors[(int)ImGuiCol.TitleBgCollapsed] = new Vector4(0.1568627506494522f, 0.2862745225429535f, 0.47843137383461f,
                                                          1.0f);
         style.Colors[(int)ImGuiCol.MenuBarBg] = new Vector4(0.2705882489681244f, 0.2862745225429535f, 0.2901960909366608f,
@@ -100,7 +101,7 @@ public class ImGuiTheme
         style.Colors[(int)ImGuiCol.ButtonActive] = new Vector4(0.1372549086809158f, 0.1921568661928177f, 0.2627451121807098f,
                                                      1.0f);
         style.Colors[(int)ImGuiCol.Header] = new Vector4(0.3333333432674408f, 0.3529411852359772f, 0.3607843220233917f,
-                                               0.5299999713897705f);
+	        0.800000011920929f);
         style.Colors[(int)ImGuiCol.HeaderHovered] = new Vector4(0.4509803950786591f, 0.6745098233222961f, 0.9960784316062927f,
                                                       0.6700000166893005f);
         style.Colors[(int)ImGuiCol.HeaderActive] = new Vector4(0.4705882370471954f, 0.4705882370471954f, 0.4705882370471954f,

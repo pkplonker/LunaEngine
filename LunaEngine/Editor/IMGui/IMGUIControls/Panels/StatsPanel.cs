@@ -13,9 +13,9 @@ public class StatsPanel : IPanel
 	private string formattedTotalTime = "00:00:00";
 	private readonly float[] fpsBuffer = new float[100];
 	private int bufferIndex = 0;
-	private readonly InputController inputController;
+	private readonly IInputController inputController;
 
-	public StatsPanel(InputController inputController)
+	public StatsPanel(IInputController inputController)
 	{
 		this.inputController = inputController;
 	}
@@ -26,7 +26,7 @@ public class StatsPanel : IPanel
 		bufferIndex = (bufferIndex + 1) % fpsBuffer.Length;
 	}
 
-	public void Draw(Renderer renderer)
+	public void Draw(IRenderer renderer)
 	{
 		if (Time.TotalTime - lastUpdateTime >= 1.0)
 		{

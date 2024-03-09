@@ -1,17 +1,16 @@
 ﻿using System.Numerics;
-using Editor;
-using Silk.NET.Input;
 
 namespace Engine;
 
-public class EditorCamera : ICamera
+public class EditorCamera : IEditorCamera
 {
-	public Transform Transform = null;
-	public float AspectRatio { get; set; }
+	public ITransform Transform { get; set; }
 
 	protected float zoom = 45f;
 	protected readonly Vector3 startPosition;
 	protected readonly float startAspectRatio;
+	public float AspectRatio { get; set; }
+
 	public EditorCamera(Vector3 position, float aspectRatio)
 	{
 		startPosition = position;
@@ -50,8 +49,5 @@ public class EditorCamera : ICamera
 	public Matrix4x4 GetProjection() =>
 		Matrix4x4.CreatePerspectiveFieldOfView(MathExtensions.DegreesToRadians(zoom), AspectRatio, 0.1f, 100.0f);
 
-	public virtual void Update(InputController input)
-	{
-	
-	}
+	public virtual void Update(IInputController input) { }
 }

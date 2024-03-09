@@ -7,10 +7,10 @@ namespace Editor.Controls;
 public class HierarchyPanel : IPanel
 {
 	private readonly EditorImGuiController controller;
-	private readonly InputController inputController;
+	private readonly IInputController inputController;
 	private readonly RenamingHelper renamingHelper;
 
-	public HierarchyPanel(EditorImGuiController controller, InputController inputController)
+	public HierarchyPanel(EditorImGuiController controller, IInputController inputController)
 	{
 		this.controller = controller;
 		this.inputController = inputController;
@@ -19,7 +19,7 @@ public class HierarchyPanel : IPanel
 
 	public string PanelName { get; set; } = "Hierarchy";
 
-	public void Draw(Renderer renderer)
+	public void Draw(IRenderer renderer)
 	{
 		if (inputController.IsKeyPressed(InputController.Key.F2))
 		{
@@ -39,7 +39,7 @@ public class HierarchyPanel : IPanel
 		ImGui.End();
 	}
 
-	private void DrawChildren(Transform transform)
+	private void DrawChildren(ITransform transform)
 	{
 		foreach (var gameobject in transform.ChildrenAsGameObjects)
 		{
