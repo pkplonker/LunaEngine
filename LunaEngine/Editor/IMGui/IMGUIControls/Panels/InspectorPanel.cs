@@ -48,7 +48,7 @@ public class InspectorPanel : IPanel
 			foreach (var kvp in ComponentRegistry.Components.OrderBy(x => x.Key))
 			{
 				if (!ImGui.Selectable(kvp.Key)) continue;
-				//selectedGameObject.AddComponent(kvp.Value);
+				selectedGameObject.AddComponent(kvp.Value);
 				ImGui.CloseCurrentPopup();
 			}
 
