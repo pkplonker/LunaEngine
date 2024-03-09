@@ -29,7 +29,7 @@ public class EditorViewport
 		return new Vector2D<float>(newWidth, newHeight);
 	}
 
-	public void Update(string panelName, IEditorCamera camera, Scene? scene, IInputController inputController,
+	public void Update(string panelName, IEditorCamera camera, IScene? scene, IInputController inputController,
 		IRenderer renderer)
 	{
 		ImGui.Begin(panelName,

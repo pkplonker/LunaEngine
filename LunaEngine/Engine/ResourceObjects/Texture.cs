@@ -6,7 +6,7 @@ namespace Engine;
 
 [Inspectable]
 [Serializable]
-public class Texture : IDisposable
+public class Texture : IDisposable, ITexture
 {
 	private uint textureHandle;
 	private GL gl;

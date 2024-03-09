@@ -6,14 +6,14 @@ namespace Engine;
 
 [Inspectable]
 [Serializable]
-public class Shader : IDisposable
+public class Shader : IDisposable, IShader
 {
 	private uint handle;
 	private GL gl;
 	private Dictionary<string, int> uniformDict = new();
 
 	[Serializable(false)]
-	public string shaderPath { get; private set; }
+	public string ShaderPath { get; private set; }
 
 	[Inspectable(false)]
 	[Serializable(true)]
@@ -22,7 +22,7 @@ public class Shader : IDisposable
 	public Shader(GL gl, string shaderPath, Guid metadataGuid)
 	{
 		GUID = metadataGuid;
-		this.shaderPath = shaderPath;
+		this.ShaderPath = shaderPath;
 		this.gl = gl;
 
 		LoadShader(shaderPath, out uint vertex, out uint fragment);

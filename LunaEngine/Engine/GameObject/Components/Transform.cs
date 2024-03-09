@@ -4,7 +4,7 @@ namespace Engine;
 
 [Inspectable]
 [Serializable]
-public class Transform
+public class Transform : ITransform
 {
 	[Inspectable(false)]
 	[Serializable(false)]

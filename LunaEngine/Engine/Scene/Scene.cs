@@ -1,8 +1,9 @@
 ﻿using Silk.NET.Assimp;
 
 namespace Engine;
+
 [Inspectable]
-public class Scene : Transform
+public class Scene : Transform, IScene
 {
 	public Scene() : base(null) { }
 	public string Name { get; set; } = "Default Scene";
