@@ -1,12 +1,10 @@
 ﻿using System.Numerics;
-using Editor;
-using Silk.NET.Input;
 
 namespace Engine;
 
 public class EditorCamera : IEditorCamera
 {
-	public Transform Transform { get; set; }
+	public ITransform Transform { get; set; }
 
 	protected float zoom = 45f;
 	protected readonly Vector3 startPosition;

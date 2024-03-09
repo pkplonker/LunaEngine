@@ -1,4 +1,4 @@
-﻿using Silk.NET.Assimp;
+using Silk.NET.Assimp;
 
 namespace Engine;
 

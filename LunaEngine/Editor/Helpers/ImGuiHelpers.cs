@@ -9,7 +9,7 @@ namespace Editor;
 
 public static class ImGuiHelpers
 {
-	public static void DrawTransform(Transform trans)
+	public static void DrawTransform(ITransform trans)
 	{
 		ImGui.Separator();
 		float labelWidth = ImGui.CalcTextSize("Rotation").X + 20.0f;

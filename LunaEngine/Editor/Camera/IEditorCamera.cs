@@ -2,7 +2,7 @@
 
 public interface IEditorCamera : ICamera
 {
-	public Transform Transform { get; set; }
+	public ITransform Transform { get; set; }
 	public void Reset();
 	public void Update(IInputController input);
 }
