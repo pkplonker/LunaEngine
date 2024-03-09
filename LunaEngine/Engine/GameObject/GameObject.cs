@@ -78,11 +78,12 @@ public class GameObject
 		}
 	}
 
-	public void RemoveComponent(Component? component)
+	public void RemoveComponent(Type componentType)
 	{
-		if (components.Contains(component))
+		var componentToRemove = components.FirstOrDefault(c => c.GetType() == componentType);
+		if (componentToRemove != null)
 		{
-			components.Remove(component);
+			components.Remove(componentToRemove);
 		}
 	}
 

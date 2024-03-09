@@ -46,9 +46,20 @@ public class InspectorPanel : IPanel
 		if (ImGui.BeginPopup(ADD_COMPONENT_POPUP_NAME))
 		{
 			foreach (var kvp in ComponentRegistry.Components.OrderBy(x => x.Key))
+
 			{
 				if (!ImGui.Selectable(kvp.Key)) continue;
-				selectedGameObject.AddComponent(kvp.Value);
+				var cachedGameObject = selectedGameObject;
+
+				UndoManager.RecordAndPerform(
+					new Memento(() => selectedGameObject.AddComponent(kvp.Value),
+					() =>
+					{
+						if (cachedGameObject != null)
+						{
+							cachedGameObject.RemoveComponent(kvp.Value);
+						}
+					}, $"Added component - {kvp.Key}"));
 				ImGui.CloseCurrentPopup();
 			}
 
