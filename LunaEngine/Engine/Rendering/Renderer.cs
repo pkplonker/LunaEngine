@@ -8,14 +8,14 @@ using Silk.NET.Windowing;
 
 namespace Engine;
 
-public class Renderer
+public class Renderer : IRenderer
 {
 	public GL Gl { get; private set; }
 
 	private const int colorVal = 50;
 	private Vector4D<int> clearColor = new(colorVal, colorVal, colorVal, 255);
 	private Texture texture;
-	public Vector2D<int> WindowSize;
+	public Vector2D<int> WindowSize { get; set; }
 	private Shader lastShader;
 	public int DrawCalls { get; private set; }
 	public int MaterialsUsed { get; private set; }

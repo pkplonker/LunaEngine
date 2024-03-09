@@ -7,7 +7,7 @@ public interface IPanel
 {
 	string PanelName { get; protected set; }
 
-	public void Draw(Renderer renderer);
+	public void Draw(IRenderer renderer);
 
 	
 }

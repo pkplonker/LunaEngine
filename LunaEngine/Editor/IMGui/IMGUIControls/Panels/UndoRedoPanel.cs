@@ -14,7 +14,7 @@ public class UndoRedoPanel : IPanel
 	{
 	}
 
-	public void Draw(Renderer renderer)
+	public void Draw(IRenderer renderer)
 	{
 		ImGui.Begin(PanelName);
 

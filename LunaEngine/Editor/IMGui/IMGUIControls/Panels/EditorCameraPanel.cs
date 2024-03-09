@@ -5,16 +5,16 @@ namespace Editor.Controls;
 
 public class EditorCameraPanel : IPanel
 {
-	private readonly EditorCamera editorCamera;
+	private readonly IEditorCamera editorCamera;
 
-	public EditorCameraPanel(EditorCamera editorCamera)
+	public EditorCameraPanel(IEditorCamera editorCamera)
 	{
 		this.editorCamera = editorCamera;
 	}
 
 	public string PanelName { get; set; } = "Editor Camera";
 
-	public void Draw(Renderer renderer)
+	public void Draw(IRenderer renderer)
 	{
 		ImGui.Begin(PanelName);
 		ImGui.Text($"Aspect Ratio: {editorCamera.AspectRatio}");

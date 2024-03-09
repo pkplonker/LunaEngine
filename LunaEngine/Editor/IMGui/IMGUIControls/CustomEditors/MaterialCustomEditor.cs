@@ -15,7 +15,7 @@ public class MaterialCustomEditor : ICustomEditor
 	private static PropertyDrawer? propertyDrawer;
 	private static IPropertyDrawInterceptStrategy? interceptStrategy;
 
-	public void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, Renderer renderer, int depth)
+	public void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, IRenderer renderer, int depth)
 	{
 		propertyDrawer ??= new PropertyDrawer(renderer);
 		interceptStrategy ??= new MaterialPropertyDrawIntercept();
@@ -34,7 +34,7 @@ public class MaterialCustomEditor : ICustomEditor
 
 public class MaterialPropertyDrawIntercept : IPropertyDrawInterceptStrategy
 {
-	public bool Draw(object component, IMemberAdapter memberInfo, Renderer renderer)
+	public bool Draw(object component, IMemberAdapter memberInfo, IRenderer renderer)
 	{
 		return false;
 	}

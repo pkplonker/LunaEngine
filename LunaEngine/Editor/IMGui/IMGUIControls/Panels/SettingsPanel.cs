@@ -19,7 +19,7 @@ public class SettingsPanel : IPanel
 		bool b = EditorSettings.GetSetting("Test Bool", settingsCategory, true, true);
 	}
 
-	public void Draw(Renderer renderer)
+	public void Draw(IRenderer renderer)
 	{
 		if (ImGui.BeginPopupModal(PanelName))
 		{

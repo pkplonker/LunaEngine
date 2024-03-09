@@ -49,7 +49,7 @@ public class ImGuiLoggerWindow : ILogSink, IPanel
 		logQueue.Enqueue(message);
 	}
 
-	public void Draw(Renderer renderer)
+	public void Draw(IRenderer renderer)
 	{
 		ImGui.Begin(PanelName, ImGuiWindowFlags.NoScrollbar);
 		if (ImGui.Button("Scroll to bottom"))

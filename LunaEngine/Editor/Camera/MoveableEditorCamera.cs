@@ -9,7 +9,7 @@ public class MoveableEditorCamera : EditorCamera
 	private const string settingsCategory = "Editor Camera";
 	public MoveableEditorCamera(Vector3 position, float aspectRatio) : base(position, aspectRatio) { }
 
-	public override void Update(InputController input)
+	public override void Update(IInputController input)
 	{
 		if (input == null) return;
 		if (!input.IsMousePressed(InputController.MouseButton.Right)) return;

@@ -17,7 +17,7 @@ public class TextureCustomEditor : ICustomEditor
 	private static PropertyDrawer? propertyDrawer;
 	private static IPropertyDrawInterceptStrategy? interceptStrategy;
 
-	public void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, Renderer renderer, int depth)
+	public void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, IRenderer renderer, int depth)
 	{
 		TextureCustomEditor.propertyDrawer ??= new PropertyDrawer(renderer);
 		TextureCustomEditor.interceptStrategy ??= new TexturePropertyDrawIntercept();
@@ -38,7 +38,7 @@ public class TexturePropertyDrawIntercept : IPropertyDrawInterceptStrategy
 {
 	Vector2 imageSize = new(175, 175);
 
-	public bool Draw(object component, IMemberAdapter memberInfo, Renderer renderer)
+	public bool Draw(object component, IMemberAdapter memberInfo, IRenderer renderer)
 	{
 		if (component is Texture tex)
 		{

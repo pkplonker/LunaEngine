@@ -10,19 +10,22 @@ public class ObjectPreviewPanel : IPanel
 	private Scene scene;
 	private GameObject materialSphere;
 	private Vector2 previousSize;
-	private readonly InputController inputController;
+	private readonly IInputController inputController;
+	private readonly EditorViewport editorViewport;
 
-	public ObjectPreviewPanel(InspectorPanel inspector, InputController inputController)
+	public ObjectPreviewPanel(InspectorPanel inspector, IInputController inputController, IRenderer renderer)
 	{
 		this.inputController = inputController;
 		inspector.SelectionChanged += InspectorOnSelectionChanged;
 		scene = new Scene();
-
+		editorViewport = new EditorViewport();
 		materialSphere = new GameObject();
 		materialSphere.AddComponent<RotateComponent>();
 		// materialSphere.AddComponent<MeshFilter>()
 		// 	?.AddMesh(ResourceManager.GetMesh(@"Resources/models/TestSphere.obj".MakeAbsolute()));
 		scene.ActiveCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, 1024 / (float) 1024);
+		renderer.AddScene(scene, new Vector2D<uint>((uint) 0, (uint) 0), out var rt, true);
+
 	}
 
 	private void InspectorOnSelectionChanged(object obj)
@@ -61,32 +64,9 @@ public class ObjectPreviewPanel : IPanel
 
 	public string PanelName { get; set; } = "Preview";
 
-	public void Draw(Renderer renderer)
+	public void Draw(IRenderer renderer)
 	{
-		ImGui.Begin(PanelName);
-		if (ImGui.IsWindowFocused() || (ImGui.IsWindowHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Right)))
-		{
-			ImGui.SetWindowFocus();
-			((MoveableEditorCamera) scene.ActiveCamera)?.Update(inputController);
-		}
-
-		var size = ImGui.GetContentRegionAvail();
-		renderer.AddScene(scene, new Vector2D<uint>((uint) size.X, (uint) size.Y), out var rt, true);
-		if (size != previousSize)
-		{
-			renderer.SetRenderTargetSize(scene, new Vector2D<float>(size.X, size.Y));
-			previousSize = size;
-		}
-
-		if (rt != null && rt is FrameBufferRenderTarget fbrtt)
-		{
-			ImGui.Image(fbrtt.GetTextureHandlePtr(), new Vector2(size.X, size.Y), Vector2.Zero,
-				Vector2.One,
-				Vector4.One,
-				Vector4.Zero);
-		}
-
-		ImGui.End();
+		editorViewport.Update(PanelName,scene.ActiveCamera as IEditorCamera, scene, inputController,renderer);
 	}
 
 }
