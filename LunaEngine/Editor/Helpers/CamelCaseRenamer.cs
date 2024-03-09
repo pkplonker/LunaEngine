@@ -7,7 +7,7 @@ public static class CamelCaseRenamer
 {
 	private static Dictionary<string, string> nameCache = new Dictionary<string, string>();
 
-	public static string GetFormattedName(string camelCaseName)
+	public static string GetFormattedName(this string camelCaseName)
 	{
 		if (string.IsNullOrEmpty(camelCaseName))
 		{
@@ -27,7 +27,7 @@ public static class CamelCaseRenamer
 		return formattedName;
 	}
 
-	private static string ConvertCamelCaseToProperCase(string name)
+	private static string ConvertCamelCaseToProperCase(this string name)
 	{
 		if (string.IsNullOrEmpty(name))
 			return name;

@@ -35,10 +35,9 @@ public class ShaderCustomEditor : ICustomEditor
 	{
 		public bool Draw(object component, IMemberAdapter memberInfo, IRenderer renderer)
 		{
-			var memberName = CustomEditorBase.GenerateName<Shader>(memberInfo);
-			if (memberInfo.Name == "shaderPath")
+			if (memberInfo.Name == "ShaderPath")
 			{
-				ImGui.Text($"{memberName} : {((string) memberInfo?.GetValue(component)).MakeProjectRelative()}");
+				ImGui.Text($"{memberInfo.Name.GetFormattedName()} : {((string) memberInfo?.GetValue(component)).MakeProjectRelative()}");
 				ImGui.SameLine();
 				if (ImGui.Button($"Replace##{memberInfo.Name}"))
 				{
