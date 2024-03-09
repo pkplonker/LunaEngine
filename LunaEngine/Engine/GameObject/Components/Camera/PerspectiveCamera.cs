@@ -1,7 +1,8 @@
-﻿using System.Numerics;
+using System.Numerics;
 
 namespace Engine;
 
+[ComponentName("Perspective Camera")]
 public class PerspectiveCamera : Camera
 {
 	public float FieldOfView { get; set; } = MathExtensions.DegreesToRadians(60f);

@@ -1,7 +1,8 @@
-﻿using System.Numerics;
+using System.Numerics;
 
 namespace Engine;
 
+[ComponentName("Rotate Component")]
 public class RotateComponent : Component
 {
 	[Inspectable]

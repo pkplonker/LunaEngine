@@ -1,7 +1,8 @@
-﻿using System.Numerics;
+using System.Numerics;
 
 namespace Engine;
 
+[ComponentName("Orthographic Camera")]
 public class OrthographicCamera : Camera
 {
 	public float Width { get; set; } = 10f;

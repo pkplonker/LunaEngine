@@ -7,16 +7,14 @@ namespace Editor.Controls;
 
 public class InspectorPanel : IPanel
 {
-	private readonly EditorImGuiController controller;
-	private PropertyDrawer propertyDrawer;
-	private GameObject? selectedGameObject;
-	private float test;
-	public event Action<object> SelectionChanged;
+	const string ADD_COMPONENT_POPUP_NAME = "AddComponentPopup";
 
-	public InspectorPanel(EditorImGuiController controller)
-	{
+	private PropertyDrawer? propertyDrawer;
+	private GameObject? selectedGameObject;
+	public event Action<GameObject?> SelectionChanged;
+
+	public InspectorPanel(EditorImGuiController controller) =>
 		controller.GameObjectSelectionChanged += ControllerOnGameObjectSelectionChanged;
-	}
 
 	private void ControllerOnGameObjectSelectionChanged(GameObject? obj)
 	{
@@ -31,33 +29,46 @@ public class InspectorPanel : IPanel
 	{
 		ImGui.Begin(PanelName);
 
-		if (propertyDrawer == null)
+		propertyDrawer ??= new PropertyDrawer(renderer);
+
+		if (selectedGameObject == null) return;
+		var go = selectedGameObject;
+		UndoableImGui.UndoableCheckbox("##Enabled", "GameObject Enabled Toggled", () => go.Enabled,
+			val => go.Enabled = val
+		);
+		ImGui.SameLine();
+		ImGui.Text($"{go.Name}: {go.Transform.GUID.ToString()}");
+		if (ImGuiHelpers.CenteredButton("Add Component"))
 		{
-			propertyDrawer = new PropertyDrawer(renderer);
+			ImGui.OpenPopup(ADD_COMPONENT_POPUP_NAME);
 		}
 
-		if (selectedGameObject != null)
+		if (ImGui.BeginPopup(ADD_COMPONENT_POPUP_NAME))
 		{
-			var go = selectedGameObject;
-			UndoableImGui.UndoableCheckbox("##Enabled", "GameObject Enabled Toggled", () => go.Enabled,
-				val => go.Enabled = val
-			);
-			ImGui.SameLine();
-			ImGui.Text($"{go.Name}: {go.Transform.GUID.ToString()}");
-			ImGuiHelpers.DrawTransform(go.Transform);
-
-			foreach (var component in go.GetComponents())
+			foreach (var kvp in ComponentRegistry.Components.OrderBy(x => x.Key))
 			{
-				try
-				{
-					propertyDrawer.DrawObject(component, 0, null);
-				}
-				catch (Exception e)
-				{
-					Logger.Warning(e.ToString());
-				}
+				if (!ImGui.Selectable(kvp.Key)) continue;
+				//selectedGameObject.AddComponent(kvp.Value);
+				ImGui.CloseCurrentPopup();
 			}
-			ImGui.End();
+
+			ImGui.EndPopup();
 		}
+
+		ImGuiHelpers.DrawTransform(go.Transform);
+
+		foreach (var component in go.GetComponents())
+		{
+			try
+			{
+				propertyDrawer.DrawObject(component, 0, null);
+			}
+			catch (Exception e)
+			{
+				Logger.Warning(e.ToString());
+			}
+		}
+
+		ImGui.End();
 	}
 }

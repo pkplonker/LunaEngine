@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using Editor.Controls;
 using Editor.Properties;
 using Engine;
@@ -137,5 +137,16 @@ public static class ImGuiHelpers
 		{
 			var result = FileDialog.OpenFileDialog(FileDialog.FilterByType(member.MemberType));
 		}
+	}
+
+	public static bool CenteredButton(string buttonText)
+	{
+		var windowSize = ImGui.GetWindowSize();
+		var buttonSize = ImGui.CalcTextSize(buttonText);
+
+		var buttonPosX = (windowSize.X - buttonSize.X) * 0.5f;
+		ImGui.SetCursorPosX(buttonPosX);
+
+		return ImGui.Button(buttonText);
 	}
 }

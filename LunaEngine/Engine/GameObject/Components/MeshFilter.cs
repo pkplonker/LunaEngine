@@ -1,8 +1,9 @@
-﻿using System.Numerics;
+using System.Numerics;
 using Silk.NET.OpenGL;
 
 namespace Engine;
 
+[ComponentName("Mesh Filter")]
 public class MeshFilter : Component
 {
 	[Inspectable(false)]

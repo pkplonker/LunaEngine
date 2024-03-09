@@ -1,9 +1,10 @@
-﻿using System.Numerics;
+using System.Numerics;
 using Engine.Logging;
 using Silk.NET.OpenGL;
 
 namespace Engine;
 
+[ComponentName("Mesh Renderer")]
 public class MeshRenderer : Component, IRenderableComponent
 {
 	[ResourceGuid(typeof(Material))]
