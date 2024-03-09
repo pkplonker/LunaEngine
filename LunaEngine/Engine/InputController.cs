@@ -4,7 +4,9 @@ using Silk.NET.Input;
 
 namespace Engine;
 
-public class InputController
+
+
+public class InputController : IInputController
 {
 	#region Keys
 

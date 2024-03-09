@@ -19,20 +19,23 @@ using Shader = Engine.Shader;
 
 namespace Editor;
 
+
+
 public class EditorImGuiController : IDisposable
 {
-	private readonly Renderer renderer;
+	private readonly IRenderer renderer;
 	private ImGuiController imGuiController;
 	public Vector2 CurrentSize { get; private set; }
 	private Dictionary<IPanel, bool> controls = new();
-	private readonly EditorCamera editorCamera;
+	private readonly IEditorCamera editorCamera;
 	private const string iniSaveLocation = "imgui.ini";
 	public event Action<GameObject?> GameObjectSelectionChanged;
 	private GameObject? selectedGameObject;
-	private readonly InputController inputController;
+	private readonly IInputController inputController;
 	private SettingsPanel settingsPanel;
 	private bool openSettings;
 	private bool showDemo;
+	private readonly EditorViewport editorViewport;
 	private const string EDITOR_CATEGORY = "EditorPanels";
 
 	public GameObject? SelectedGameObject
@@ -48,8 +51,8 @@ public class EditorImGuiController : IDisposable
 		}
 	}
 
-	public EditorImGuiController(GL gl, IView view, IInputContext input, Renderer renderer, EditorCamera editorCamera,
-		InputController inputController)
+	public EditorImGuiController(GL gl, IView view, IInputContext input, IRenderer renderer, IEditorCamera editorCamera,
+		IInputController inputController)
 	{
 		this.renderer = renderer;
 		imGuiController = new ImGuiController(gl, view, input);
@@ -66,19 +69,20 @@ public class EditorImGuiController : IDisposable
 		this.inputController = inputController;
 		CreateControls(editorCamera);
 		showDemo = EditorSettings.GetSetting("showDemo", EDITOR_CATEGORY, false, false);
+		editorViewport = new EditorViewport();
 	}
 
-	private void CreateControls(EditorCamera editorCamera)
+	private void CreateControls(IEditorCamera editorCamera)
 	{
-		controls.Add(new Stats(inputController), true);
+		controls.Add(new StatsPanel(inputController), true);
 		controls.Add(new EditorCameraPanel(editorCamera), true);
 		controls.Add(new UndoRedoPanel(), true);
 		controls.Add(new HierarchyPanel(this, inputController), true);
 		var inspector = new InspectorPanel(this);
 		controls.Add(inspector, true);
-		controls.Add(new ObjectPreviewPanel(inspector, inputController), true);
+		controls.Add(new ObjectPreviewPanel(inspector, inputController,renderer), true);
 		controls.Add(new ImGuiLoggerWindow(), true);
-		controls.Add(new MetadataViewer(), true);
+		controls.Add(new MetadataPanel(), true);
 		foreach (var control in controls)
 		{
 			controls[control.Key] =
@@ -90,44 +94,15 @@ public class EditorImGuiController : IDisposable
 
 	public void ImGuiControllerUpdate(float deltaTime)
 	{
-		using var tracker = new PerformanceTracker(nameof(ImGuiControllerUpdate));
+		using PerformanceTracker tracker = new PerformanceTracker(nameof(ImGuiControllerUpdate));
 
 		imGuiController.Update(deltaTime);
 		ImGui.DockSpaceOverViewport(ImGui.GetMainViewport());
 		ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 0);
-		ImGui.Begin("Viewport",
-			ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
-		var size = ImGui.GetContentRegionAvail();
-		if (ImGui.IsWindowFocused() || (ImGui.IsWindowHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Right)))
-		{
-			ImGui.SetWindowFocus();
-			editorCamera.Update(inputController);
-		}
-
-		if (SceneController.ActiveScene != null)
-		{
-			if (size != CurrentSize)
-			{
-				renderer.SetRenderTargetSize(SceneController.ActiveScene, new Vector2D<float>(size.X, size.Y));
-
-				CurrentSize = size;
-			}
-
-			var rt = renderer.GetSceneRenderTarget(SceneController.ActiveScene);
-			if (rt != null && rt is FrameBufferRenderTarget fbrtt)
-			{
-				ImGui.Image(fbrtt.GetTextureHandlePtr(),
-					new Vector2(size.X, size.Y), Vector2.Zero,
-					Vector2.One,
-					Vector4.One,
-					Vector4.Zero);
-			}
-		}
-
-		ImGui.End();
+		editorViewport.Update("Viewport", editorCamera, SceneController.ActiveScene, inputController, renderer);
 		ImGui.PopStyleVar();
 
-		foreach (var control in controls.Where(x => x.Value).Select(x => x.Key))
+		foreach (IPanel control in controls.Where(x => x.Value).Select(x => x.Key))
 		{
 			control.Draw(renderer);
 		}
@@ -158,9 +133,9 @@ public class EditorImGuiController : IDisposable
 				if (ImGui.MenuItem("Save", "Ctrl+S"))
 				{
 					var pu = new ProgressUpdater();
-					ProgressBar.Show("Opening Scene",progressUpdate: pu);
+					ProgressBar.Show("Opening Scene", progressUpdate: pu);
 					var result = new SceneSerializer(SceneController.ActiveScene,
-						testScenePath).Serialize(progress:pu);
+						testScenePath).Serialize(progress: pu);
 					ProgressBar.Close();
 				}
 
@@ -172,8 +147,8 @@ public class EditorImGuiController : IDisposable
 				if (ImGui.MenuItem("Open", "Ctrl+O"))
 				{
 					var pu = new ProgressUpdater();
-					ProgressBar.Show("Opening Scene",progressUpdate: pu);
-					Scene? result = new SceneDeserializer(testScenePath).Deserialize(ProgressUpdater:pu);
+					ProgressBar.Show("Opening Scene", progressUpdate: pu);
+					Scene? result = new SceneDeserializer(testScenePath).Deserialize(ProgressUpdater: pu);
 					ProgressBar.Close();
 
 					if (result != null)
@@ -244,16 +219,17 @@ public class EditorImGuiController : IDisposable
 							throw;
 						}
 					}
-					
+
 					if (ImGui.MenuItem("Show progress"))
 					{
 						ProgressBar.Show("Test Title");
 					}
+
 					if (ImGui.MenuItem("CancelProgress"))
 					{
 						ProgressBar.Close();
 					}
-					
+
 					ImGui.EndMenu();
 				}
 

@@ -19,13 +19,13 @@ namespace Editor
 		public const int WINDOW_SIZE_Y = 2160;
 		private const string WINDOW_NAME = "Luna Engine - Stuart Heath - WIP";
 		private IWindow? window;
-		private Renderer? renderer;
+		private IRenderer? renderer;
 		private static EditorApplication application;
 		private EditorImGuiController? imGuiController;
-		private EditorCamera? editorCamera;
+		private IEditorCamera? editorCamera;
 		private static Vector2 LastMousePosition;
 		private IKeyboard? primaryKeyboard;
-		private InputController inputController;
+		private IInputController inputController;
 		private FileWatcher fileWatcher;
 
 		private EditorApplication()
@@ -42,6 +42,7 @@ namespace Editor
 			var options = WindowOptions.Default;
 			options.Size = new Vector2D<int>(WINDOW_SIZE_X, WINDOW_SIZE_Y);
 			options.Title = WINDOW_NAME;
+			options.WindowState = WindowState.Maximized;
 			window = Window.Create(options);
 			window.Load += OnLoad;
 			window.Update += OnUpdate;
@@ -122,6 +123,7 @@ namespace Editor
 			{
 				renderer?.Load(window);
 				ResourceManager.Init(renderer.Gl);
+				IconLoader.Init(renderer.Gl);
 				var inputContext = window.CreateInput();
 				inputController = new InputController(inputContext);
 				inputController.KeyPress += key =>
@@ -132,7 +134,7 @@ namespace Editor
 							() => { window.Close(); });
 					}
 				};
-				editorCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, WINDOW_SIZE_X / (float) WINDOW_SIZE_Y);
+				editorCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, 16f/9f);
 				SceneController.ActiveScene.ActiveCamera = editorCamera;
 				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera,
 					inputController);
@@ -146,6 +148,15 @@ namespace Editor
 					var size = imGuiController.CurrentSize;
 					renderer.SetRenderTargetSize(SceneController.ActiveScene, new Vector2D<float>(size.X, size.Y));
 				};
+
+				Scene? result =
+					new SceneDeserializer(
+						Path.Combine(ProjectManager.ActiveProject.Directory, "assets/TestScene.SCENE")).Deserialize();
+
+				if (result != null)
+				{
+					SceneController.ActiveScene = result;
+				}
 
 				try
 				{

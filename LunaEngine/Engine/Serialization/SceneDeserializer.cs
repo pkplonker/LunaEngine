@@ -32,7 +32,7 @@ namespace Engine
 			gameObjectLookup = new Dictionary<Guid, GameObject>();
 		}
 
-		public Scene? Deserialize(IProgressUpdater ProgressUpdater)
+		public Scene? Deserialize(IProgressUpdater? ProgressUpdater = null)
 		{
 			try
 			{
@@ -73,7 +73,7 @@ namespace Engine
 			}
 		}
 
-		private void DeserializeGameObjects(JObject rootObject, Scene scene, IProgressUpdater progressUpdater)
+		private void DeserializeGameObjects(JObject rootObject, Scene scene, IProgressUpdater? progressUpdater = null)
 		{
 			int currentIndex = 0;
 			int total = rootObject.Count;
@@ -87,7 +87,7 @@ namespace Engine
 					scene.AddGameObject(go);
 				}
 
-				progressUpdater.Value = (float) currentIndex / total;
+				if (progressUpdater != null) progressUpdater.Value = (float) currentIndex / total;
 			}
 		}
 

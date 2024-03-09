@@ -11,7 +11,7 @@ namespace Engine
 {
 	public class SceneSerializer
 	{
-		private readonly Scene scene;
+		private readonly IScene scene;
 		private readonly string absolutePath;
 		private static JObject rootObject;
 		private BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
@@ -27,7 +27,7 @@ namespace Engine
 			rootObject = new JObject();
 		}
 
-		public SceneSerializer(Scene scene, string absolutePath)
+		public SceneSerializer(IScene scene, string absolutePath)
 		{
 			this.scene = scene;
 			this.absolutePath = absolutePath;
