@@ -11,6 +11,7 @@ public class InspectorPanel : IPanel
 
 	private PropertyDrawer? propertyDrawer;
 	private GameObject? selectedGameObject;
+	private bool newChange = false;
 	public event Action<GameObject?> SelectionChanged;
 
 	public InspectorPanel(EditorImGuiController controller) =>
@@ -20,6 +21,7 @@ public class InspectorPanel : IPanel
 	{
 		selectedGameObject = obj;
 		SelectionChanged?.Invoke(obj);
+		newChange = true;
 	}
 
 	public string PanelName { get; set; } = "Inspector";
@@ -28,7 +30,11 @@ public class InspectorPanel : IPanel
 	public void Draw(IRenderer renderer)
 	{
 		ImGui.Begin(PanelName);
-
+		if (newChange)
+		{
+			newChange = false;
+			ImGui.SetScrollY(0);
+		}
 		propertyDrawer ??= new PropertyDrawer(renderer);
 
 		if (selectedGameObject == null) return;
