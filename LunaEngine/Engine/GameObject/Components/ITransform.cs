@@ -14,15 +14,16 @@ public interface ITransform
 	Vector3 Left { get; }
 	Vector3 Right { get; }
 	bool HasChildren { get; }
-	IReadOnlyList<Transform> GetChildren { get; }
+	IReadOnlyList<ITransform> GetChildren { get; }
 	Guid GUID { get; set; }
-	IReadOnlyList<Transform> ChildrenRecursive { get; }
+	IReadOnlyList<ITransform> ChildrenRecursive { get; }
 	IEnumerable<GameObject> ChildrenAsGameObjectsRecursive { get; }
 	IEnumerable<GameObject> ChildrenAsGameObjects { get; }
 	Vector3 Scale { get; set; }
 	Quaternion Rotation { get; set; }
 	Matrix4x4 ModelMatrix { get; }
-	void SetParent(Transform? newParent);
+	public HashSet<ITransform> children { get; } 
+	void SetParent(ITransform? newParent);
 	void RotateByEuler(Vector3 euler);
 	void Rotate(float xOffset, float yOffset);
 	void Translate(Vector3 translation);

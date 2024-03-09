@@ -22,7 +22,7 @@ public class Scene : Transform, IScene
 		ClearRelationshipsRecursive(this);
 	}
 
-	private void ClearRelationshipsRecursive(Transform node)
+	private void ClearRelationshipsRecursive(ITransform node)
 	{
 		if (node == null) return;
 
