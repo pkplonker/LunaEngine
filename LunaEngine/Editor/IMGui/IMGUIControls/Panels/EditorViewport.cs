@@ -9,6 +9,24 @@ public class EditorViewport
 {
 	private Vector2 currentSize;
 
+	private float aspectRatio;
+
+	private const string VIEWPORT_ASPECTRATIO = "ViewportAspectRatio";
+
+	private readonly Dictionary<string, float> aspectRatios = new()
+	{
+		{"16:9(HD/QHD/4K)", 16f / 9f}, {"16:10", 16f / 10f}, {"4:3", 1920.0f / 1080.0f}, {"32:9", 32.0f / 9.0f}
+	};
+
+	private int currentLevel;
+
+	public EditorViewport()
+	{
+		currentLevel = EditorSettings.GetSetting(VIEWPORT_ASPECTRATIO, "Viewport", true, 0);
+		aspectRatio = aspectRatios.ElementAt(currentLevel)
+			.Value;
+	}
+
 	private Vector2D<float> CalculateSizeForAspectRatio(Vector2D<float> currentSize, float aspectRatio)
 	{
 		float currentAspectRatio = currentSize.X / currentSize.Y;
@@ -34,41 +52,35 @@ public class EditorViewport
 	{
 		ImGui.Begin(panelName,
 			ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
+		ImGui.SetNextItemWidth(300);
+		if (ImGui.Combo($"##aspectRatio", ref currentLevel, aspectRatios.Keys.ToArray(),
+			    aspectRatios.Count))
+		{
+			aspectRatio = aspectRatios.ElementAt(currentLevel).Value;
+			EditorSettings.SaveSetting(VIEWPORT_ASPECTRATIO, currentLevel);
+		}
+
+		float usedHeight = ImGui.GetCursorPosY();
 		Vector2 size = ImGui.GetContentRegionAvail();
 		if (ImGui.IsWindowFocused() || (ImGui.IsWindowHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Right)))
 		{
 			ImGui.SetWindowFocus();
-			camera.SetActive(true,inputController);
+			camera.SetActive(true, inputController);
 		}
 		else
 		{
-			camera.SetActive(false,inputController);
+			camera.SetActive(false, inputController);
 		}
 
 		if (scene != null)
 		{
-			float aspectRatio = 16f / 9f;
-			Vector2D<float> aspectSize =
-				CalculateSizeForAspectRatio(new Vector2D<float>(size.X, size.Y), aspectRatio);
-
-			if (size != currentSize)
-			{
-				renderer.SetRenderTargetSize(scene, aspectSize);
-				camera.AspectRatio = aspectRatio;
-				currentSize = size;
-			}
+			var aspectSize = HandleResize(camera, scene, renderer, size);
 
 			IRenderTarget? rt = renderer.GetSceneRenderTarget(scene);
 			if (rt != null && rt is FrameBufferRenderTarget fbrtt)
 			{
-				Vector2 offset = new Vector2((size.X - aspectSize.X) * 0.5f, (size.Y - aspectSize.Y) * 0.5f);
-
-				var drawList = ImGui.GetWindowDrawList();
-				var windowPos = ImGui.GetWindowPos();
-				var windowSize = ImGui.GetWindowSize();
-				var barColor = new Vector4(0, 0, 0, 1);
-				drawList.AddRectFilled(windowPos, windowPos + new Vector2(windowSize.X, windowSize.Y),
-					ImGui.ColorConvertFloat4ToU32(barColor));
+				Vector2 offset = new Vector2((size.X - aspectSize.X) * 0.5f,
+					usedHeight + (size.Y - aspectSize.Y) * 0.5f);
 
 				ImGui.SetCursorPos(offset);
 
@@ -81,5 +93,20 @@ public class EditorViewport
 		}
 
 		ImGui.End();
+	}
+
+	private Vector2D<float> HandleResize(IEditorCamera camera, IScene scene, IRenderer renderer, Vector2 size)
+	{
+		Vector2D<float> aspectSize =
+			CalculateSizeForAspectRatio(new Vector2D<float>(size.X, size.Y), aspectRatio);
+
+		if (size != currentSize)
+		{
+			renderer.SetRenderTargetSize(scene, aspectSize);
+			camera.AspectRatio = aspectRatio;
+			currentSize = size;
+		}
+
+		return aspectSize;
 	}
 }
