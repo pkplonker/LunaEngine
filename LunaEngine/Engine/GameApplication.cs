@@ -105,7 +105,16 @@ namespace GameCore
 				ResourceManager.Init(renderer.Gl);
 				var inputContext = window.CreateInput();
 				inputController = new InputController(inputContext);
-				inputController.KeyPress += key => { window.Close(); };
+				inputController.SubscribeToKeyEvent((key, inputState) =>
+				{
+					if (inputState == IInputController.InputState.Pressed && key == IInputController.Key.Escape)
+					{
+						window.Close();
+						return true;
+					}
+
+					return false;
+				});
 
 				var cameraGo = new GameObject();
 				cameraGo.Transform.Translate(Vector3.UnitZ * 6);

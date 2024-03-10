@@ -24,7 +24,6 @@ namespace Editor
 		private EditorImGuiController? imGuiController;
 		private IEditorCamera? editorCamera;
 		private static Vector2 LastMousePosition;
-		private IKeyboard? primaryKeyboard;
 		private IInputController inputController;
 		private FileWatcher fileWatcher;
 
@@ -126,15 +125,20 @@ namespace Editor
 				IconLoader.Init(renderer.Gl);
 				var inputContext = window.CreateInput();
 				inputController = new InputController(inputContext);
-				inputController.KeyPress += key =>
+
+				inputController.SubscribeToKeyEvent((key, inputState) =>
 				{
-					if (key == InputController.Key.Escape)
+					if (inputState == IInputController.InputState.Pressed && key == IInputController.Key.Escape)
 					{
 						DecisionBox.Show("Are you sure you want to do close?",
 							() => { window.Close(); });
+						return true;
 					}
-				};
-				editorCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, 16f/9f);
+
+					return false;
+				});
+
+				editorCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, 16f / 9f);
 				SceneController.ActiveScene.ActiveCamera = editorCamera;
 				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera,
 					inputController);

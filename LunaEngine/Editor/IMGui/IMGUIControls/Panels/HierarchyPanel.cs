@@ -21,7 +21,7 @@ public class HierarchyPanel : IPanel
 
 	public void Draw(IRenderer renderer)
 	{
-		if (inputController.IsKeyPressed(InputController.Key.F2))
+		if (inputController.IsKeyHeld(IInputController.Key.F2))
 		{
 			renamingHelper.RequestRename(controller.SelectedGameObject);
 		}

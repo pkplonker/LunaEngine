@@ -7,36 +7,59 @@ namespace Editor.Controls;
 public class SettingsPanel : IPanel
 {
 	public string PanelName { get; set; } = "Settings";
-	private float test = 1;
 	private string settingsCategory = "Test Params";
+	private readonly IInputController inputController;
+	private bool isPanelOpen = false;
+	private bool requestClose;
 
-	public SettingsPanel()
+	public SettingsPanel(IInputController inputController)
 	{
+		this.inputController = inputController;
 		string s = EditorSettings.GetSetting("Test String", settingsCategory, true, "Testing123");
 		float f = EditorSettings.GetSetting("Test Float", settingsCategory, true, 5f);
 
-		int i = EditorSettings.GetSetting("Test Int", settingsCategory, true, (int)1);
+		int i = EditorSettings.GetSetting("Test Int", settingsCategory, true, (int) 1);
 		bool b = EditorSettings.GetSetting("Test Bool", settingsCategory, true, true);
+	}
+
+	private bool HandleKeyPress(IInputController.Key key, IInputController.InputState inputState)
+	{
+		if (isPanelOpen && key == IInputController.Key.Escape && inputState == IInputController.InputState.Pressed)
+		{
+			requestClose = true;
+			return true;
+		}
+
+		return false;
+	}
+
+	private void OpenPanel()
+	{
+		isPanelOpen = true;
+		inputController.SubscribeToKeyEvent(HandleKeyPress);
+	}
+
+	private void ClosePanel()
+	{
+		isPanelOpen = false;
+		inputController.UnsubscribeToKeyEvent(HandleKeyPress);
+		ImGui.CloseCurrentPopup();
+		requestClose = false;
 	}
 
 	public void Draw(IRenderer renderer)
 	{
 		if (ImGui.BeginPopupModal(PanelName))
 		{
-			if (ImGui.Button("Close"))
+			if (!isPanelOpen)
 			{
-				ImGui.CloseCurrentPopup();
+				OpenPanel();
 			}
 
-			// if (ImGui.BeginTabBar("SettingsCategories"))
-			// {
-			// 	if (ImGui.BeginTabItem("Test"))
-			// 	{
-			// 		ImGui.Text("test1234");
-			//
-			// 		ImGui.EndTabItem();
-			// 	}
-			// }
+			if (requestClose || ImGui.Button("Close"))
+			{
+				ClosePanel();
+			}
 
 			ImGui.Separator();
 			if (ImGui.BeginTabBar("category"))

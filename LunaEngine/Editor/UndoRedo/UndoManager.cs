@@ -43,11 +43,20 @@ public static class UndoManager
 		performedStack.Clear();
 	}
 
-	public static void Update(IInputController? inputController)
+	public static void Update(IInputController inputController)
 	{
 		if (inputController == null) return;
-		if (!inputController.IsKeyPressed(InputController.Key.ControlLeft)) return;
-		if (inputController.IsKeyPressedThisFrame(InputController.Key.Z)) Undo();
-		if (inputController.IsKeyPressedThisFrame(InputController.Key.Y)) Redo();
+
+		bool controlPressed = inputController.IsKeyHeld(IInputController.Key.ControlLeft) || inputController.IsKeyHeld(IInputController.Key.ControlRight);
+
+		if (controlPressed && inputController.IsKeyPressed(IInputController.Key.Z))
+		{
+			Undo();
+		}
+		else if (controlPressed && inputController.IsKeyPressed(IInputController.Key.Y))
+		{
+			Redo();
+		}
 	}
+
 }

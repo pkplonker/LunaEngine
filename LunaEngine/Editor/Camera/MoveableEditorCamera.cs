@@ -1,53 +1,88 @@
 ﻿using System.Numerics;
 using Editor;
+using Engine.Logging;
 
 namespace Engine;
 
 public class MoveableEditorCamera : EditorCamera
 {
+	private bool subscribed = false;
+	private IInputController inputController;
+	private float currentSpeed = EditorSettings.GetSetting("Key Speed", settingsCategory, true, 10f);
 	private const string settingsCategory = "Editor Camera";
 	public MoveableEditorCamera(Vector3 position, float aspectRatio) : base(position, aspectRatio) { }
 
-	public override void Update(IInputController input)
+	private bool HandleKeyPress(IInputController.Key key, IInputController.InputState inputState)
 	{
-		if (input == null) return;
-		if (!input.IsMousePressed(InputController.MouseButton.Right)) return;
-		float deltaTime = Time.DeltaTime;
-
-		float speed = EditorSettings.GetSetting("Key Speed", settingsCategory, true, 10f);
-		float speedMultiplier = EditorSettings.GetSetting("Speed Multiplier", settingsCategory, true, 5f);
-
-		float mouseSensitivityX = EditorSettings.GetSetting("Mouse Sensitivity X", settingsCategory, true, 0.3f);
-		float mouseSensitivityY = EditorSettings.GetSetting("Mouse Sensitivity Y", settingsCategory, true, 0.5f);
-
-		float currentSpeed = speed;
-		if (input.IsKeyPressed(InputController.Key.ShiftLeft))
+		if (inputState == IInputController.InputState.Held || inputState == IInputController.InputState.Pressed)
 		{
-			currentSpeed *= speedMultiplier;
+			if (key == IInputController.Key.W)
+			{
+				Logger.Log("Pressed");
+				Transform.Position += Transform.Forward * currentSpeed * Time.DeltaTime;
+				return true;
+			}
+
+			if (key == IInputController.Key.A)
+			{
+				Transform.Position += Transform.Right * currentSpeed * Time.DeltaTime;
+				return true;
+			}
+
+			if (key == IInputController.Key.S)
+			{
+				Transform.Position += Transform.Back * currentSpeed * Time.DeltaTime;
+				return true;
+			}
+
+			if (key == IInputController.Key.D)
+			{
+				Transform.Position += Transform.Left * currentSpeed * Time.DeltaTime;
+				return true;
+			}
 		}
 
-		if (input.IsKeyPressed(InputController.Key.W))
+		if (key == IInputController.Key.ShiftLeft)
 		{
-			Transform.Position += Transform.Forward * currentSpeed * deltaTime;
+			float speed = EditorSettings.GetSetting("Key Speed", settingsCategory, true, 10f);
+			float speedMultiplier = EditorSettings.GetSetting("Speed Multiplier", settingsCategory, true, 5f);
+			currentSpeed = inputState == IInputController.InputState.Held ? speed * speedMultiplier : speed;
+			return true;
 		}
 
-		if (input.IsKeyPressed(InputController.Key.S))
+		return false;
+	}
+	
+
+	private bool HandleMouseMove(Vector2 arg)
+	{
+		if (inputController.IsMouseHeld(IInputController.MouseButton.Right))
 		{
-			Transform.Position += Transform.Back * currentSpeed * deltaTime;
+			float mouseSensitivityX = EditorSettings.GetSetting("Mouse Sensitivity X", settingsCategory, true, 0.3f);
+			float mouseSensitivityY = EditorSettings.GetSetting("Mouse Sensitivity Y", settingsCategory, true, 0.5f);
+			var mouseDelta = arg;
+			Transform.Rotate(-mouseDelta.X * mouseSensitivityX * Time.DeltaTime,
+				mouseDelta.Y * mouseSensitivityY * Time.DeltaTime);
+			return true;
 		}
 
-		if (input.IsKeyPressed(InputController.Key.A))
-		{
-			Transform.Position += Transform.Right * currentSpeed * deltaTime;
-		}
+		return false;
+	}
 
-		if (input.IsKeyPressed(InputController.Key.D))
+	public override void SetActive(bool active, IInputController inputController)
+	{
+		this.inputController ??= inputController;
+		if (active && !subscribed)
 		{
-			Transform.Position += Transform.Left * currentSpeed * deltaTime;
+			inputController.SubscribeToKeyEvent(HandleKeyPress);
+			inputController.SubscribeToMouseMoveEvent(HandleMouseMove);
+			subscribed = true;
 		}
-
-		var mouseDelta = input.GetMouseDelta();
-		Transform.Rotate(-mouseDelta.X * mouseSensitivityX * Time.DeltaTime,
-			mouseDelta.Y * mouseSensitivityY * Time.DeltaTime);
+		else
+		{
+			subscribed = false;
+			inputController.UnsubscribeToKeyEvent(HandleKeyPress);
+			inputController.UnsubscribeToMouseMoveEvent(HandleMouseMove);
+		}
 	}
 }

@@ -58,7 +58,6 @@ public class StatsPanel : IPanel
 			new System.Numerics.Vector2(-1, 80));
 		ImGui.Separator();
 		ImGui.Text($"Mouse Pos: {inputController.GetMousePosition()}");
-		ImGui.Text($"Mouse Delta: {inputController.GetMouseDelta()}");
 	
 		ImGui.End();
 	}
