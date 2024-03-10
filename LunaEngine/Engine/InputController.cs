@@ -1,10 +1,9 @@
 ﻿using System.Numerics;
 using Engine.Logging;
+using Silk.NET.GLFW;
 using Silk.NET.Input;
 
 namespace Engine;
-
-
 
 public class InputController : IInputController
 {
@@ -435,6 +434,7 @@ public class InputController : IInputController
 	private Vector2 lastMousePosition;
 	private Vector2 currentMousePosition;
 	private Vector2 mouseDelta;
+	private HashSet<Silk.NET.Input.Key> keypresses = new();
 
 	public InputController(IInputContext input)
 	{
@@ -471,12 +471,15 @@ public class InputController : IInputController
 	public void Update()
 	{
 		mouseDelta = Vector2.Zero;
+		keypresses.Clear();
 	}
+
 	public Vector2 GetMouseDelta() => mouseDelta;
 
 	private void KeyDown(IKeyboard device, Silk.NET.Input.Key key, int arg3)
 	{
 		KeyPress?.Invoke((InputController.Key) key);
+		keypresses.Add(key);
 	}
 
 	private void KeyUp(IKeyboard device, Silk.NET.Input.Key key, int arg3)
@@ -490,4 +493,6 @@ public class InputController : IInputController
 		input.Mice?.First().IsButtonPressed((Silk.NET.Input.MouseButton) mouseButton) ?? false;
 
 	public Vector2 GetMousePosition() => currentMousePosition;
+
+	public bool IsKeyPressedThisFrame(Key key) => keypresses.Contains((Silk.NET.Input.Key) key);
 }

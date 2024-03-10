@@ -13,4 +13,5 @@ public interface IInputController
 	bool IsKeyPressed(InputController.Key key);
 	bool IsMousePressed(InputController.MouseButton mouseButton);
 	Vector2 GetMousePosition();
+	bool IsKeyPressedThisFrame(InputController.Key key);
 }

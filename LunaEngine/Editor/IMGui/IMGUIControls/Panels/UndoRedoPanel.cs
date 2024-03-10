@@ -9,10 +9,7 @@ public class UndoRedoPanel : IPanel
 {
 	public string PanelName { get; set; } = "Undo Redo";
 
-
-	public UndoRedoPanel()
-	{
-	}
+	public UndoRedoPanel() { }
 
 	public void Draw(IRenderer renderer)
 	{
@@ -23,9 +20,18 @@ public class UndoRedoPanel : IPanel
 			UndoManager.Undo();
 		}
 
+		ImGui.SameLine();
+		
 		if (ImGui.Button("Redo"))
 		{
 			UndoManager.Redo();
+		}
+
+		ImGui.SameLine();
+
+		if (ImGui.Button("Clear"))
+		{
+			UndoManager.Clear();
 		}
 
 		ImGui.Separator();
@@ -35,8 +41,9 @@ public class UndoRedoPanel : IPanel
 		{
 			foreach (var action in UndoManager.GetUndoActions().Reverse())
 			{
-				ImGui.Text(action); 
+				ImGui.Text(action);
 			}
+
 			ImGui.EndChild();
 		}
 
@@ -48,8 +55,9 @@ public class UndoRedoPanel : IPanel
 		{
 			foreach (var action in UndoManager.GetRedoActions().Reverse())
 			{
-				ImGui.Text(action); 
+				ImGui.Text(action);
 			}
+
 			ImGui.EndChild();
 		}
 
