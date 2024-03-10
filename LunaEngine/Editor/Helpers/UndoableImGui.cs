@@ -47,6 +47,31 @@ public static class UndoableImGui
 		}
 	}
 
+	public static bool UndoableCombo(
+		string label,
+		string actionDescription,
+		Func<int> getCurrentIndex,
+		Action<int> setCurrentIndex,
+		IEnumerable<string> items,
+		float labelWidth = DEFAULT_LABEL_WIDTH,
+		bool stretch = true)
+	{
+		int currentIndex = getCurrentIndex();
+		label = DrawLabel(label, labelWidth);
+		if (stretch) ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X);
+		var originalIndex = currentIndex;
+		if (ImGui.Combo(label, ref currentIndex, items.ToArray(), items.Count()))
+		{
+			UndoManager.RecordAndPerform(new Memento(
+				() => setCurrentIndex(currentIndex),
+				() => setCurrentIndex(originalIndex),
+				actionDescription));
+			return true;
+		}
+
+		return false;
+	}
+
 	private static string DrawLabel(string label, float width)
 	{
 		if (!label.StartsWith("##"))
