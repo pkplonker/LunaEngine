@@ -52,13 +52,14 @@ public class EditorViewport
 	{
 		ImGui.Begin(panelName,
 			ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
-		ImGui.SetNextItemWidth(300);
-		if (ImGui.Combo($"##aspectRatio", ref currentLevel, aspectRatios.Keys.ToArray(),
-			    aspectRatios.Count))
-		{
-			aspectRatio = aspectRatios.ElementAt(currentLevel).Value;
-			EditorSettings.SaveSetting(VIEWPORT_ASPECTRATIO, currentLevel);
-		}
+
+		UndoableImGui.UndoableCombo("##aspectRatio", "Modified viewport aspect ratio", () => currentLevel,
+			(val) =>
+			{
+				currentLevel = val;
+				aspectRatio = aspectRatios.ElementAt(currentLevel).Value;
+				EditorSettings.SaveSetting(VIEWPORT_ASPECTRATIO, currentLevel);
+			}, aspectRatios.Keys, 300);
 
 		float usedHeight = ImGui.GetCursorPosY();
 		Vector2 size = ImGui.GetContentRegionAvail();
