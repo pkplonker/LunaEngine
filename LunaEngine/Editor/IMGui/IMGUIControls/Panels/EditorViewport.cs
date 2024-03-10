@@ -38,7 +38,11 @@ public class EditorViewport
 		if (ImGui.IsWindowFocused() || (ImGui.IsWindowHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Right)))
 		{
 			ImGui.SetWindowFocus();
-			camera.Update(inputController);
+			camera.SetActive(true,inputController);
+		}
+		else
+		{
+			camera.SetActive(false,inputController);
 		}
 
 		if (scene != null)

@@ -89,7 +89,7 @@ public class EditorImGuiController : IDisposable
 				EditorSettings.GetSetting(control.Key.PanelName, EDITOR_CATEGORY, false, control.Value);
 		}
 
-		settingsPanel = new SettingsPanel();
+		settingsPanel = new SettingsPanel(inputController);
 	}
 
 	public void ImGuiControllerUpdate(float deltaTime)

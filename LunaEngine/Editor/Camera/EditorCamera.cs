@@ -49,5 +49,5 @@ public class EditorCamera : IEditorCamera
 	public Matrix4x4 GetProjection() =>
 		Matrix4x4.CreatePerspectiveFieldOfView(MathExtensions.DegreesToRadians(zoom), AspectRatio, 0.1f, 100.0f);
 
-	public virtual void Update(IInputController input) { }
+	public virtual void SetActive(bool active, IInputController input) { }
 }
