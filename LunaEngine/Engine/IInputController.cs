@@ -12,15 +12,17 @@ public interface IInputController
 
 	public void SubscribeToMouseButtonEvent(Func<IInputController.MouseButton, InputState, bool> handler);
 
-	public void
-		UnsubscribeToMouseButtonEvent(Func<IInputController.MouseButton, InputState, bool> handler);
+	public void UnsubscribeToMouseButtonEvent(Func<IInputController.MouseButton, InputState, bool> handler);
+	public void SubscribeToMouseMoveEvent(Func<Vector2, bool> handler);
+
+	public void UnsubscribeToMouseMoveEvent(Func<Vector2, bool> handler);
 
 	void Update();
-	Vector2 GetMouseDelta();
 	bool IsKeyHeld(IInputController.Key key);
 	bool IsMousePressed(IInputController.MouseButton button);
 	Vector2 GetMousePosition();
 	bool IsKeyPressed(IInputController.Key key);
+	bool IsMouseHeld(MouseButton right);
 
 	public enum InputState
 	{
@@ -443,4 +445,5 @@ public interface IInputController
 		/// <summary>The twelth mouse button.</summary>
 		Button12 = 11, // 0x0000000B
 	}
+
 }

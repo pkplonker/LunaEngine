@@ -52,14 +52,15 @@ public class MoveableEditorCamera : EditorCamera
 
 		return false;
 	}
+	
 
-	private bool HandleMouseButtonPress(IInputController.MouseButton button, IInputController.InputState inputState)
+	private bool HandleMouseMove(Vector2 arg)
 	{
-		if (button == IInputController.MouseButton.Right)
+		if (inputController.IsMouseHeld(IInputController.MouseButton.Right))
 		{
 			float mouseSensitivityX = EditorSettings.GetSetting("Mouse Sensitivity X", settingsCategory, true, 0.3f);
 			float mouseSensitivityY = EditorSettings.GetSetting("Mouse Sensitivity Y", settingsCategory, true, 0.5f);
-			var mouseDelta = inputController.GetMouseDelta();
+			var mouseDelta = arg;
 			Transform.Rotate(-mouseDelta.X * mouseSensitivityX * Time.DeltaTime,
 				mouseDelta.Y * mouseSensitivityY * Time.DeltaTime);
 			return true;
@@ -74,14 +75,14 @@ public class MoveableEditorCamera : EditorCamera
 		if (active && !subscribed)
 		{
 			inputController.SubscribeToKeyEvent(HandleKeyPress);
-			inputController.SubscribeToMouseButtonEvent(HandleMouseButtonPress);
+			inputController.SubscribeToMouseMoveEvent(HandleMouseMove);
 			subscribed = true;
 		}
 		else
 		{
 			subscribed = false;
 			inputController.UnsubscribeToKeyEvent(HandleKeyPress);
-			inputController.UnsubscribeToMouseButtonEvent(HandleMouseButtonPress);
+			inputController.UnsubscribeToMouseMoveEvent(HandleMouseMove);
 		}
 	}
 }

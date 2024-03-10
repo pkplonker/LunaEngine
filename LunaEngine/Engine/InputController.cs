@@ -11,15 +11,13 @@ public class InputController : IInputController
 	private readonly IInputContext input;
 	private Vector2 lastMousePosition;
 	private Vector2 currentMousePosition;
-	private Vector2 mouseDelta;
+	
 	private HashSet<IInputController.Key> currentKeyPresses = new();
-
 	private HashSet<IInputController.MouseButton> currentMousePresses = new();
-	private HashSet<IInputController.MouseButton> previousMousePresses = new();
-
+	
 	private Stack<Func<IInputController.Key, IInputController.InputState, bool>> keyHandlers = new();
 	private Stack<Func<IInputController.MouseButton, IInputController.InputState, bool>> mouseButtonHandlers = new();
-
+	private Stack<Func<Vector2, bool>> mouseMoveHandlers = new();
 	public event Action<float, float> MouseScroll;
 	public event Action<float, float> MouseMove;
 
@@ -64,6 +62,17 @@ public class InputController : IInputController
 		handlers.Remove(handler);
 		mouseButtonHandlers =
 			new Stack<Func<IInputController.MouseButton, IInputController.InputState, bool>>(handlers);
+	}
+
+	public void SubscribeToMouseMoveEvent(Func<Vector2, bool> handler) =>
+		mouseMoveHandlers.Push(handler);
+
+	public void UnsubscribeToMouseMoveEvent(Func<Vector2, bool> handler)
+	{
+		var handlers = mouseMoveHandlers.ToList();
+		handlers.Remove(handler);
+		mouseMoveHandlers =
+			new Stack<Func<Vector2, bool>>(handlers);
 	}
 
 	private void KeyDown(IKeyboard device, Silk.NET.Input.Key key, int arg3)
@@ -113,8 +122,16 @@ public class InputController : IInputController
 
 	private void OnMouseMove(IMouse device, Vector2 args)
 	{
-		currentMousePosition = new Vector2(args.X, args.Y);
-		mouseDelta = currentMousePosition - lastMousePosition;
+		Vector2 newPosition = new Vector2(args.X, args.Y);
+		Vector2 delta = newPosition - lastMousePosition;
+
+		foreach (var handler in mouseMoveHandlers)
+		{
+			if (handler(delta))
+				break;
+		}
+
+		currentMousePosition = newPosition;
 		MouseMove?.Invoke(args.X, args.Y);
 		lastMousePosition = currentMousePosition;
 	}
@@ -129,23 +146,13 @@ public class InputController : IInputController
 					break;
 			}
 		}
-
-		mouseDelta = Vector2.Zero;
 	}
-
-	public Vector2 GetMouseDelta() => mouseDelta;
 
 	public bool IsKeyHeld(IInputController.Key key) => currentKeyPresses.Contains(key);
+	public bool IsKeyPressed(IInputController.Key key) => currentKeyPresses.Contains(key);
+
 	public bool IsMousePressed(IInputController.MouseButton button) => currentMousePresses.Contains(button);
+	public bool IsMouseHeld(IInputController.MouseButton button) => currentMousePresses.Contains(button);
+
 	public Vector2 GetMousePosition() => currentMousePosition;
-
-	public bool IsKeyPressed(IInputController.Key key)
-	{
-		return currentKeyPresses.Contains(key);
-	}
-
-	public void UnsubscribeFromMouseButtonPress(Func<IInputController.MouseButton, bool, bool> handler)
-	{
-		throw new NotImplementedException();
-	}
 }
