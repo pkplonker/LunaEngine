@@ -37,6 +37,7 @@ public class StatsPanel : IPanel
 		}
 
 		ImGui.Begin(PanelName);
+		ImGui.Text($"Current Time: {Time.CurrentTime}");
 		ImGui.Text($"Uptime: {formattedTotalTime}");
 		ImGui.Text($"DeltaTime: {Time.DeltaTime * 1000:F2}ms");
 		ImGui.Text($"FPS: {Time.FPS}");
