@@ -7,9 +7,31 @@ namespace Editor.Controls;
 
 public class UndoRedoPanel : IPanel
 {
+	private readonly IInputController inputController;
 	public string PanelName { get; set; } = "Undo Redo";
 
-	public UndoRedoPanel() { }
+	public UndoRedoPanel(IInputController inputController)
+	{
+		this.inputController = inputController;
+		this.inputController.SubscribeToKeyEvent(OnKeyChange);
+	}
+
+	private bool OnKeyChange(IInputController.Key key, IInputController.InputState state)
+	{
+		if (!inputController.IsKeyPressed(IInputController.Key.ControlLeft) ||
+		    state != IInputController.InputState.Pressed) return false;
+		switch (key)
+		{
+			case IInputController.Key.Y:
+				UndoManager.Redo();
+				return false;
+			case IInputController.Key.Z:
+				UndoManager.Undo();
+				return false;
+			default:
+				return false;
+		}
+	}
 
 	public void Draw(IRenderer renderer)
 	{
@@ -21,7 +43,7 @@ public class UndoRedoPanel : IPanel
 		}
 
 		ImGui.SameLine();
-		
+
 		if (ImGui.Button("Redo"))
 		{
 			UndoManager.Redo();
