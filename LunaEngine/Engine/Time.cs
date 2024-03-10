@@ -1,4 +1,6 @@
-﻿namespace Engine;
+﻿using System.Diagnostics;
+
+namespace Engine;
 
 public static class Time
 {
@@ -10,6 +12,8 @@ public static class Time
 	private static int frameCount = 0;
 	private static float timeSinceLastSecond = 0f;
 	public static int FPS { get; private set; }
+
+	public static string CurrentTime => DateTime.UtcNow.ToShortTimeString();
 
 	public static void Update(float currentTime)
 	{
