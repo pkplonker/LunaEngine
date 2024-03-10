@@ -95,7 +95,7 @@ public class EditorImGuiController : IDisposable
 	public void ImGuiControllerUpdate(float deltaTime)
 	{
 		using PerformanceTracker tracker = new PerformanceTracker(nameof(ImGuiControllerUpdate));
-
+		UndoManager.Update(inputController);
 		imGuiController.Update(deltaTime);
 		ImGui.DockSpaceOverViewport(ImGui.GetMainViewport());
 		ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 0);

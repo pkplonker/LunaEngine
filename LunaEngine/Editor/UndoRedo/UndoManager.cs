@@ -1,4 +1,6 @@
-﻿namespace Editor;
+﻿using Engine;
+
+namespace Editor;
 
 public static class UndoManager
 {
@@ -39,5 +41,13 @@ public static class UndoManager
 	{
 		redoStack.Clear();
 		performedStack.Clear();
+	}
+
+	public static void Update(IInputController? inputController)
+	{
+		if (inputController == null) return;
+		if (!inputController.IsKeyPressed(InputController.Key.ControlLeft)) return;
+		if (inputController.IsKeyPressedThisFrame(InputController.Key.Z)) Undo();
+		if (inputController.IsKeyPressedThisFrame(InputController.Key.Y)) Redo();
 	}
 }
