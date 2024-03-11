@@ -67,6 +67,22 @@ public class HierarchyPanel : IPanel
 
 		bool nodeOpen = ImGui.TreeNodeEx($"{go.Name}##{go.Transform.GUID}", flags);
 
+		if (ImGui.BeginPopupContextItem())
+		{
+			ImGui.Text($"{go.Name} - {go.Transform.GUID}");
+			if (ImGui.MenuItem($"Rename##{go.Transform.GUID}"))
+			{
+				renamingHelper.RequestRename(go);
+			}
+
+			if (ImGui.MenuItem($"Delete##{go.Transform.GUID}"))
+			{
+				go.Transform.SetParent(null);
+			}
+
+			ImGui.EndPopup();
+		}
+
 		if (selected)
 		{
 			ImGui.PopStyleColor();
