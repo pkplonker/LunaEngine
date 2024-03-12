@@ -103,6 +103,7 @@ namespace GameCore
 			{
 				renderer?.Load(window);
 				ResourceManager.Instance.Init(renderer.Gl);
+				CoreAssets.Instance.Init(renderer.Gl);
 				var inputContext = window.CreateInput();
 				inputController = new InputController(inputContext);
 				inputController.SubscribeToKeyEvent((key, inputState) =>

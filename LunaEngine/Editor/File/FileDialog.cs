@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Engine.Logging;
 
 namespace Editor;
 
@@ -39,4 +40,13 @@ public static class FileDialog
 
 	public static string? FilterByType(Type? MemberType) =>
 		BuildFileDialogFilter(FileTypeExtensions.GetExtensions(MemberType));
+
+	public static void Import()
+	{
+		var paths = FileDialog.OpenFileDialog(
+			FileDialog.BuildFileDialogFilter(FileTypeExtensions.GetAllExtensions()), true);
+		int result = paths.Count(FileImporter.Import);
+
+		Logger.Info($"Imported {result}/{paths.Count()} assets");
+	}
 }

@@ -6,11 +6,9 @@ public class ResourceManager : IAssetManager
 {
 	private static readonly Lazy<ResourceManager> instance = new(() => new ResourceManager());
 	private IAssetManager assetManager;
-	private GL gl;
 
 	public void Init(GL gl)
 	{
-		this.gl = gl;
 		assetManager = new UserResourceManager(gl);
 	}
 

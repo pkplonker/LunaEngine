@@ -5,14 +5,7 @@ namespace Editor;
 
 public static class FileImporter
 {
-	public static void Import()
-	{
-		var paths = FileDialog.OpenFileDialog(
-			FileDialog.BuildFileDialogFilter(FileTypeExtensions.GetAllExtensions()), true);
-		int result = paths.Count(path => Import(path));
-
-		Logger.Info($"Imported {result}/{paths.Count()} assets");
-	}
+	
 
 	public static void ImportAllFromDirectory(string path)
 	{

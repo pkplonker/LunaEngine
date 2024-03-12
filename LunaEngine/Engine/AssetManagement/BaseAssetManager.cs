@@ -5,16 +5,31 @@ using Silk.NET.OpenGL;
 
 namespace Engine;
 
-public class UserResourceManager : BaseAssetManager
+public class BaseAssetManager : IAssetManager
 {
-	public UserResourceManager(GL gl) : base(gl, ProjectManager.ActiveProject.Directory) { }
+	protected ConcurrentDictionary<Guid, Mesh?> meshes = new();
+	protected ConcurrentDictionary<Guid, Shader?> shaders = new();
+	protected ConcurrentDictionary<Guid, Texture?> textures = new();
+	protected ConcurrentDictionary<Guid, Material?> materials = new();
+	protected ConcurrentDictionary<Guid, Metadata> metadatas = new();
 
-	public void LoadMetadata()
+	protected GL gl;
+	private readonly string? directory;
+
+	public BaseAssetManager(GL gl, string directory)
 	{
-		var root = ProjectManager.ActiveProject?.Directory;
+		this.directory = directory;
+		this.gl = gl;
+
+		LoadMetadata();
+	}
+
+	public virtual void LoadMetadata()
+	{
+		var root = directory;
 		if (string.IsNullOrEmpty(root))
 		{
-			Logger.Warning("No active project to import metadata for");
+			Logger.Warning("No valid directory to import metadata from");
 			return;
 		}
 

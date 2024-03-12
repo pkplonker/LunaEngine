@@ -1,54 +1,38 @@
-﻿using Engine.Logging;
+﻿using Silk.NET.OpenGL;
 
 namespace Engine;
 
-public class CoreAssets 
+public class CoreAssets : IAssetManager
 {
-	private static readonly Dictionary<string, string> assetPaths = new()
+	private static readonly Lazy<CoreAssets> instance = new(() => new CoreAssets());
+	private IAssetManager assetManager;
+
+	public void Init(GL gl)
 	{
-		{DEFAULT_SHADER, "/resources/coreassets/shaders/pbr.glsl".MakeAbsolute()},
-		{DEFAULT_CUBE, "/resources/coreassets/models/testcube.obj".MakeAbsolute()},
-		{DEFAULT_SPHERE, "/resources/coreassets/models/testsphere.obj".MakeAbsolute()},
-		{DEFAULT_PLANE, "/resources/coreassets/models/plane.fbx".MakeAbsolute()},
-	};
-
-	public const string DEFAULT_SHADER = "DEFAULT_SHADER";
-	public const string DEFAULT_CUBE = "DEFAULT_CUBE";
-	public const string DEFAULT_SPHERE = "DEFAULT_SPHERE";
-	public const string DEFAULT_PLANE = "DEFAULT_PLANE";
-
-	private static readonly Dictionary<string, Metadata> metadatas = new();
-
-	static CoreAssets()
-	{
-		LoadCoreAssetsMetadata();
+		assetManager = new CoreAssetsManager(gl);
 	}
 
-	private static void LoadCoreAssetsMetadata()
-	{
-		foreach (var kvp in assetPaths)
-		{
-			string key = kvp.Key;
-			string path = kvp.Value;
-			string metadataFilePath =
-				path + Metadata
-					.MetadataFileExtension;
+	public static CoreAssets Instance => instance.Value;
 
-			var metadata = Metadata.CreateMetadataFromMetadataFile(metadataFilePath);
-			if (metadata != null)
-			{
-				metadatas[key] = metadata;
-			}
-			else
-			{
-				Logger.Warning($"Failed to create metadata for core asset {key} from {metadataFilePath}");
-			}
-		}
+	public void LoadMetadata() => assetManager?.LoadMetadata();
+
+	public IEnumerable<string> GetFilesFromFolder(string path, IEnumerable<string> ext = null) =>
+		assetManager.GetFilesFromFolder(path, ext);
+
+	public bool TryGetResourceByGuid<T>(Guid guid, out T? result) where T : class
+	{
+		T? r = null;
+		var res = assetManager?.TryGetResourceByGuid<T>(guid, out r) ?? false;
+		result = r ?? null;
+		return res;
 	}
 
-	public static Metadata? GetMetadata(string key)
-	{
-		metadatas.TryGetValue(key, out var metadata);
-		return metadata;
-	}
+	public bool AddMetaData(Metadata metadata) => assetManager?.AddMetaData(metadata) ?? false;
+
+	public IEnumerable<Metadata> GetMetadata(MetadataType? filterType = null) =>
+		assetManager?.GetMetadata(filterType) ?? Enumerable.Empty<Metadata>();
+
+	public bool MetadataExistsWithPath(string path) => assetManager.MetadataExistsWithPath(path);
+
+	public void ClearMetadatas() => assetManager?.ClearMetadatas();
 }

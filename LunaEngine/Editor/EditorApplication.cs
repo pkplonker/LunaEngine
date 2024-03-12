@@ -122,6 +122,8 @@ namespace Editor
 			{
 				renderer?.Load(window);
 				ResourceManager.Instance.Init(renderer.Gl);
+				CoreAssets.Instance.Init(renderer.Gl);
+
 				IconLoader.Init(renderer.Gl);
 				var inputContext = window.CreateInput();
 				inputController = new InputController(inputContext);

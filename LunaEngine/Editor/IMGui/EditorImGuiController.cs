@@ -273,7 +273,7 @@ public class EditorImGuiController : IDisposable
 				{
 					if (ImGui.MenuItem("File Import Selection"))
 					{
-						FileImporter.Import();
+						FileDialog.Import();
 					}
 
 					if (ImGui.MenuItem("Import All Files"))
