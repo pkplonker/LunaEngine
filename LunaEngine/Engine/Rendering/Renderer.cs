@@ -154,7 +154,7 @@ public class Renderer : IRenderer
 		
 	}
 
-	public unsafe void DrawElements(PrimitiveType primativeType, uint indicesLength, DrawElementsType elementsTyp)
+	public unsafe void DrawElements(Silk.NET.OpenGL.PrimitiveType primativeType, uint indicesLength, DrawElementsType elementsTyp)
 	{
 		DrawCalls++;
 		Triangles += indicesLength / 3;

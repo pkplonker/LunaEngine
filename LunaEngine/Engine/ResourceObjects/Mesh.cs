@@ -62,7 +62,7 @@ public class Mesh : IDisposable, IMesh
 	public void Render(Renderer renderer, RenderPassData data)
 	{
 		VAO.Bind();
-		renderer.DrawElements(PrimitiveType.Triangles, (uint) Indices.Length, DrawElementsType.UnsignedInt);
+		renderer.DrawElements(Silk.NET.OpenGL.PrimitiveType.Triangles, (uint) Indices.Length, DrawElementsType.UnsignedInt);
 	}
 
 	public void Dispose()

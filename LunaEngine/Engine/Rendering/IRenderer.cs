@@ -15,7 +15,7 @@ public interface IRenderer : IRenderStats
 	void Load(IWindow window);
 	void SetRenderTargetSize(IScene scene, Vector2D<float> size);
 	void Close();
-	unsafe void DrawElements(PrimitiveType primativeType, uint indicesLength, DrawElementsType elementsTyp);
+	unsafe void DrawElements(Silk.NET.OpenGL.PrimitiveType primativeType, uint indicesLength, DrawElementsType elementsTyp);
 	void UseShader(IShader? shader);
 	void UseMaterial(IMaterial material, RenderPassData data, Matrix4x4 modelMatrix);
 	IRenderTarget? GetSceneRenderTarget(IScene scene);
