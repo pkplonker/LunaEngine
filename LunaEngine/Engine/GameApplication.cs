@@ -102,7 +102,7 @@ namespace GameCore
 			if (window != null)
 			{
 				renderer?.Load(window);
-				ResourceManager.Init(renderer.Gl);
+				ResourceManager.Instance.Init(renderer.Gl);
 				var inputContext = window.CreateInput();
 				inputController = new InputController(inputContext);
 				inputController.SubscribeToKeyEvent((key, inputState) =>
@@ -140,29 +140,7 @@ namespace GameCore
 			{
 				throw new NullReferenceException($"{nameof(window)} cannot be null");
 			}
-
-			//PerformTest();
 		}
-
-		// private void PerformTest()
-		// {
-		// 	var cube = new GameObject();
-		// 	cube.Name = "Cube";
-		//
-		// 	var sphere = new GameObject();
-		// 	sphere.Name = "Sphere";
-		//
-		// 	SceneController.ActiveScene.AddGameObject(sphere);
-		// 	sphere.AddComponent<RotateComponent>();
-		// 	sphere.AddComponent<MeshFilter>()
-		// 		?.AddMesh(ResourceManager.GetMesh(@"assets/models/TestSphere.obj".MakeProjectAbsolute()));
-		// 	sphere.Transform.Translate(new Vector3(1.5f, 0, 0));
-		// 	sphere.AddComponent<MeshRenderer>().Material = new Material(
-		// 		ResourceManager.GetShader(
-		// 			@"assets/shaders/PBRVertex.glsl".MakeProjectAbsolute(),
-		// 			@"assets/shaders/PBRFragment.glsl".MakeProjectAbsolute()
-		// 		));
-		// }
 
 		private void OnRender(double deltaTime)
 		{

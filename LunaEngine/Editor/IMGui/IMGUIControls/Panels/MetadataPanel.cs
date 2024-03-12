@@ -36,7 +36,7 @@ namespace Editor.Controls
 				ImGui.EndCombo();
 			}
 
-			var metadatas = ResourceManager.GetMetadata(selectedTypeFilter);
+			var metadatas = ResourceManager.Instance.GetMetadata(selectedTypeFilter);
 			if (!metadatas.Any())
 			{
 				ImGui.Text("No metadata available.");

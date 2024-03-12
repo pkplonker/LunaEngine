@@ -242,7 +242,7 @@ public class EditorImGuiController : IDisposable
 							{
 								if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
 								{
-									var paths = ResourceManager.GetFilesFromFolder(
+									var paths = ResourceManager.Instance.GetFilesFromFolder(
 										ProjectManager.ActiveProject.Directory,
 										new[] {Metadata.MetadataFileExtension});
 									foreach (var path in paths)
@@ -250,7 +250,7 @@ public class EditorImGuiController : IDisposable
 										File.Delete(path);
 									}
 
-									ResourceManager.ClearMetadatas();
+									ResourceManager.Instance.ClearMetadatas();
 								}
 							});
 						}
@@ -263,7 +263,7 @@ public class EditorImGuiController : IDisposable
 
 					if (ImGui.MenuItem("Import All Metadata"))
 					{
-						ResourceManager.LoadMetadata();
+						ResourceManager.Instance.LoadMetadata();
 					}
 
 					ImGui.EndMenu();

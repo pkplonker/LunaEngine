@@ -13,11 +13,7 @@ public enum PrimitiveType
 
 public static class GameObjectFactory
 {
-	private const string DEFAULT_SHADER_KEY = "DefaultShader";
-	private const string DEFAULT_MESH_KEY = "CubeMesh";
-	private const string DEFAULT_SPHERE_KEY = "SphereMesh";
-	private const string DEFAULT_PLANE_KEY = "PlaneMesh";
-	private static readonly char[] separator = new[] {'(', ')'};
+	private static readonly char[] separator = {'(', ')'};
 	private const string SPHERE_NAME = "New Sphere";
 	private const string CUBE_NAME = "New Cube";
 	private const string PLANE_NAME = "New Plane";
@@ -43,15 +39,15 @@ public static class GameObjectFactory
 				switch (type)
 				{
 					case PrimitiveType.Cube:
-						CreateMesh(go, DEFAULT_SHADER_KEY, DEFAULT_MESH_KEY);
+						CreateMesh(go, CoreAssets.DEFAULT_SHADER, CoreAssets.DEFAULT_CUBE);
 						go.Name = CUBE_NAME;
 						break;
 					case PrimitiveType.Sphere:
-						CreateMesh(go, DEFAULT_SHADER_KEY, DEFAULT_SPHERE_KEY);
+						CreateMesh(go, CoreAssets.DEFAULT_SHADER, CoreAssets.DEFAULT_SPHERE);
 						go.Name = SPHERE_NAME;
 						break;
 					case PrimitiveType.Plane:
-						CreateMesh(go, DEFAULT_SHADER_KEY, DEFAULT_PLANE_KEY);
+						CreateMesh(go, CoreAssets.DEFAULT_SHADER, CoreAssets.DEFAULT_PLANE);
 						go.Name = PLANE_NAME;
 						break;
 					default:
@@ -96,7 +92,7 @@ public static class GameObjectFactory
 		var mr = go.AddComponent<MeshRenderer>();
 		Shader? shader = null;
 		Mesh? mesh = null;
-		if (ResourceManager.TryGetResourceByGuid(CoreAssets.GetMetadata(shaderKey).GUID,
+		if (CoreAssets.Instance.TryGetResourceByGuid(CoreAssets.GetMetadata(shaderKey).GUID,
 			    out shader))
 		{
 			if (shader != null)
@@ -109,7 +105,7 @@ public static class GameObjectFactory
 			throw new ArgumentException(shaderKey);
 		}
 
-		if (ResourceManager.TryGetResourceByGuid(CoreAssets.GetMetadata(meshKey).GUID,
+		if (CoreAssets.Instance.TryGetResourceByGuid(CoreAssets.GetMetadata(meshKey).GUID,
 			    out mesh))
 		{
 			if (mesh != null)

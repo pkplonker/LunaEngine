@@ -167,7 +167,7 @@ public class PropertyDrawer : IPropertyDrawer
 	private bool ProcessResourceGuidAttribute<T>(object? component, IMemberAdapter memberInfo, int depth,
 		IPropertyDrawInterceptStrategy? interceptStrategy, Type type) where T : class
 	{
-		ResourceManager.TryGetResourceByGuid<T>((Guid) memberInfo.GetValue(component),
+		ResourceManager.Instance.TryGetResourceByGuid<T>((Guid) memberInfo.GetValue(component),
 			out var obj);
 
 		if (CustomEditorLoader.TryGetEditor(type, out var customEditor))

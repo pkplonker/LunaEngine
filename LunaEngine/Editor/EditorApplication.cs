@@ -121,7 +121,7 @@ namespace Editor
 			if (window != null)
 			{
 				renderer?.Load(window);
-				ResourceManager.Init(renderer.Gl);
+				ResourceManager.Instance.Init(renderer.Gl);
 				IconLoader.Init(renderer.Gl);
 				var inputContext = window.CreateInput();
 				inputController = new InputController(inputContext);

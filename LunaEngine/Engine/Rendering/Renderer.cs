@@ -179,7 +179,7 @@ public class Renderer : IRenderer
 	{
 		if (material == null || material.ShaderGUID == null) return;
 		var shaderGuid = material.ShaderGUID;
-		if (ResourceManager.TryGetResourceByGuid<Shader>(shaderGuid, out var shader))
+		if (ResourceManager.Instance.TryGetResourceByGuid<Shader>(shaderGuid, out var shader))
 		{
 			UseShader(shader);
 			MaterialsUsed++;
