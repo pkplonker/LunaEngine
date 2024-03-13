@@ -6,6 +6,12 @@ namespace Engine;
 
 public class ResourceManager : IAssetManager
 {
+	public const string DEFAULT_SHADER = "pbr.glsl";
+	public const string DEFAULT_SPHERE = "testsphere.obj";
+	public const string DEFAULT_CUBE = "testcube.obj";
+	public const string DEFAULT_PLANE = "plane.fbx";
+	public const string DEFAULT_MATERIAL = "defaultmat.mat";
+
 	private static readonly Lazy<ResourceManager> instance = new(() => new ResourceManager());
 	private IAssetManager assetManager;
 
@@ -36,9 +42,9 @@ public class ResourceManager : IAssetManager
 		{
 			Logger.Error($"Failed to copy resources to project: {ex.Message}");
 		}
+
 		FileImporter.ImportAllFromDirectory(targetDirectory);
 		FileImporter.ImportAllFromDirectory(obj.AssetsDirectory);
-
 	}
 
 	private static void CopyDirectory(string sourceDir, string targetDir)
@@ -97,4 +103,5 @@ public class ResourceManager : IAssetManager
 	public bool MetadataExistsWithPath(string path) => assetManager.MetadataExistsWithPath(path);
 
 	public void ClearMetadatas() => assetManager?.ClearMetadatas();
+	public Metadata? GetResourceByName(string name) => assetManager?.GetResourceByName(name);
 }

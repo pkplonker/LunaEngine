@@ -5,8 +5,6 @@ namespace Editor;
 
 public static class FileImporter
 {
-	
-
 	public static void ImportAllFromDirectory(string? path)
 	{
 		if (string.IsNullOrEmpty(path) || !Path.Exists(path)) return;

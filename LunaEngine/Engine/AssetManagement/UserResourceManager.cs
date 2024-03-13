@@ -215,4 +215,7 @@ public class UserResourceManager : IAssetManager
 	{
 		metadatas.Clear();
 	}
+
+	public Metadata? GetResourceByName(string name) =>
+		metadatas.FirstOrDefault(x => x.Value.Path.Contains(name, StringComparison.OrdinalIgnoreCase)).Value;
 }

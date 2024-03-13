@@ -88,6 +88,9 @@
       <None Update="Resources\CoreAssets\Models\Plane.fbx">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="Resources\CoreAssets\Materials\defaultMat.mat">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>

@@ -38,20 +38,29 @@ public static class GameObjectFactory
 			{
 				switch (type)
 				{
-					// case PrimitiveType.Cube:
-					// 	CreateMesh(go, CoreAssetsOld.DEFAULT_SHADER, CoreAssetsOld.DEFAULT_CUBE);
-					// 	go.Name = CUBE_NAME;
-					// 	break;
-					// case PrimitiveType.Sphere:
-					// 	CreateMesh(go, CoreAssetsOld.DEFAULT_SHADER, CoreAssetsOld.DEFAULT_SPHERE);
-					// 	go.Name = SPHERE_NAME;
-					// 	break;
-					// case PrimitiveType.Plane:
-					// 	CreateMesh(go, CoreAssetsOld.DEFAULT_SHADER, CoreAssetsOld.DEFAULT_PLANE);
-					// 	go.Name = PLANE_NAME;
-					// 	break;
-					default:
-						throw new ArgumentOutOfRangeException(nameof(type), type, null);
+					case PrimitiveType.Cube:
+						CreateMesh(go,
+							ResourceManager.Instance.GetResourceByName(ResourceManager.DEFAULT_MATERIAL)?.GUID ?? null,
+							ResourceManager.Instance.GetResourceByName(ResourceManager.DEFAULT_CUBE)?.GUID ?? null,
+							ResourceManager.Instance.GetResourceByName(ResourceManager.DEFAULT_SHADER)?.GUID ?? null);
+						go.Name = CUBE_NAME;
+						break;
+					case PrimitiveType.Sphere:
+						CreateMesh(go,
+							ResourceManager.Instance.GetResourceByName(ResourceManager.DEFAULT_MATERIAL)?.GUID ?? null,
+							ResourceManager.Instance.GetResourceByName(ResourceManager.DEFAULT_SPHERE)?.GUID ?? null,
+							ResourceManager.Instance.GetResourceByName(ResourceManager.DEFAULT_SHADER)?.GUID ?? null);
+
+						go.Name = SPHERE_NAME;
+						break;
+					case PrimitiveType.Plane:
+						CreateMesh(go,
+							ResourceManager.Instance.GetResourceByName(ResourceManager.DEFAULT_MATERIAL)?.GUID ?? null,
+							ResourceManager.Instance.GetResourceByName(ResourceManager.DEFAULT_PLANE)?.GUID ?? null,
+							ResourceManager.Instance.GetResourceByName(ResourceManager.DEFAULT_SHADER)?.GUID ?? null);
+
+						go.Name = PLANE_NAME;
+						break;
 				}
 			}
 		}
@@ -86,37 +95,44 @@ public static class GameObjectFactory
 		go.Name = $"{defaultName} ({maxNumber + 1})";
 	}
 
-	private static void CreateMesh(GameObject go, string shaderKey, string meshKey)
+	private static void CreateMesh(GameObject go, Guid? materialGuid, Guid? meshguid, Guid? shaderGuid)
 	{
+		if (!materialGuid.HasValue || !meshguid.HasValue || !shaderGuid.HasValue)
+		{
+			throw new ArgumentException("Invalid guid loading primitive mesh");
+		}
+
 		var mf = go.AddComponent<MeshFilter>();
 		var mr = go.AddComponent<MeshRenderer>();
-		Shader? shader = null;
+		Material? material = null;
 		Mesh? mesh = null;
-		// if (CoreAssets.Instance.TryGetResourceByGuid(CoreAssets.Instance.DEFAULT_SHADER,
-		// 	    out shader))
-		// {
-		// 	if (shader != null)
-		// 	{
-		// 		mr.MaterialGuid = shader.GUID;
-		// 	}
-		// }
-		// else
-		// {
-		// 	throw new ArgumentException(shaderKey);
-		// }
-		//
-		// if (CoreAssets.Instance.TryGetResourceByGuid(CoreAssets.Instance.MESH,
-		// 	    out mesh))
-		// {
-		// 	if (mesh != null)
-		// 	{
-		// 		mf.AddMesh(mesh.GUID);
-		// 	}
-		// 	else
-		// 	{
-		// 		throw new ArgumentException(meshKey);
-		// 	}
-		// }
+
+		if (ResourceManager.Instance.TryGetResourceByGuid(materialGuid.Value,
+			    out material))
+		{
+			if (material != null)
+			{
+				mr.MaterialGuid = material.GUID;
+				material.ShaderGUID = shaderGuid.Value;
+			}
+		}
+		else
+		{
+			throw new ArgumentException("Shader guid invalid");
+		}
+
+		if (ResourceManager.Instance.TryGetResourceByGuid(meshguid.Value,
+			    out mesh))
+		{
+			if (mesh != null)
+			{
+				mf.AddMesh(mesh.GUID);
+			}
+			else
+			{
+				throw new ArgumentException("Mesh GUID invalid");
+			}
+		}
 	}
 
 	public static GameObject CreateMesh(IScene activeScene) =>

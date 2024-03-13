@@ -33,7 +33,18 @@ public abstract class Metadata
 
 		if (type == typeof(Material))
 		{
-			return new MaterialMetadata {Path = path, GUID = Guid.NewGuid()};
+			var metadata = new MaterialMetadata {Path = path, GUID = Guid.NewGuid()};
+			try
+			{
+				var material = (Material) ObjectSerializer.Deserialize(path.MakeProjectAbsolute());
+				metadata.GUID = material.GUID;
+			}
+			catch (Exception e)
+			{
+				Logger.Warning($"Failed to deserialize material to extract guid: {e}");
+			}
+
+			return metadata;
 		}
 
 		if (type == typeof(Shader))

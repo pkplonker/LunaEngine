@@ -9,4 +9,5 @@ public interface IAssetManager
 	IEnumerable<Metadata> GetMetadata(MetadataType? filterType = null);
 	bool MetadataExistsWithPath(string path);
 	void ClearMetadatas();
+	Metadata? GetResourceByName(string name);
 }
