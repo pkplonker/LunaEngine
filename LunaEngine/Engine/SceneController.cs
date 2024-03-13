@@ -2,6 +2,16 @@
 
 public static class SceneController
 {
+	static SceneController()
+	{
+		ProjectManager.ProjectChanged += OnProjectChanged;
+	}
+
+	private static void OnProjectChanged(Project? obj)
+	{
+		ActiveScene = null;
+	}
+
 	private static IScene? activeScene;
 
 	public static IScene? ActiveScene

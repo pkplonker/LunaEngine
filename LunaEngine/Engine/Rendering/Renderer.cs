@@ -23,8 +23,10 @@ public class Renderer : IRenderer
 	public uint Vertices { get; set; }
 	private Dictionary<IScene, IRenderTarget> sceneRenderTargets = new Dictionary<IScene, IRenderTarget>();
 
-	public void AddScene(IScene scene, Vector2D<uint> size, out IRenderTarget renderTarget, bool toFrameBuffer)
+	public void AddScene(IScene? scene, Vector2D<uint> size, out IRenderTarget? renderTarget, bool toFrameBuffer)
 	{
+		renderTarget = null;
+		if (scene == null) return;
 		if (!sceneRenderTargets.ContainsKey(scene))
 		{
 			renderTarget = GenerateIRenderTarget(size.X, size.Y, toFrameBuffer);
@@ -138,8 +140,9 @@ public class Renderer : IRenderer
 		return new FrameBufferRenderTarget(framebuffer, rt, new Vector2D<int>((int) sizeX, (int) sizeY));
 	}
 
-	public void SetRenderTargetSize(IScene scene, Vector2D<float> size)
+	public void SetRenderTargetSize(IScene? scene, Vector2D<float> size)
 	{
+		if (scene == null) return;
 		unsafe
 		{
 			if (sceneRenderTargets.TryGetValue(scene, out var rt))
@@ -149,12 +152,10 @@ public class Renderer : IRenderer
 		}
 	}
 
-	public void Close()
-	{
-		
-	}
+	public void Close() { }
 
-	public unsafe void DrawElements(Silk.NET.OpenGL.PrimitiveType primativeType, uint indicesLength, DrawElementsType elementsTyp)
+	public unsafe void DrawElements(Silk.NET.OpenGL.PrimitiveType primativeType, uint indicesLength,
+		DrawElementsType elementsTyp)
 	{
 		DrawCalls++;
 		Triangles += indicesLength / 3;
@@ -187,8 +188,8 @@ public class Renderer : IRenderer
 		}
 	}
 
-	public IRenderTarget? GetSceneRenderTarget(IScene scene) =>
-		sceneRenderTargets.TryGetValue(scene, out var rt) ? rt : null;
+	public IRenderTarget? GetSceneRenderTarget(IScene? scene)
+		=> scene == null ? null : sceneRenderTargets.TryGetValue(scene, out var rt) ? rt : null;
 
 	public void RemoveScene(IScene? oldScene)
 	{
@@ -199,4 +200,3 @@ public class Renderer : IRenderer
 		}
 	}
 }
-

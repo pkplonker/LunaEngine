@@ -18,7 +18,6 @@ public class MoveableEditorCamera : EditorCamera
 		{
 			if (key == IInputController.Key.W)
 			{
-				Logger.Log("Pressed");
 				Transform.Position += Transform.Forward * currentSpeed * Time.DeltaTime;
 				return true;
 			}

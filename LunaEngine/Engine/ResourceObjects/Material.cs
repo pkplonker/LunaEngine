@@ -80,7 +80,7 @@ public class Material : IMaterial
 
 	private void BindTexture(Guid textureGuid, Material.TextureType textureType, Shader shader)
 	{
-		if (!ResourceManager.Instance.TryGetResourceByGuid<Texture>(textureGuid, out var texture)) return;
+		ResourceManager.Instance.TryGetResourceByGuid<Texture>(textureGuid, out var texture);
 		int textureUnit = -1;
 		if (texture != null)
 		{
