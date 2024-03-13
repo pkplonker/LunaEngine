@@ -1,4 +1,5 @@
-﻿using Engine.Logging;
+﻿using Editor;
+using Engine.Logging;
 using Silk.NET.OpenGL;
 
 namespace Engine;
@@ -11,7 +12,6 @@ public class ResourceManager : IAssetManager
 	public void Init(GL gl, string? directory)
 	{
 		ProjectManager.ProjectCreated += OnProjectCreated;
-
 		ProjectManager.ProjectChanged += OnProjectChanged;
 
 		assetManager = new UserResourceManager(gl, directory);
@@ -25,7 +25,7 @@ public class ResourceManager : IAssetManager
 			return;
 		}
 
-		string sourceDirectory = "path/to/your/source/resources";
+		string sourceDirectory = "resources/coreassets/".MakeAbsolute();
 		string targetDirectory = obj.CoreAssetsDirectory;
 
 		try
@@ -36,6 +36,9 @@ public class ResourceManager : IAssetManager
 		{
 			Logger.Error($"Failed to copy resources to project: {ex.Message}");
 		}
+		FileImporter.ImportAllFromDirectory(targetDirectory);
+		FileImporter.ImportAllFromDirectory(obj.AssetsDirectory);
+
 	}
 
 	private static void CopyDirectory(string sourceDir, string targetDir)
