@@ -14,8 +14,11 @@ public class InspectorPanel : IPanel
 	private bool newChange = false;
 	public event Action<GameObject?> SelectionChanged;
 
-	public InspectorPanel(EditorImGuiController controller) =>
+	public InspectorPanel(EditorImGuiController controller)
+	{
 		controller.GameObjectSelectionChanged += ControllerOnGameObjectSelectionChanged;
+		SceneController.OnActiveSceneChanged += (scene, scene1) => { selectedGameObject = null; };
+	}
 
 	private void ControllerOnGameObjectSelectionChanged(GameObject? obj)
 	{
@@ -25,7 +28,6 @@ public class InspectorPanel : IPanel
 	}
 
 	public string PanelName { get; set; } = "Inspector";
-	const float RIGHT_PADDING = 20.0f;
 
 	public void Draw(IRenderer renderer)
 	{
@@ -35,6 +37,7 @@ public class InspectorPanel : IPanel
 			newChange = false;
 			ImGui.SetScrollY(0);
 		}
+
 		propertyDrawer ??= new PropertyDrawer(renderer);
 
 		if (selectedGameObject == null) return;
@@ -48,15 +51,15 @@ public class InspectorPanel : IPanel
 		{
 			ImGui.OpenPopup(ADD_COMPONENT_POPUP_NAME);
 		}
-
+		
 		if (ImGui.BeginPopup(ADD_COMPONENT_POPUP_NAME))
 		{
 			foreach (var kvp in ComponentRegistry.Components.OrderBy(x => x.Key))
-
+		
 			{
 				if (!ImGui.Selectable(kvp.Key)) continue;
 				var cachedGameObject = selectedGameObject;
-
+		
 				UndoManager.RecordAndPerform(
 					new Memento(() => selectedGameObject.AddComponent(kvp.Value),
 					() =>
@@ -68,10 +71,10 @@ public class InspectorPanel : IPanel
 					}, $"Added component - {kvp.Key}"));
 				ImGui.CloseCurrentPopup();
 			}
-
+		
 			ImGui.EndPopup();
 		}
-
+		
 		ImGuiHelpers.DrawTransform(go.Transform);
 
 		foreach (var component in go.GetComponents())

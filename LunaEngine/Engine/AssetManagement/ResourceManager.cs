@@ -69,11 +69,8 @@ public class ResourceManager : IAssetManager
 
 	private void OnProjectChanged(Project? project)
 	{
-		if (project == null)
-		{
-			ClearMetadatas();
-		}
-		else
+		ClearMetadatas();
+		if (project != null)
 		{
 			LoadMetadata(project.AssetsDirectory);
 			LoadMetadata(project.CoreAssetsDirectory);

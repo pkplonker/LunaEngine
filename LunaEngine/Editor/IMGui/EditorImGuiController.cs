@@ -83,6 +83,8 @@ public class EditorImGuiController : IDisposable
 		controls.Add(new ObjectPreviewPanel(inspector, inputController, renderer), true);
 		controls.Add(new ImGuiLoggerWindow(), true);
 		controls.Add(new MetadataPanel(), true);
+		controls.Add(new ProjectPanel(inputController), true);
+
 		foreach (var control in controls)
 		{
 			controls[control.Key] =
@@ -131,7 +133,7 @@ public class EditorImGuiController : IDisposable
 			{
 				if (ImGui.MenuItem("New Project", "Ctrl+N"))
 				{
-					createProjectWindow.Create();
+					createProjectWindow.Create(inputController);
 				}
 
 				if (ImGui.MenuItem("Save Scene", "Ctrl+S"))

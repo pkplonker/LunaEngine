@@ -43,7 +43,6 @@ public class MaterialPropertyDrawIntercept : IPropertyDrawInterceptStrategy
 	{
 		if (ImGui.Button("Select Material"))
 		{
-			Logger.Info("Pressed");
 		}
 	}
 }

@@ -9,11 +9,14 @@ public class CreateProjectWindow
 	private bool ShouldShowCreateProjectModal;
 	private string projectName;
 	private string projectLocation;
+	private IInputController inputController;
 
-	public void Create()
+	public void Create(IInputController inputController)
 	{
+		this.inputController = inputController;
 		ShouldShowCreateProjectModal = true;
 		Reset();
+		inputController.SubscribeToKeyEvent(HandleKeyPress);
 	}
 
 	private void Reset()
@@ -58,9 +61,21 @@ public class CreateProjectWindow
 		}
 	}
 
+	private bool HandleKeyPress(IInputController.Key key, IInputController.InputState inputState)
+	{
+		if (key == IInputController.Key.Escape && inputState == IInputController.InputState.Pressed)
+		{
+			Close();
+			return true;
+		}
+
+		return false;
+	}
+
 	private void Close()
 	{
 		ShouldShowCreateProjectModal = false;
 		Reset();
+		inputController.UnsubscribeToKeyEvent(HandleKeyPress);
 	}
 }

@@ -77,6 +77,10 @@ public class HierarchyPanel : IPanel
 					ImGui.EndMenu();
 				}
 			}
+			else
+			{
+				ImGui.Text("No active scene");
+			}
 
 			ImGui.EndPopup();
 		}

@@ -1,16 +1,12 @@
-﻿using System.Diagnostics;
-using System.Numerics;
+﻿using System.Numerics;
 using Editor.Controls;
 using Engine;
 using Engine.Logging;
-using ImGuiNET;
 using Silk.NET.Core;
 using Silk.NET.Input;
 using Silk.NET.Maths;
-using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
 using StbImageSharp;
-
 namespace Editor
 {
 	public class EditorApplication
@@ -116,7 +112,6 @@ namespace Editor
 
 		private void OnLoad()
 		{
-			SceneController.ActiveScene = new Scene();
 
 			if (window != null)
 			{
@@ -139,7 +134,7 @@ namespace Editor
 				});
 
 				editorCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, 16f / 9f);
-				SceneController.ActiveScene.ActiveCamera = editorCamera;
+				
 				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera,
 					inputController);
 
@@ -148,9 +143,12 @@ namespace Editor
 				{
 					renderer.RemoveScene(oldScene);
 					renderer.AddScene(newScene, new Vector2D<uint>(0, 0), out _, true);
-					newScene.ActiveCamera = editorCamera;
 					var size = imGuiController.CurrentSize;
-					renderer.SetRenderTargetSize(SceneController.ActiveScene, new Vector2D<float>(size.X, size.Y));
+					if (newScene != null)
+					{
+						newScene.ActiveCamera = editorCamera;
+						renderer.SetRenderTargetSize(SceneController.ActiveScene, new Vector2D<float>(size.X, size.Y));
+					}
 				};
 
 				if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
