@@ -122,8 +122,6 @@ namespace Editor
 			{
 				renderer?.Load(window);
 				ResourceManager.Instance.Init(renderer.Gl, ProjectManager.ActiveProject?.Directory);
-				var corePath = "resources/coreassets/".MakeAbsolute();
-				ResourceManager.Instance.LoadMetadata(corePath);
 				IconLoader.Init(renderer.Gl);
 				var inputContext = window.CreateInput();
 				inputController = new InputController(inputContext);

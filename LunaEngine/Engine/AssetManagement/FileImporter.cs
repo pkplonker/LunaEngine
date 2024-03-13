@@ -7,7 +7,7 @@ public static class FileImporter
 {
 	
 
-	public static void ImportAllFromDirectory(string path)
+	public static void ImportAllFromDirectory(string? path)
 	{
 		if (string.IsNullOrEmpty(path) || !Path.Exists(path)) return;
 		var paths = ResourceManager.Instance.GetFilesFromFolder(path, FileTypeExtensions.GetAllExtensions());

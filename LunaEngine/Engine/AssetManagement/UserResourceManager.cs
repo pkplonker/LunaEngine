@@ -15,13 +15,13 @@ public class UserResourceManager : IAssetManager
 
 	protected GL gl;
 
-	public UserResourceManager(GL gl, string directory)
+	public UserResourceManager(GL gl, string? directory)
 	{
 		this.gl = gl;
 		LoadMetadata(directory);
 	}
 
-	public void LoadMetadata(string root)
+	public void LoadMetadata(string? root)
 	{
 		if (string.IsNullOrEmpty(root))
 		{
@@ -50,7 +50,7 @@ public class UserResourceManager : IAssetManager
 		Logger.Info($"Imported {result}/{files.Count()} metadata files");
 	}
 
-	public IEnumerable<string> GetFilesFromFolder(string path, IEnumerable<string> ext = null)
+	public IEnumerable<string> GetFilesFromFolder(string? path, IEnumerable<string> ext = null)
 	{
 		IEnumerable<string> paths = Directory.GetFiles(path);
 

@@ -7,16 +7,31 @@ public class ResourceManager : IAssetManager
 	private static readonly Lazy<ResourceManager> instance = new(() => new ResourceManager());
 	private IAssetManager assetManager;
 
-	public void Init(GL gl, string directory)
+	public void Init(GL gl, string? directory)
 	{
+		ProjectManager.ProjectChanged += OnProjectChanged;
 		assetManager = new UserResourceManager(gl, directory);
+	}
+
+	private void OnProjectChanged(Project? project)
+	{
+		if (project == null)
+		{
+			ClearMetadatas();
+		}
+		else
+		{
+			LoadMetadata(project.AssetsDirectory);
+			LoadMetadata(project.CoreAssetsDirectory);
+
+		}
 	}
 
 	public static ResourceManager Instance => instance.Value;
 
-	public void LoadMetadata(string directory) => assetManager?.LoadMetadata(directory);
+	public void LoadMetadata(string? directory) => assetManager?.LoadMetadata(directory);
 
-	public IEnumerable<string> GetFilesFromFolder(string path, IEnumerable<string> ext = null) =>
+	public IEnumerable<string> GetFilesFromFolder(string? path, IEnumerable<string> ext = null) =>
 		assetManager.GetFilesFromFolder(path, ext);
 
 	public bool TryGetResourceByGuid<T>(Guid guid, out T? result) where T : class

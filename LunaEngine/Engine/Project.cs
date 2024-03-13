@@ -4,7 +4,7 @@ public class Project
 {
 	public string ProjectFilePath { get; set; }
 
-	public string Directory
+	public string? Directory
 	{
 		get
 		{
@@ -18,6 +18,8 @@ public class Project
 	}
 
 	public string Name { get; set; }
+	public string? AssetsDirectory { get; set; }
+	public string? CoreAssetsDirectory { get; set; }
 
 	public Project(string projectFilePath)
 	{

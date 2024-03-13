@@ -11,6 +11,7 @@ public static class ProjectManager
 	private static Project? activeProject;
 	private const string TestProjectPath = @"S:\Users\pkplo\OneDrive\Desktop\LunaTestProject\LunaTestProject.json";
 	public static event Action<Project?> ProjectChanged;
+	public static event Action<Project?> ProjectCreated;
 
 	static ProjectManager()
 	{
@@ -42,13 +43,23 @@ public static class ProjectManager
 		}
 
 		Directory.CreateDirectory(combinedPath);
-		string projectFilePath = Path.Combine(combinedPath, name + ProjectExtension);
-		var newProject = new Project(projectFilePath) {Name = name};
+		var projectFilePath = Path.Combine(combinedPath, name + ProjectExtension);
+		var assetsDirectory = Path.Combine(combinedPath, "assets");
+		Directory.CreateDirectory(assetsDirectory);
+		var coreAssetsDirectory = Path.Combine(combinedPath, "core/assets");
+		Directory.CreateDirectory(coreAssetsDirectory);
+		
+		var newProject = new Project(projectFilePath)
+		{
+			Name = name,
+			AssetsDirectory = assetsDirectory,
+			CoreAssetsDirectory = coreAssetsDirectory,
+		};
 		ActiveProject = newProject;
 		File.WriteAllText(projectFilePath, JsonConvert.SerializeObject(newProject, Formatting.Indented));
-
 		Logger.Info($"New project created at {projectFilePath}");
 		if (setActive) ActiveProject = newProject;
+		ProjectCreated?.Invoke(newProject);
 		return true;
 	}
 

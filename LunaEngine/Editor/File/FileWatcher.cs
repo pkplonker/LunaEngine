@@ -6,7 +6,7 @@ public class FileWatcher
 {
 	private readonly FileSystemWatcher fileSystemWatcher;
 
-	public FileWatcher(string path)
+	public FileWatcher(string? path)
 	{
 		if (string.IsNullOrEmpty(path))
 		{
