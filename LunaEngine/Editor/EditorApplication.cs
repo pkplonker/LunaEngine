@@ -1,16 +1,12 @@
-﻿using System.Diagnostics;
-using System.Numerics;
+﻿using System.Numerics;
 using Editor.Controls;
 using Engine;
 using Engine.Logging;
-using ImGuiNET;
 using Silk.NET.Core;
 using Silk.NET.Input;
 using Silk.NET.Maths;
-using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
 using StbImageSharp;
-
 namespace Editor
 {
 	public class EditorApplication
