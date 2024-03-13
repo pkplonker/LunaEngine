@@ -7,6 +7,7 @@ using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
 using StbImageSharp;
+
 namespace Editor
 {
 	public class EditorApplication
@@ -112,7 +113,6 @@ namespace Editor
 
 		private void OnLoad()
 		{
-
 			if (window != null)
 			{
 				renderer?.Load(window);
@@ -134,7 +134,7 @@ namespace Editor
 				});
 
 				editorCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, 16f / 9f);
-				
+
 				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera,
 					inputController);
 
@@ -163,7 +163,10 @@ namespace Editor
 						SceneController.ActiveScene = result;
 					}
 				}
-
+#if DEVELOP
+				ProjectManager.LoadProject(
+					@"S:\Users\pkplo\OneDrive\Desktop\LunaTestProject\LunaTestProject.lunaproject");
+#endif
 				try
 				{
 					window.SetWindowIcon(

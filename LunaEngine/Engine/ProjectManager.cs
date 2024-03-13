@@ -55,6 +55,7 @@ public static class ProjectManager
 		Logger.Info($"New project created at {projectFilePath}");
 		if (setActive) ActiveProject = newProject;
 		ProjectCreated?.Invoke(newProject);
+		SceneController.ActiveScene = new Scene();
 		return true;
 	}
 

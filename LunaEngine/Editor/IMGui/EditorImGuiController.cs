@@ -136,6 +136,36 @@ public class EditorImGuiController : IDisposable
 					createProjectWindow.Create(inputController);
 				}
 
+				if (ImGui.MenuItem("Open Project", "Ctrl+N"))
+				{
+					ProjectManager.LoadProject(FileDialog
+						.OpenFileDialog(FileDialog.BuildFileDialogFilter(new List<string>()
+							{ProjectManager.ProjectExtension})).FirstOrDefault());
+				}
+
+				ImGui.EndMenu();
+			}
+
+			if (ImGui.BeginMenu("Scene"))
+			{
+				if (ImGui.MenuItem("New Scene"))
+				{
+					SceneController.ActiveScene = new Scene();
+				}
+
+				if (ImGui.MenuItem("Open Scene"))
+				{
+					var pu = new ProgressUpdater();
+					ProgressBar.Show("Opening Scene", progressUpdate: pu);
+					Scene? result = new SceneDeserializer(testScenePath).Deserialize(ProgressUpdater: pu);
+					ProgressBar.Close();
+
+					if (result != null)
+					{
+						SceneController.ActiveScene = result;
+					}
+				}
+
 				if (ImGui.MenuItem("Save Scene", "Ctrl+S"))
 				{
 					var pu = new ProgressUpdater();
@@ -143,13 +173,6 @@ public class EditorImGuiController : IDisposable
 					var result = new SceneSerializer(SceneController.ActiveScene,
 						testScenePath).Serialize(progress: pu);
 					ProgressBar.Close();
-				}
-
-				if (ImGui.MenuItem("Open Project", "Ctrl+N"))
-				{
-					ProjectManager.LoadProject(FileDialog
-						.OpenFileDialog(FileDialog.BuildFileDialogFilter(new List<string>()
-							{ProjectManager.ProjectExtension})).FirstOrDefault());
 				}
 
 				ImGui.EndMenu();
@@ -218,29 +241,6 @@ public class EditorImGuiController : IDisposable
 					if (ImGui.MenuItem("CancelProgress"))
 					{
 						ProgressBar.Close();
-					}
-
-					ImGui.EndMenu();
-				}
-
-				if (ImGui.BeginMenu("Saves"))
-				{
-					if (ImGui.MenuItem("Open Scene"))
-					{
-						var pu = new ProgressUpdater();
-						ProgressBar.Show("Opening Scene", progressUpdate: pu);
-						Scene? result = new SceneDeserializer(testScenePath).Deserialize(ProgressUpdater: pu);
-						ProgressBar.Close();
-
-						if (result != null)
-						{
-							SceneController.ActiveScene = result;
-						}
-					}
-
-					if (ImGui.MenuItem("New Scene"))
-					{
-						SceneController.ActiveScene = new Scene();
 					}
 
 					ImGui.EndMenu();
