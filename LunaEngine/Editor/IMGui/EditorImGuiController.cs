@@ -131,7 +131,7 @@ public class EditorImGuiController : IDisposable
 			{
 				if (ImGui.MenuItem("New Project", "Ctrl+N"))
 				{
-					createProjectWindow.Create();
+					createProjectWindow.Create(inputController);
 				}
 
 				if (ImGui.MenuItem("Save Scene", "Ctrl+S"))
