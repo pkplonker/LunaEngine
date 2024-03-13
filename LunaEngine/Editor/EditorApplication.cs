@@ -121,9 +121,9 @@ namespace Editor
 			if (window != null)
 			{
 				renderer?.Load(window);
-				ResourceManager.Instance.Init(renderer.Gl);
-				CoreAssets.Instance.Init(renderer.Gl);
-
+				ResourceManager.Instance.Init(renderer.Gl, ProjectManager.ActiveProject?.Directory);
+				var corePath = "resources/coreassets/".MakeAbsolute();
+				ResourceManager.Instance.LoadMetadata(corePath);
 				IconLoader.Init(renderer.Gl);
 				var inputContext = window.CreateInput();
 				inputController = new InputController(inputContext);
@@ -155,13 +155,17 @@ namespace Editor
 					renderer.SetRenderTargetSize(SceneController.ActiveScene, new Vector2D<float>(size.X, size.Y));
 				};
 
-				Scene? result =
-					new SceneDeserializer(
-						Path.Combine(ProjectManager.ActiveProject.Directory, "assets/TestScene.SCENE")).Deserialize();
-
-				if (result != null)
+				if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
 				{
-					SceneController.ActiveScene = result;
+					Scene? result =
+						new SceneDeserializer(
+								Path.Combine(ProjectManager.ActiveProject?.Directory, "assets/TestScene.SCENE"))
+							.Deserialize();
+
+					if (result != null)
+					{
+						SceneController.ActiveScene = result;
+					}
 				}
 
 				try
@@ -180,7 +184,14 @@ namespace Editor
 				throw new NullReferenceException($"{nameof(window)} cannot be null");
 			}
 
-			fileWatcher = new FileWatcher(ProjectManager.ActiveProject.Directory);
+			try
+			{
+				fileWatcher = new FileWatcher(ProjectManager.ActiveProject?.Directory);
+			}
+			catch (Exception e)
+			{
+				Logger.Warning($"Failed to init filewatcher {e}");
+			}
 		}
 
 		private void OnRender(double deltaTime)

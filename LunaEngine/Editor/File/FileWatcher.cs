@@ -8,6 +8,10 @@ public class FileWatcher
 
 	public FileWatcher(string path)
 	{
+		if (string.IsNullOrEmpty(path))
+		{
+			throw new ArgumentNullException(path);
+		}
 		fileSystemWatcher = new FileSystemWatcher(path)
 		{
 			IncludeSubdirectories = true,

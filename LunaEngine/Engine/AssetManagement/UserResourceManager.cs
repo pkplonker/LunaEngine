@@ -5,16 +5,27 @@ using Silk.NET.OpenGL;
 
 namespace Engine;
 
-public class UserResourceManager : BaseAssetManager
+public class UserResourceManager : IAssetManager
 {
-	public UserResourceManager(GL gl) : base(gl, ProjectManager.ActiveProject.Directory) { }
+	protected ConcurrentDictionary<Guid, Mesh?> meshes = new();
+	protected ConcurrentDictionary<Guid, Shader?> shaders = new();
+	protected ConcurrentDictionary<Guid, Texture?> textures = new();
+	protected ConcurrentDictionary<Guid, Material?> materials = new();
+	protected ConcurrentDictionary<Guid, Metadata> metadatas = new();
 
-	public void LoadMetadata()
+	protected GL gl;
+
+	public UserResourceManager(GL gl, string directory)
 	{
-		var root = ProjectManager.ActiveProject?.Directory;
+		this.gl = gl;
+		LoadMetadata(directory);
+	}
+
+	public void LoadMetadata(string root)
+	{
 		if (string.IsNullOrEmpty(root))
 		{
-			Logger.Warning("No active project to import metadata for");
+			Logger.Warning("No valid directory to import metadata from");
 			return;
 		}
 
@@ -60,13 +71,11 @@ public class UserResourceManager : BaseAssetManager
 	{
 		result = null;
 
-		// Check if the metadata exists for the provided GUID
 		if (!metadatas.TryGetValue(guid, out var metadata))
 		{
 			return false;
 		}
 
-		// Depending on the metadata type, try to get or load the resource
 		switch (metadata.MetadataType)
 		{
 			case MetadataType.Texture:

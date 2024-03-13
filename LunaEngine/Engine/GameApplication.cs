@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Editor;
 using Engine;
 using Engine.Logging;
 using Silk.NET.Core;
@@ -102,8 +103,7 @@ namespace GameCore
 			if (window != null)
 			{
 				renderer?.Load(window);
-				ResourceManager.Instance.Init(renderer.Gl);
-				CoreAssets.Instance.Init(renderer.Gl);
+				ResourceManager.Instance.Init(renderer.Gl, ProjectManager.ActiveProject?.Directory);
 				var inputContext = window.CreateInput();
 				inputController = new InputController(inputContext);
 				inputController.SubscribeToKeyEvent((key, inputState) =>

@@ -7,14 +7,14 @@ public class ResourceManager : IAssetManager
 	private static readonly Lazy<ResourceManager> instance = new(() => new ResourceManager());
 	private IAssetManager assetManager;
 
-	public void Init(GL gl)
+	public void Init(GL gl, string directory)
 	{
-		assetManager = new UserResourceManager(gl);
+		assetManager = new UserResourceManager(gl, directory);
 	}
 
 	public static ResourceManager Instance => instance.Value;
 
-	public void LoadMetadata() => assetManager?.LoadMetadata();
+	public void LoadMetadata(string directory) => assetManager?.LoadMetadata(directory);
 
 	public IEnumerable<string> GetFilesFromFolder(string path, IEnumerable<string> ext = null) =>
 		assetManager.GetFilesFromFolder(path, ext);

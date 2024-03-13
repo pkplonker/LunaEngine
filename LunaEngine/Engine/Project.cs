@@ -1,24 +1,27 @@
-﻿namespace Editor;
+﻿namespace Engine;
 
 public class Project
 {
-	public string Path { get; set; }
+	public string ProjectFilePath { get; set; }
 
 	public string Directory
 	{
 		get
 		{
-			if (!string.IsNullOrEmpty(Path))
+			if (!string.IsNullOrEmpty(ProjectFilePath))
 			{
-				return System.IO.Path.GetDirectoryName(Path);
+				return System.IO.Path.GetDirectoryName(ProjectFilePath);
 			}
 
 			return string.Empty;
 		}
 	}
 
-	public Project(string path)
+	public string Name { get; set; }
+
+	public Project(string projectFilePath)
 	{
-		this.Path = path;
+		this.ProjectFilePath = projectFilePath;
+		Name = Path.GetFileName(Path.ChangeExtension(projectFilePath, string.Empty)).Trim('.');
 	}
 }

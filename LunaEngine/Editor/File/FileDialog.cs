@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Engine;
 using Engine.Logging;
 
 namespace Editor;
@@ -19,6 +20,23 @@ public static class FileDialog
 		}
 
 		return Enumerable.Empty<string>();
+	}
+
+	public static string SelectFolderDialog(string initialDirectory = "")
+	{
+		using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+		{
+			folderBrowserDialog.SelectedPath = initialDirectory;
+			folderBrowserDialog.Description = "Select a folder for the new project";
+			folderBrowserDialog.ShowNewFolderButton = true;
+
+			if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+			{
+				return folderBrowserDialog.SelectedPath;
+			}
+		}
+
+		return string.Empty;
 	}
 
 	public static string BuildFileDialogFilter(IEnumerable<string> fileExtensions)
