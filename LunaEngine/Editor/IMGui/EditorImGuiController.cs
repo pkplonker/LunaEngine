@@ -98,7 +98,10 @@ public class EditorImGuiController : IDisposable
 		imGuiController.Update(deltaTime);
 		ImGui.DockSpaceOverViewport(ImGui.GetMainViewport());
 		ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 0);
-		editorViewport.Update("Viewport", editorCamera, SceneController.ActiveScene, inputController, renderer);
+		var currentSize = CurrentSize;
+		editorViewport.Update("Viewport", editorCamera, SceneController.ActiveScene, inputController, renderer,
+			ref currentSize);
+		CurrentSize = currentSize;
 		ImGui.PopStyleVar();
 
 		foreach (IPanel control in controls.Where(x => x.Value).Select(x => x.Key))
@@ -138,6 +141,13 @@ public class EditorImGuiController : IDisposable
 					var result = new SceneSerializer(SceneController.ActiveScene,
 						testScenePath).Serialize(progress: pu);
 					ProgressBar.Close();
+				}
+
+				if (ImGui.MenuItem("Open Project", "Ctrl+N"))
+				{
+					ProjectManager.LoadProject(FileDialog
+						.OpenFileDialog(FileDialog.BuildFileDialogFilter(new List<string>()
+							{ProjectManager.ProjectExtension})).FirstOrDefault());
 				}
 
 				ImGui.EndMenu();

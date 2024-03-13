@@ -12,6 +12,7 @@ public class ObjectPreviewPanel : IPanel
 	private Vector2 previousSize;
 	private readonly IInputController inputController;
 	private readonly EditorViewport editorViewport;
+	private Vector2 currentSize;
 
 	public ObjectPreviewPanel(InspectorPanel inspector, IInputController inputController, IRenderer renderer)
 	{
@@ -66,7 +67,7 @@ public class ObjectPreviewPanel : IPanel
 
 	public void Draw(IRenderer renderer)
 	{
-		editorViewport.Update(PanelName,scene.ActiveCamera as IEditorCamera, scene, inputController,renderer);
+		editorViewport.Update(PanelName,scene.ActiveCamera as IEditorCamera, scene, inputController,renderer,ref currentSize);
 	}
 
 }
