@@ -1,4 +1,5 @@
-﻿using Silk.NET.OpenGL;
+﻿using Engine.Logging;
+using Silk.NET.OpenGL;
 
 namespace Engine;
 
@@ -9,8 +10,52 @@ public class ResourceManager : IAssetManager
 
 	public void Init(GL gl, string? directory)
 	{
+		ProjectManager.ProjectCreated += OnProjectCreated;
+
 		ProjectManager.ProjectChanged += OnProjectChanged;
+
 		assetManager = new UserResourceManager(gl, directory);
+	}
+
+	private void OnProjectCreated(Project? obj)
+	{
+		if (obj == null)
+		{
+			Logger.Error("Project creation failed or project is null.");
+			return;
+		}
+
+		string sourceDirectory = "path/to/your/source/resources";
+		string targetDirectory = obj.CoreAssetsDirectory;
+
+		try
+		{
+			CopyDirectory(sourceDirectory, targetDirectory);
+		}
+		catch (Exception ex)
+		{
+			Logger.Error($"Failed to copy resources to project: {ex.Message}");
+		}
+	}
+
+	private static void CopyDirectory(string sourceDir, string targetDir)
+	{
+		if (!Directory.Exists(targetDir))
+		{
+			Directory.CreateDirectory(targetDir);
+		}
+
+		foreach (var file in Directory.GetFiles(sourceDir))
+		{
+			string targetFilePath = Path.Combine(targetDir, Path.GetFileName(file));
+			File.Copy(file, targetFilePath, true);
+		}
+
+		foreach (var directory in Directory.GetDirectories(sourceDir))
+		{
+			string targetSubDir = Path.Combine(targetDir, Path.GetFileName(directory));
+			CopyDirectory(directory, targetSubDir);
+		}
 	}
 
 	private void OnProjectChanged(Project? project)
@@ -23,7 +68,6 @@ public class ResourceManager : IAssetManager
 		{
 			LoadMetadata(project.AssetsDirectory);
 			LoadMetadata(project.CoreAssetsDirectory);
-
 		}
 	}
 

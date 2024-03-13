@@ -48,13 +48,8 @@ public static class ProjectManager
 		Directory.CreateDirectory(assetsDirectory);
 		var coreAssetsDirectory = Path.Combine(combinedPath, "core/assets");
 		Directory.CreateDirectory(coreAssetsDirectory);
-		
-		var newProject = new Project(projectFilePath)
-		{
-			Name = name,
-			AssetsDirectory = assetsDirectory,
-			CoreAssetsDirectory = coreAssetsDirectory,
-		};
+
+		var newProject = new Project(projectFilePath, name, assetsDirectory, coreAssetsDirectory);
 		ActiveProject = newProject;
 		File.WriteAllText(projectFilePath, JsonConvert.SerializeObject(newProject, Formatting.Indented));
 		Logger.Info($"New project created at {projectFilePath}");
