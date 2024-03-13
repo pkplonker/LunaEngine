@@ -9,6 +9,7 @@ public class HierarchyPanel : IPanel
 	private readonly EditorImGuiController controller;
 	private readonly IInputController inputController;
 	private readonly RenamingHelper renamingHelper;
+	private const string CONTEXT_MENU_NAME = "HierachyRightClickContextMenu";
 
 	public HierarchyPanel(EditorImGuiController controller, IInputController inputController)
 	{
@@ -27,6 +28,58 @@ public class HierarchyPanel : IPanel
 		}
 
 		ImGui.Begin(PanelName);
+		if (ImGui.IsMouseReleased(ImGuiMouseButton.Right) && ImGui.IsWindowHovered(ImGuiHoveredFlags.None))
+		{
+			ImGui.OpenPopup(CONTEXT_MENU_NAME);
+		}
+
+		if (ImGui.BeginPopup(CONTEXT_MENU_NAME))
+		{
+			if (SceneController.ActiveScene != null)
+			{
+				if (ImGui.BeginMenu("Add"))
+				{
+					if (ImGui.BeginMenu("Default Shapes"))
+					{
+						if (ImGui.MenuItem("Cube"))
+						{
+							GameObjectFactory.CreatePrimitive(SceneController.ActiveScene, PrimitiveType.Cube);
+						}
+
+						if (ImGui.MenuItem("Sphere"))
+						{
+							GameObjectFactory.CreatePrimitive(SceneController.ActiveScene, PrimitiveType.Sphere);
+						}
+
+						if (ImGui.MenuItem("Plane"))
+						{
+							GameObjectFactory.CreatePrimitive(SceneController.ActiveScene, PrimitiveType.Plane);
+						}
+
+						ImGui.EndMenu();
+					}
+
+					if (ImGui.MenuItem("New Empty"))
+					{
+						GameObjectFactory.CreatePrimitive(SceneController.ActiveScene);
+					}
+
+					if (ImGui.MenuItem("New Mesh"))
+					{
+						GameObjectFactory.CreateMesh(SceneController.ActiveScene);
+					}
+
+					if (ImGui.MenuItem("New Camera"))
+					{
+						GameObjectFactory.CreateCamera(SceneController.ActiveScene);
+					}
+
+					ImGui.EndMenu();
+				}
+			}
+
+			ImGui.EndPopup();
+		}
 
 		var scene = SceneController.ActiveScene;
 		if (scene != null)

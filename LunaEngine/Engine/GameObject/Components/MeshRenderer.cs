@@ -17,7 +17,7 @@ public class MeshRenderer : Component, IRenderableComponent
 
 	public void Render(Renderer renderer, RenderPassData data)
 	{
-		if (ResourceManager.TryGetResourceByGuid<Material>(MaterialGuid, out var material))
+		if (ResourceManager.Instance.TryGetResourceByGuid<Material>(MaterialGuid, out var material))
 		{
 			renderer.UseMaterial(material, data, GameObject.Transform.ModelMatrix);
 		}
@@ -27,7 +27,7 @@ public class MeshRenderer : Component, IRenderableComponent
 		{
 			foreach (var guid in mf.meshes)
 			{
-				if (ResourceManager.TryGetResourceByGuid<Mesh>(guid, out var mesh))
+				if (ResourceManager.Instance.TryGetResourceByGuid<Mesh>(guid, out var mesh))
 				{
 					mesh?.Render(renderer, data);
 				}

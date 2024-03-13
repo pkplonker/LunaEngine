@@ -1,24 +1,36 @@
-﻿namespace Editor;
+﻿namespace Engine;
 
 public class Project
 {
-	public string Path { get; set; }
+	public string ProjectFilePath { get; set; }
 
-	public string Directory
+	public string? Directory
 	{
 		get
 		{
-			if (!string.IsNullOrEmpty(Path))
+			if (!string.IsNullOrEmpty(ProjectFilePath))
 			{
-				return System.IO.Path.GetDirectoryName(Path);
+				return System.IO.Path.GetDirectoryName(ProjectFilePath);
 			}
 
 			return string.Empty;
 		}
 	}
 
-	public Project(string path)
+	public string Name { get; set; }
+	public string AssetsDirectory { get; set; }
+	public string CoreAssetsDirectory { get; set; }
+
+	public Project(string projectFilePath, string name, string assetsDirectory, string coreAssetsDirectory)
 	{
-		this.Path = path;
+		ArgumentNullException.ThrowIfNull(projectFilePath);
+		ArgumentNullException.ThrowIfNull(name);
+		ArgumentNullException.ThrowIfNull(assetsDirectory);
+		ArgumentNullException.ThrowIfNull(coreAssetsDirectory);
+
+		this.ProjectFilePath = projectFilePath;
+		this.Name = name;
+		this.AssetsDirectory = assetsDirectory;
+		this.CoreAssetsDirectory = coreAssetsDirectory;
 	}
 }

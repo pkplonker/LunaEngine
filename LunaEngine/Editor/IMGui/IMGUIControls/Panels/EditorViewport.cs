@@ -48,8 +48,9 @@ public class EditorViewport
 	}
 
 	public void Update(string panelName, IEditorCamera camera, IScene? scene, IInputController inputController,
-		IRenderer renderer)
+		IRenderer renderer, ref Vector2 currentSize)
 	{
+		currentSize = this.currentSize;
 		ImGui.Begin(panelName,
 			ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
 

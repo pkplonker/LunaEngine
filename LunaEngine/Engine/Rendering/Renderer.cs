@@ -154,7 +154,7 @@ public class Renderer : IRenderer
 		
 	}
 
-	public unsafe void DrawElements(PrimitiveType primativeType, uint indicesLength, DrawElementsType elementsTyp)
+	public unsafe void DrawElements(Silk.NET.OpenGL.PrimitiveType primativeType, uint indicesLength, DrawElementsType elementsTyp)
 	{
 		DrawCalls++;
 		Triangles += indicesLength / 3;
@@ -179,7 +179,7 @@ public class Renderer : IRenderer
 	{
 		if (material == null || material.ShaderGUID == null) return;
 		var shaderGuid = material.ShaderGUID;
-		if (ResourceManager.TryGetResourceByGuid<Shader>(shaderGuid, out var shader))
+		if (ResourceManager.Instance.TryGetResourceByGuid<Shader>(shaderGuid, out var shader))
 		{
 			UseShader(shader);
 			MaterialsUsed++;

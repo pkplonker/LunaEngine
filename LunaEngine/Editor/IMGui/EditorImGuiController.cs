@@ -19,8 +19,6 @@ using Shader = Engine.Shader;
 
 namespace Editor;
 
-
-
 public class EditorImGuiController : IDisposable
 {
 	private readonly IRenderer renderer;
@@ -36,6 +34,7 @@ public class EditorImGuiController : IDisposable
 	private bool openSettings;
 	private bool showDemo;
 	private readonly EditorViewport editorViewport;
+	private CreateProjectWindow createProjectWindow;
 	private const string EDITOR_CATEGORY = "EditorPanels";
 
 	public GameObject? SelectedGameObject
@@ -54,6 +53,7 @@ public class EditorImGuiController : IDisposable
 	public EditorImGuiController(GL gl, IView view, IInputContext input, IRenderer renderer, IEditorCamera editorCamera,
 		IInputController inputController)
 	{
+		createProjectWindow = new CreateProjectWindow();
 		this.renderer = renderer;
 		imGuiController = new ImGuiController(gl, view, input);
 		var io = ImGui.GetIO();
@@ -80,7 +80,7 @@ public class EditorImGuiController : IDisposable
 		controls.Add(new HierarchyPanel(this, inputController), true);
 		var inspector = new InspectorPanel(this);
 		controls.Add(inspector, true);
-		controls.Add(new ObjectPreviewPanel(inspector, inputController,renderer), true);
+		controls.Add(new ObjectPreviewPanel(inspector, inputController, renderer), true);
 		controls.Add(new ImGuiLoggerWindow(), true);
 		controls.Add(new MetadataPanel(), true);
 		foreach (var control in controls)
@@ -98,7 +98,10 @@ public class EditorImGuiController : IDisposable
 		imGuiController.Update(deltaTime);
 		ImGui.DockSpaceOverViewport(ImGui.GetMainViewport());
 		ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 0);
-		editorViewport.Update("Viewport", editorCamera, SceneController.ActiveScene, inputController, renderer);
+		var currentSize = CurrentSize;
+		editorViewport.Update("Viewport", editorCamera, SceneController.ActiveScene, inputController, renderer,
+			ref currentSize);
+		CurrentSize = currentSize;
 		ImGui.PopStyleVar();
 
 		foreach (IPanel control in controls.Where(x => x.Value).Select(x => x.Key))
@@ -119,17 +122,19 @@ public class EditorImGuiController : IDisposable
 
 	private void DrawMenu()
 	{
-		var testScenePath = Path.Combine(ProjectManager.ActiveProject.Directory, "assets/TestScene.SCENE");
+		//todo remove test scene reference
+		var testScenePath =
+			Path.Combine(ProjectManager.ActiveProject?.Directory ?? string.Empty, "assets/TestScene.SCENE");
 		if (ImGui.BeginMainMenuBar())
 		{
 			if (ImGui.BeginMenu("File"))
 			{
-				if (ImGui.MenuItem("New", "Ctrl+N"))
+				if (ImGui.MenuItem("New Project", "Ctrl+N"))
 				{
-					SceneController.ActiveScene = new Scene();
+					createProjectWindow.Create();
 				}
 
-				if (ImGui.MenuItem("Save", "Ctrl+S"))
+				if (ImGui.MenuItem("Save Scene", "Ctrl+S"))
 				{
 					var pu = new ProgressUpdater();
 					ProgressBar.Show("Opening Scene", progressUpdate: pu);
@@ -138,30 +143,14 @@ public class EditorImGuiController : IDisposable
 					ProgressBar.Close();
 				}
 
-				if (ImGui.MenuItem("Save As", "Ctrl+Shft+S"))
+				if (ImGui.MenuItem("Open Project", "Ctrl+N"))
 				{
-					//SaveAs();
-				}
-
-				if (ImGui.MenuItem("Open", "Ctrl+O"))
-				{
-					var pu = new ProgressUpdater();
-					ProgressBar.Show("Opening Scene", progressUpdate: pu);
-					Scene? result = new SceneDeserializer(testScenePath).Deserialize(ProgressUpdater: pu);
-					ProgressBar.Close();
-
-					if (result != null)
-					{
-						SceneController.ActiveScene = result;
-					}
+					ProjectManager.LoadProject(FileDialog
+						.OpenFileDialog(FileDialog.BuildFileDialogFilter(new List<string>()
+							{ProjectManager.ProjectExtension})).FirstOrDefault());
 				}
 
 				ImGui.EndMenu();
-			}
-
-			if (ImGui.MenuItem("Add Scene"))
-			{
-				//LoadScene();
 			}
 
 			if (ImGui.MenuItem("Settings"))
@@ -232,6 +221,29 @@ public class EditorImGuiController : IDisposable
 					ImGui.EndMenu();
 				}
 
+				if (ImGui.BeginMenu("Saves"))
+				{
+					if (ImGui.MenuItem("Open Scene"))
+					{
+						var pu = new ProgressUpdater();
+						ProgressBar.Show("Opening Scene", progressUpdate: pu);
+						Scene? result = new SceneDeserializer(testScenePath).Deserialize(ProgressUpdater: pu);
+						ProgressBar.Close();
+
+						if (result != null)
+						{
+							SceneController.ActiveScene = result;
+						}
+					}
+
+					if (ImGui.MenuItem("New Scene"))
+					{
+						SceneController.ActiveScene = new Scene();
+					}
+
+					ImGui.EndMenu();
+				}
+
 				if (ImGui.BeginMenu("Metadata"))
 				{
 					if (ImGui.MenuItem("Clear Metadata"))
@@ -242,7 +254,7 @@ public class EditorImGuiController : IDisposable
 							{
 								if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
 								{
-									var paths = ResourceManager.GetFilesFromFolder(
+									var paths = ResourceManager.Instance.GetFilesFromFolder(
 										ProjectManager.ActiveProject.Directory,
 										new[] {Metadata.MetadataFileExtension});
 									foreach (var path in paths)
@@ -250,7 +262,7 @@ public class EditorImGuiController : IDisposable
 										File.Delete(path);
 									}
 
-									ResourceManager.ClearMetadatas();
+									ResourceManager.Instance.ClearMetadatas();
 								}
 							});
 						}
@@ -263,7 +275,7 @@ public class EditorImGuiController : IDisposable
 
 					if (ImGui.MenuItem("Import All Metadata"))
 					{
-						ResourceManager.LoadMetadata();
+						ResourceManager.Instance.LoadMetadata(ProjectManager.ActiveProject?.Directory);
 					}
 
 					ImGui.EndMenu();
@@ -273,14 +285,15 @@ public class EditorImGuiController : IDisposable
 				{
 					if (ImGui.MenuItem("File Import Selection"))
 					{
-						FileImporter.Import();
+						FileDialog.Import();
 					}
 
 					if (ImGui.MenuItem("Import All Files"))
 					{
 						if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
 						{
-							FileImporter.ImportAllFromDirectory(ProjectManager.ActiveProject.Directory);
+							FileImporter.ImportAllFromDirectory(ProjectManager.ActiveProject?.Directory ??
+							                                    string.Empty);
 						}
 					}
 
@@ -299,6 +312,7 @@ public class EditorImGuiController : IDisposable
 			}
 
 			settingsPanel.Draw(renderer);
+			createProjectWindow.Draw();
 		}
 	}
 
