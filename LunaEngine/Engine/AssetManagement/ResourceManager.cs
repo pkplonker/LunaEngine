@@ -23,7 +23,7 @@ public class ResourceManager : IAssetManager
 		assetManager = new UserResourceManager(gl, directory);
 	}
 
-	private void OnProjectCreated(Project? obj)
+	private void OnProjectCreated(IProject? obj)
 	{
 		if (obj == null)
 		{
@@ -67,7 +67,7 @@ public class ResourceManager : IAssetManager
 		}
 	}
 
-	private void OnProjectChanged(Project? project)
+	private void OnProjectChanged(IProject? project)
 	{
 		ClearMetadatas();
 		if (project != null)

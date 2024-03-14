@@ -61,6 +61,7 @@ namespace Editor
 			window.IsClosing = false;
 			DecisionBox.Show("Save and close?", () =>
 			{
+				ProjectManager.ActiveProject?.Save();
 				EditorImGuiController.SaveScene();
 				ResourceManager.Instance.Save();
 				Logger.Flush();

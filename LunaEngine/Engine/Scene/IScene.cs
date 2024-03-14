@@ -10,4 +10,5 @@ public interface IScene : ITransform
 	void Update();
 	void Clear();
 	void AddGameObject(GameObject cameraGo);
+	string Path { get; set; }
 }

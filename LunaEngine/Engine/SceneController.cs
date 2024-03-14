@@ -7,7 +7,7 @@ public static class SceneController
 		ProjectManager.ProjectChanged += OnProjectChanged;
 	}
 
-	private static void OnProjectChanged(Project? obj)
+	private static void OnProjectChanged(IProject? obj)
 	{
 		ActiveScene = null;
 	}

@@ -8,17 +8,17 @@ namespace Engine;
 
 public static class ProjectManager
 {
-	private static Project? activeProject;
+	private static IProject? activeProject;
 	private const string TestProjectPath = @"S:\Users\pkplo\OneDrive\Desktop\LunaTestProject\LunaTestProject.json";
-	public static event Action<Project?> ProjectChanged;
-	public static event Action<Project?> ProjectCreated;
+	public static event Action<IProject?> ProjectChanged;
+	public static event Action<IProject?> ProjectCreated;
 
 	static ProjectManager()
 	{
 		//ActiveProject ??= new Project(TestProjectPath);
 	}
 
-	public static Project? ActiveProject
+	public static IProject? ActiveProject
 	{
 		get => activeProject;
 		set
@@ -49,7 +49,7 @@ public static class ProjectManager
 		var coreAssetsDirectory = Path.Combine(combinedPath, "core/assets");
 		Directory.CreateDirectory(coreAssetsDirectory);
 
-		var newProject = new Project(projectFilePath, name, assetsDirectory, coreAssetsDirectory);
+		IProject newProject = new Project(projectFilePath, name, assetsDirectory, coreAssetsDirectory);
 		ActiveProject = newProject;
 		File.WriteAllText(projectFilePath, JsonConvert.SerializeObject(newProject, Formatting.Indented));
 		Logger.Info($"New project created at {projectFilePath}");
@@ -59,7 +59,7 @@ public static class ProjectManager
 		return true;
 	}
 
-	public static Project? LoadProject(string? path)
+	public static IProject? LoadProject(string? path)
 	{
 		void Warning()
 		{
@@ -82,7 +82,17 @@ public static class ProjectManager
 		{
 			string json = File.ReadAllText(path);
 			Project? project = JsonConvert.DeserializeObject<Project>(json);
-			ActiveProject = project;
+
+			if (project != null)
+			{
+				ActiveProject = project;
+				if (!string.IsNullOrEmpty(project.ScenePath))
+				{
+					var scene = new SceneDeserializer(project.ScenePath).Deserialize();
+					SceneController.ActiveScene = scene;
+				}
+			}
+
 			return project;
 		}
 		catch (JsonException ex)

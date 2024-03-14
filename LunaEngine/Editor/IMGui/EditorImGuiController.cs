@@ -145,6 +145,7 @@ public class EditorImGuiController : IDisposable
 
 				if (ImGui.MenuItem("Save Project", "Ctrl+N"))
 				{
+					ProjectManager.ActiveProject?.Save();
 					SaveScene();
 					ResourceManager.Instance.Save();
 				}

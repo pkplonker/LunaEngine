@@ -18,7 +18,7 @@ public class ObjectPreviewPanel : IPanel
 	{
 		this.inputController = inputController;
 		inspector.SelectionChanged += InspectorOnSelectionChanged;
-		scene = new Scene();
+		scene = new Scene("Objet Preview Scene");
 		editorViewport = new EditorViewport();
 		materialSphere = new GameObject();
 		materialSphere.AddComponent<RotateComponent>();
