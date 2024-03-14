@@ -1,4 +1,4 @@
-﻿namespace Engine;
+namespace Engine;
 
 public class Project
 {
@@ -32,5 +32,10 @@ public class Project
 		this.Name = name;
 		this.AssetsDirectory = assetsDirectory;
 		this.CoreAssetsDirectory = coreAssetsDirectory;
+	}
+
+	public void Save()
+	{
+		File.WriteAllText(ProjectFilePath, JsonConvert.SerializeObject(this, Formatting.Indented));
 	}
 }
