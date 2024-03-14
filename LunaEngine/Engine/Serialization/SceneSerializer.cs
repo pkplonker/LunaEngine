@@ -27,10 +27,14 @@ namespace Engine
 			rootObject = new JObject();
 		}
 
-		public SceneSerializer(IScene scene, string absolutePath)
+		public SceneSerializer(IScene scene, string location)
 		{
+			if (scene == null) return;
 			this.scene = scene;
-			this.absolutePath = absolutePath;
+
+			this.absolutePath =
+				Path.Join(!string.IsNullOrEmpty(location) ? location : ProjectManager.ActiveProject.Directory,
+					scene.Name) + IScene.Extension;
 			rootObject = new JObject();
 		}
 

@@ -10,6 +10,7 @@ public class ProjectPanel : IPanel
 	public string PanelName { get; set; } = "Project";
 
 	private readonly IInputController inputController;
+	private byte[] renameBuffer = new byte[256];
 
 	public ProjectPanel(IInputController inputController)
 	{
@@ -32,8 +33,21 @@ public class ProjectPanel : IPanel
 #if DEVELOP
 			ImGui.TextWrapped($"Core Assets Directory: {project.CoreAssetsDirectory}");
 #endif
-		}
+			ImGui.Text($"Scene Name:");
+			if (SceneController.ActiveScene != null)
+			{
+				ImGui.SameLine();
+				Array.Clear(renameBuffer, 0, renameBuffer.Length);
+				System.Text.Encoding.UTF8.GetBytes(SceneController.ActiveScene.Name)
+					.CopyTo(renameBuffer, 0);
 
-		ImGui.End();
+				if (ImGui.InputText("##rename", renameBuffer, (uint) renameBuffer.Length))
+				{
+					SceneController.ActiveScene.Name = System.Text.Encoding.UTF8.GetString(renameBuffer).TrimEnd('\0');
+				}
+			}
+
+			ImGui.End();
+		}
 	}
 }

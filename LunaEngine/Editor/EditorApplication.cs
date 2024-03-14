@@ -150,19 +150,7 @@ namespace Editor
 						renderer.SetRenderTargetSize(SceneController.ActiveScene, new Vector2D<float>(size.X, size.Y));
 					}
 				};
-
-				if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
-				{
-					Scene? result =
-						new SceneDeserializer(
-								Path.Combine(ProjectManager.ActiveProject?.Directory, "assets/TestScene.SCENE"))
-							.Deserialize();
-
-					if (result != null)
-					{
-						SceneController.ActiveScene = result;
-					}
-				}
+				
 #if DEVELOP
 				ProjectManager.LoadProject(
 					@"S:\Users\pkplo\OneDrive\Desktop\LunaTestProject\LunaTestProject.lunaproject");

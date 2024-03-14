@@ -157,21 +157,34 @@ public class EditorImGuiController : IDisposable
 				{
 					var pu = new ProgressUpdater();
 					ProgressBar.Show("Opening Scene", progressUpdate: pu);
-					Scene? result = new SceneDeserializer(testScenePath).Deserialize(ProgressUpdater: pu);
-					ProgressBar.Close();
-
-					if (result != null)
+					var path = FileDialog.OpenFileDialog(FileDialog.BuildFileDialogFilter(new List<string>()
+						{IScene.Extension})).FirstOrDefault();
+					if (!string.IsNullOrEmpty(path))
 					{
-						SceneController.ActiveScene = result;
+						Scene? result = new SceneDeserializer(path).Deserialize(ProgressUpdater: pu);
+						ProgressBar.Close();
+
+						if (result != null)
+						{
+							SceneController.ActiveScene = result;
+						}
 					}
 				}
 
 				if (ImGui.MenuItem("Save Scene", "Ctrl+S"))
 				{
+					if (SceneController.ActiveScene == null) return;
 					var pu = new ProgressUpdater();
-					ProgressBar.Show("Opening Scene", progressUpdate: pu);
+					ProgressBar.Show("Saving Scene", progressUpdate: pu);
+					string location = string.Empty;
+
+					if (string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
+					{
+						location = FileDialog.SelectFolderDialog();
+					}
+
 					var result = new SceneSerializer(SceneController.ActiveScene,
-						testScenePath).Serialize(progress: pu);
+						string.IsNullOrEmpty(location) ? string.Empty : location).Serialize(progress: pu);
 					ProgressBar.Close();
 				}
 

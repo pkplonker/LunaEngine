@@ -43,6 +43,14 @@ namespace Engine
 				DeserializeGameObjects(rootObject, scene, ProgressUpdater);
 
 				SetParents();
+				try
+				{
+					scene.Name = Path.GetFileNameWithoutExtension(this.absolutePath);
+				}
+				catch (Exception e)
+				{
+					Logger.Warning($"Failed to set scene name from path: {this.absolutePath}");
+				}
 
 				return scene;
 			}
