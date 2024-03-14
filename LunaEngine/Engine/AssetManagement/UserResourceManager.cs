@@ -218,4 +218,20 @@ public class UserResourceManager : IAssetManager
 
 	public Metadata? GetResourceByName(string name) =>
 		metadatas.FirstOrDefault(x => x.Value.Path.Contains(name, StringComparison.OrdinalIgnoreCase)).Value;
+
+	public void Save()
+	{
+		shaders.WhereNotNull().Foreach(x => Save(x.Value));
+		materials.WhereNotNull().Foreach(x => Save(x.Value));
+	}
+
+	private void Save(IResource? resource)
+	{
+		if (resource == null) return;
+		var guid = resource.GUID;
+		if (metadatas.TryGetValue(guid, out var metadata))
+		{
+			ObjectSerializer.Serialize(resource, metadata.Path.MakeProjectAbsolute());
+		}
+	}
 }

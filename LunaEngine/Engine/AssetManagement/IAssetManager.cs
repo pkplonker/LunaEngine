@@ -10,4 +10,5 @@ public interface IAssetManager
 	bool MetadataExistsWithPath(string path);
 	void ClearMetadatas();
 	Metadata? GetResourceByName(string name);
+	void Save();
 }

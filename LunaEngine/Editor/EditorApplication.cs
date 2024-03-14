@@ -58,8 +58,16 @@ namespace Editor
 
 		private void OnClose()
 		{
-			imGuiController.Close();
-			renderer.Close();
+			window.IsClosing = false;
+			DecisionBox.Show("Save and close?", () =>
+			{
+				EditorImGuiController.SaveScene();
+				ResourceManager.Instance.Save();
+				Logger.Flush();
+				imGuiController?.Close();
+				renderer?.Close();
+				window.IsClosing = true;
+			});
 		}
 
 		public void Start()
@@ -150,7 +158,7 @@ namespace Editor
 						renderer.SetRenderTargetSize(SceneController.ActiveScene, new Vector2D<float>(size.X, size.Y));
 					}
 				};
-				
+
 #if DEVELOP
 				ProjectManager.LoadProject(
 					@"S:\Users\pkplo\OneDrive\Desktop\LunaTestProject\LunaTestProject.lunaproject");

@@ -101,4 +101,6 @@ public class ResourceManager : IAssetManager
 
 	public void ClearMetadatas() => assetManager?.ClearMetadatas();
 	public Metadata? GetResourceByName(string name) => assetManager?.GetResourceByName(name);
+
+	public void Save() => assetManager.Save();
 }

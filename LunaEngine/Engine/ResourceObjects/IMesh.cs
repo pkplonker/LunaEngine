@@ -1,8 +1,7 @@
 ﻿namespace Engine;
 
-public interface IMesh
+public interface IMesh : IResource
 {
-	Guid GUID { get; set; }
 	unsafe void SetupMesh();
 	void Render(Renderer renderer, RenderPassData data);
 }

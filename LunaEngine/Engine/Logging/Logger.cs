@@ -75,5 +75,12 @@ public static class Logger
 			Thread.Sleep(threadInterval);
 		}
 	}
-	
+
+	public static void Flush()
+	{
+		while (logQueue.Any())
+		{
+			
+		}
+	}
 }

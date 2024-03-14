@@ -143,6 +143,12 @@ public class EditorImGuiController : IDisposable
 							{ProjectManager.ProjectExtension})).FirstOrDefault());
 				}
 
+				if (ImGui.MenuItem("Save Project", "Ctrl+N"))
+				{
+					SaveScene();
+					ResourceManager.Instance.Save();
+				}
+
 				ImGui.EndMenu();
 			}
 
@@ -173,19 +179,7 @@ public class EditorImGuiController : IDisposable
 
 				if (ImGui.MenuItem("Save Scene", "Ctrl+S"))
 				{
-					if (SceneController.ActiveScene == null) return;
-					var pu = new ProgressUpdater();
-					ProgressBar.Show("Saving Scene", progressUpdate: pu);
-					string location = string.Empty;
-
-					if (string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
-					{
-						location = FileDialog.SelectFolderDialog();
-					}
-
-					var result = new SceneSerializer(SceneController.ActiveScene,
-						string.IsNullOrEmpty(location) ? string.Empty : location).Serialize(progress: pu);
-					ProgressBar.Close();
+					if (SaveScene()) return;
 				}
 
 				ImGui.EndMenu();
@@ -329,6 +323,23 @@ public class EditorImGuiController : IDisposable
 			settingsPanel.Draw(renderer);
 			createProjectWindow.Draw();
 		}
+	}
+
+	public static bool SaveScene()
+	{
+		var pu = new ProgressUpdater();
+		ProgressBar.Show("Saving Scene", progressUpdate: pu);
+		string location = string.Empty;
+
+		if (string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
+		{
+			location = FileDialog.SelectFolderDialog();
+		}
+
+		var result = new SceneSerializer(SceneController.ActiveScene,
+			string.IsNullOrEmpty(location) ? string.Empty : location).Serialize(progress: pu);
+		ProgressBar.Close();
+		return false;
 	}
 
 	public void Render()
