@@ -221,6 +221,7 @@ public class UserResourceManager : IAssetManager
 
 	public void Save()
 	{
+		shaders.WhereNotNull().Foreach(x => Save(x.Value));
 		materials.WhereNotNull().Foreach(x => Save(x.Value));
 	}
 

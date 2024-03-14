@@ -145,7 +145,6 @@ public class EditorImGuiController : IDisposable
 
 				if (ImGui.MenuItem("Save Project", "Ctrl+N"))
 				{
-					ProjectManager.ActiveProject?.Save();
 					SaveScene();
 					ResourceManager.Instance.Save();
 				}
@@ -330,17 +329,17 @@ public class EditorImGuiController : IDisposable
 	{
 		var pu = new ProgressUpdater();
 		ProgressBar.Show("Saving Scene", progressUpdate: pu);
-		S(pu);
-		ProgressBar.Close();
-		return false;
-	}
+		string location = string.Empty;
 
-	private static void S(ProgressUpdater pu = null)
-	{
-		
+		if (string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
+		{
+			location = FileDialog.SelectFolderDialog();
+		}
 
 		var result = new SceneSerializer(SceneController.ActiveScene,
 			string.IsNullOrEmpty(location) ? string.Empty : location).Serialize(progress: pu);
+		ProgressBar.Close();
+		return false;
 	}
 
 	public void Render()
