@@ -21,6 +21,7 @@ public abstract class Metadata
 	public Guid GUID { get; set; } = Guid.NewGuid();
 	public int MetaDataVersion { get; set; } = 1;
 	public MetadataType MetadataType { get; set; }
+	public string Name => System.IO.Path.GetFileName(Path);
 
 	public static Metadata Create(Type? type, string path)
 	{

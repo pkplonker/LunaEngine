@@ -103,4 +103,6 @@ public class ResourceManager : IAssetManager
 	public Metadata? GetResourceByName(string name) => assetManager?.GetResourceByName(name);
 
 	public void Save() => assetManager.Save();
+
+	public Metadata? GetMetadata(string path)=> assetManager?.GetMetadata(path);
 }

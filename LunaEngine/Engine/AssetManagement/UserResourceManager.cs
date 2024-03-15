@@ -224,6 +224,21 @@ public class UserResourceManager : IAssetManager
 		materials.WhereNotNull().Foreach(x => Save(x.Value));
 	}
 
+	public Metadata? GetMetadata(string path)
+	{
+		var relative = Path.GetRelativePath(ProjectManager.ActiveProject.Directory, path);
+
+		foreach (var md in metadatas.Values)
+		{
+			if (md.Path == relative)
+			{
+				return md;
+			}
+		}
+
+		return null;
+	}
+
 	private void Save(IResource? resource)
 	{
 		if (resource == null) return;

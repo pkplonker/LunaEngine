@@ -11,4 +11,5 @@ public interface IAssetManager
 	void ClearMetadatas();
 	Metadata? GetResourceByName(string name);
 	void Save();
+	Metadata? GetMetadata(string filterType);
 }
