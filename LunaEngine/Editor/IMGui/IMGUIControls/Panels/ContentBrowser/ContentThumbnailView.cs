@@ -98,8 +98,7 @@ public class ContentThumbnailView
 
 	private void DrawMetaData(string path)
 	{
-		Metadata? metadata;
-		metadata = Metadata.CreateMetadataFromMetadataFile(path);
+		var metadata = Metadata.CreateMetadataFromMetadataFile(path);
 
 		ImGui.BeginGroup();
 

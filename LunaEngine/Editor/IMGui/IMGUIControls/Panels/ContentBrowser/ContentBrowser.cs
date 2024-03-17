@@ -9,6 +9,8 @@ namespace Editor.Controls
 		public string PanelName { get; set; } = "Content Browser";
 		private string? currentPath;
 		private readonly ContentThumbnailView contentThumbnailView;
+		private readonly ContentTreeView contentTreeView;
+
 		private float leftPanelWidth = 500;
 		private int splitterThickness = 10;
 		private bool isDragging;
@@ -17,6 +19,8 @@ namespace Editor.Controls
 		public ContentBrowser()
 		{
 			contentThumbnailView = new ContentThumbnailView(this);
+			contentTreeView = new ContentTreeView(this);
+
 			ProjectManager.ProjectChanged += OnProjectChanged;
 		}
 
@@ -35,7 +39,9 @@ namespace Editor.Controls
 			ImGui.Begin(PanelName);
 
 			DrawTreePane();
+			ImGui.SameLine();
 			DrawSplitter();
+			ImGui.SameLine();
 			DrawThumbnailPane();
 
 			ImGui.End();
@@ -44,13 +50,12 @@ namespace Editor.Controls
 		private void DrawTreePane()
 		{
 			ImGui.BeginChild("LeftPanel", new Vector2(leftPanelWidth, 0), false);
-			DrawNavTree();
+			contentTreeView.Draw();
 			ImGui.EndChild();
 		}
 
 		private void DrawThumbnailPane()
 		{
-			ImGui.SameLine();
 			ImGui.BeginChild("RightPanel", new Vector2(0, 0), false);
 			contentThumbnailView.Draw();
 			ImGui.EndChild();
@@ -58,8 +63,6 @@ namespace Editor.Controls
 
 		private void DrawSplitter()
 		{
-			ImGui.SameLine();
-
 			Vector2 splitterPos = ImGui.GetCursorScreenPos();
 			ImGui.GetWindowDrawList().AddRectFilled(splitterPos,
 				new Vector2(splitterPos.X + splitterThickness, splitterPos.Y + ImGui.GetWindowHeight()),
@@ -79,15 +82,7 @@ namespace Editor.Controls
 			}
 
 			leftPanelWidth = Math.Max(leftPanelWidth, minimumWidth);
-			leftPanelWidth = Math.Min(leftPanelWidth, ImGui.GetWindowWidth() - (minimumWidth*2));
-		}
-
-		private void DrawNavTree()
-		{
-			for (int i = 0; i < 10; i++)
-			{
-				ImGui.Text("Test");
-			}
+			leftPanelWidth = Math.Min(leftPanelWidth, ImGui.GetWindowWidth() - (minimumWidth * 2));
 		}
 
 		public static bool IsHigherUpInTheDirectory(string? path1, string? path2)
