@@ -7,11 +7,11 @@ namespace Editor.Controls
 	public class ContentBrowser : IPanel
 	{
 		public string PanelName { get; set; } = "Content Browser";
-		private string? currentPath;
+		public string? CurrentPath { get; set; } = string.Empty;
 		private readonly ContentThumbnailView contentThumbnailView;
 		private readonly ContentTreeView contentTreeView;
 
-		private float leftPanelWidth = 500;
+		private float leftPanelWidth = 375;
 		private int splitterThickness = 10;
 		private bool isDragging;
 		private float minimumWidth = 100;
@@ -26,14 +26,14 @@ namespace Editor.Controls
 
 		private void OnProjectChanged(IProject? obj)
 		{
-			contentThumbnailView.CurrentPath = obj?.Directory ?? string.Empty;
+			CurrentPath = obj?.Directory ?? string.Empty;
 		}
 
 		public void Draw(IRenderer renderer)
 		{
-			if (string.IsNullOrEmpty(currentPath))
+			if (string.IsNullOrEmpty(CurrentPath))
 			{
-				currentPath = ProjectManager.ActiveProject?.Directory ?? string.Empty;
+				CurrentPath = ProjectManager.ActiveProject?.Directory ?? string.Empty;
 			}
 
 			ImGui.Begin(PanelName);
@@ -82,7 +82,13 @@ namespace Editor.Controls
 			}
 
 			leftPanelWidth = Math.Max(leftPanelWidth, minimumWidth);
-			leftPanelWidth = Math.Min(leftPanelWidth, ImGui.GetWindowWidth() - (minimumWidth * 2));
+			
+			//this stops the windowWidth being a bit wonky before everything is fully constructed
+			float windowWidth = ImGui.GetWindowWidth();
+			if (windowWidth > minimumWidth)
+			{
+				leftPanelWidth = Math.Min(leftPanelWidth, windowWidth - (minimumWidth * 2));
+			}
 		}
 
 		public static bool IsHigherUpInTheDirectory(string? path1, string? path2)

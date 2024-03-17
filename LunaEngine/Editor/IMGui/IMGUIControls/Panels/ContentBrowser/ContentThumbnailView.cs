@@ -8,7 +8,6 @@ namespace Editor.Controls;
 public class ContentThumbnailView
 {
 	private ContentBrowser contentBrowser;
-	public string? CurrentPath { get; set; } = string.Empty;
 	private const float ORIGINAL_PADDING = 30;
 	private Vector2 imageSize => new(size, size);
 	private int size = ORIGINAL_SIZE;
@@ -18,9 +17,9 @@ public class ContentThumbnailView
 	public ContentThumbnailView(ContentBrowser contentBrowser)
 	{
 		this.contentBrowser = contentBrowser;
-		if (string.IsNullOrEmpty(CurrentPath))
+		if (string.IsNullOrEmpty(contentBrowser.CurrentPath))
 		{
-			CurrentPath = ProjectManager.ActiveProject?.Directory ?? string.Empty;
+			contentBrowser.CurrentPath = ProjectManager.ActiveProject?.Directory ?? string.Empty;
 		}
 	}
 
@@ -40,30 +39,30 @@ public class ContentThumbnailView
 
 	private void DrawContent()
 	{
-		if (string.IsNullOrEmpty(CurrentPath))
+		if (string.IsNullOrEmpty(contentBrowser.CurrentPath))
 		{
 			return;
 		}
 
 		ImGui.BeginChild("##ContentArea");
-		var parent = Directory.GetParent(CurrentPath)?.FullName;
+		var parent = Directory.GetParent(contentBrowser.CurrentPath)?.FullName;
 
 		var numberPerRow = NumberPerRow();
 		var count = 0;
-		var directories = Directory.GetDirectories(CurrentPath).ToList();
+		var directories = Directory.GetDirectories(contentBrowser.CurrentPath).ToList();
 
 		if (ContentBrowser.IsHigherUpInTheDirectory(ProjectManager.ActiveProject?.Directory, parent))
 		{
 			directories.Insert(0, null);
 		}
 
-		foreach (var dir in directories.Where(dir => dir != CurrentPath))
+		foreach (var dir in directories.Where(dir => dir != contentBrowser.CurrentPath))
 		{
 			CalculatePosition(count++, numberPerRow);
 			DrawFolder(dir);
 		}
 
-		foreach (var file in Directory.GetFiles(CurrentPath)
+		foreach (var file in Directory.GetFiles(contentBrowser.CurrentPath)
 			         .Where(x => Path.GetExtension(x).Trim('.') == Metadata.MetadataFileExtension))
 		{
 			CalculatePosition(count++, numberPerRow);
@@ -117,7 +116,7 @@ public class ContentThumbnailView
 
 	private void DrawFolder(string? path)
 	{
-		var displayPath = path ?? Directory.GetParent(CurrentPath)?.FullName ?? "Unknown";
+		var displayPath = path ?? Directory.GetParent(contentBrowser.CurrentPath)?.FullName ?? "Unknown";
 		var iconPath = IconLoader.LoadIcon(FileExtensions.MakeAbsolute(GetIcon(null)));
 
 		ImGui.BeginGroup();
@@ -126,7 +125,7 @@ public class ContentThumbnailView
 		{
 			if (displayPath != null)
 			{
-				CurrentPath = displayPath;
+				contentBrowser.CurrentPath = displayPath;
 			}
 		}
 
