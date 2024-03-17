@@ -1,57 +1,61 @@
 ﻿using ImGuiNET;
-using System.IO;
-using System.Collections.Generic;
 using Engine;
 
-namespace Editor.Controls;
-
-public class ContentTreeView
+namespace Editor.Controls
 {
-	private readonly ContentBrowser contentBrowser;
-
-	public ContentTreeView(ContentBrowser contentBrowser)
+	public class ContentTreeView
 	{
-		this.contentBrowser = contentBrowser;
-	}
+		private readonly ContentBrowser contentBrowser;
 
-	public void Draw()
-	{
-		var dir = ProjectManager.ActiveProject?.Directory;
-		if (!string.IsNullOrEmpty(ProjectManager.ActiveProject?.Directory))
+		public ContentTreeView(ContentBrowser contentBrowser)
+
 		{
-			DrawDirectoryTree(dir);
+			ArgumentNullException.ThrowIfNull(contentBrowser);
+			this.contentBrowser = contentBrowser;
 		}
-	}
 
-	private void DrawDirectoryTree(string directoryPath)
-	{
-		foreach (var directory in new DirectoryInfo(directoryPath).GetDirectories())
+		public void Draw()
 		{
-			var isDirectoryEmpty = !directory.GetDirectories().Any();
-			bool nodeOpen = false;
-
-			if (isDirectoryEmpty)
+			var dir = ProjectManager.ActiveProject?.Directory;
+			if (!string.IsNullOrEmpty(dir))
 			{
-				ImGui.Bullet();
-				ImGui.SameLine();
-				if (ImGui.Selectable(directory.Name, false, ImGuiSelectableFlags.None))
-				{
-					contentBrowser.CurrentPath = directory.FullName;
-				}
+				DrawDirectoryTree(dir);
 			}
-			else
+		}
+
+		private void DrawDirectoryTree(string directoryPath)
+		{
+			foreach (var directory in new DirectoryInfo(directoryPath).GetDirectories())
 			{
-				nodeOpen = ImGui.TreeNodeEx(directory.Name, ImGuiTreeNodeFlags.None);
+				var isDirectoryEmpty = !directory.GetDirectories().Any();
+				bool isCurrentPath = contentBrowser.CurrentPath.StartsWith(directory.FullName);
+				bool nodeOpen = false;
 
-				if (ImGui.IsItemClicked())
+				ImGuiTreeNodeFlags nodeFlags = isCurrentPath ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None;
+
+				if (isDirectoryEmpty)
 				{
-					contentBrowser.CurrentPath = directory.FullName;
+					ImGui.Bullet();
+					ImGui.SameLine();
+					if (ImGui.Selectable(directory.Name, contentBrowser.CurrentPath == directory.FullName))
+					{
+						contentBrowser.CurrentPath = directory.FullName;
+					}
 				}
-
-				if (nodeOpen)
+				else
 				{
-					DrawDirectoryTree(directory.FullName);
-					ImGui.TreePop();
+					nodeOpen = ImGui.TreeNodeEx(directory.Name, nodeFlags);
+
+					if (ImGui.IsItemClicked())
+					{
+						contentBrowser.CurrentPath = directory.FullName;
+					}
+
+					if (nodeOpen)
+					{
+						DrawDirectoryTree(directory.FullName);
+						ImGui.TreePop();
+					}
 				}
 			}
 		}

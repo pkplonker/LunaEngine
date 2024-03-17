@@ -16,6 +16,8 @@ public class ContentThumbnailView
 
 	public ContentThumbnailView(ContentBrowser contentBrowser)
 	{
+		ArgumentNullException.ThrowIfNull(contentBrowser);
+
 		this.contentBrowser = contentBrowser;
 		if (string.IsNullOrEmpty(contentBrowser.CurrentPath))
 		{
