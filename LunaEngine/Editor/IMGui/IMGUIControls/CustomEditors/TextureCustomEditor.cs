@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Editor.Properties;
 using Engine;
 using Engine.Logging;
@@ -76,7 +77,30 @@ public class TexturePropertyDrawIntercept : IPropertyDrawInterceptStrategy
 
 	public void DrawEmptyContent(IMemberAdapter? memberInfo, object component)
 	{
-		if (ImGui.ImageButton("Select Texture", IconLoader.LoadIcon(@"resources/icons/AddTexture.png".MakeAbsolute()),
-			    imageSize)) { }
+		if (ImGui.ImageButton("Select Texture",
+			    IconLoader.LoadIcon(@"resources/icons/AddTexture.png".MakeAbsolute()),
+			    imageSize))
+		{
+			Logger.Info("Pressed select texture");
+		}
+
+		if (ImGui.BeginDragDropTarget())
+		{
+			unsafe
+			{
+				var payload = ImGui.AcceptDragDropPayload("Metadata");
+				if (payload.NativePtr != (void*) IntPtr.Zero)
+				{
+					var guidPtr = ImGui.AcceptDragDropPayload("Metadata").Data;
+					Guid guid = Marshal.PtrToStructure<Guid>(guidPtr);
+					if(ResourceManager.Instance.GuidIsType<Texture>(guid))
+					{
+						memberInfo?.SetValue(component,guid);
+					}
+				}
+			}
+
+			ImGui.EndDragDropTarget();
+		}
 	}
 }

@@ -107,6 +107,17 @@ public class ContentThumbnailView
 			Logger.Info($"Selected {path.MakeProjectRelative()}");
 		}
 
+		if (metadata != null && ImGui.BeginDragDropSource(ImGuiDragDropFlags.None))
+		{
+			using var payload = new UnmanagedGuid(metadata.GUID);
+			unsafe
+			{
+				ImGui.SetDragDropPayload("Metadata", payload.Ptr, (uint) sizeof(Guid));
+			}
+
+			ImGui.EndDragDropSource();
+		}
+
 		ImGui.PushItemWidth(size);
 		ImGui.TextWrapped(metadata?.Name ?? "Unknown");
 		ImGui.PopItemWidth();

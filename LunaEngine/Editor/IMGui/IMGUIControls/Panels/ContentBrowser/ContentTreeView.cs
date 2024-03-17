@@ -27,7 +27,7 @@ public class ContentTreeView
 	{
 		foreach (var directory in new DirectoryInfo(directoryPath).GetDirectories())
 		{
-			var isDirectoryEmpty = directory.GetDirectories().Length == 0;
+			var isDirectoryEmpty = !directory.GetDirectories().Any();
 			bool nodeOpen = false;
 
 			if (isDirectoryEmpty)

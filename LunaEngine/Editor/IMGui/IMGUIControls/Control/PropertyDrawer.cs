@@ -165,7 +165,7 @@ public class PropertyDrawer : IPropertyDrawer
 	}
 
 	private bool ProcessResourceGuidAttribute<T>(object? component, IMemberAdapter memberInfo, int depth,
-		IPropertyDrawInterceptStrategy? interceptStrategy, Type type) where T : class
+		IPropertyDrawInterceptStrategy? interceptStrategy, Type type) where T : class, IResource
 	{
 		ResourceManager.Instance.TryGetResourceByGuid<T>((Guid) memberInfo.GetValue(component),
 			out var obj);

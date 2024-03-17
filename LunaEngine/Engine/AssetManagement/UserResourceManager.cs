@@ -67,9 +67,9 @@ public class UserResourceManager : IAssetManager
 		return paths;
 	}
 
-	public bool TryGetResourceByGuid<T>(Guid guid, out T? result) where T : class
+	public bool TryGetResourceByGuid<T>(Guid guid, out T result) where T : class, IResource
 	{
-		result = null;
+		result = default(T);
 
 		if (!metadatas.TryGetValue(guid, out var metadata))
 		{
