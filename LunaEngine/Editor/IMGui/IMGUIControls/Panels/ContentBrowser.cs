@@ -1,25 +1,17 @@
 ﻿using Engine;
 using ImGuiNET;
+using System.Numerics;
 
 namespace Editor.Controls
 {
 	public class ContentBrowser : IPanel
 	{
 		public string PanelName { get; set; } = "Content Browser";
-		private string? currentPath = string.Empty;
+		private string? currentPath;
 		private readonly ContentThumbnailView contentThumbnailView;
-
-		public void Draw(IRenderer renderer)
-		{
-			if (string.IsNullOrEmpty(currentPath))
-			{
-				currentPath = ProjectManager.ActiveProject?.Directory ?? string.Empty;
-			}
-
-			ImGui.Begin(PanelName);
-			contentThumbnailView.Draw();
-			ImGui.End();
-		}
+		private float leftPanelWidth = 150;
+		private int splitterThickness = 10;
+		private bool isDragging;
 
 		public ContentBrowser()
 		{
@@ -30,6 +22,86 @@ namespace Editor.Controls
 		private void OnProjectChanged(IProject? obj)
 		{
 			contentThumbnailView.CurrentPath = obj?.Directory ?? string.Empty;
+		}
+
+		public void Draw(IRenderer renderer)
+		{
+			if (string.IsNullOrEmpty(currentPath))
+			{
+				currentPath = ProjectManager.ActiveProject?.Directory ?? string.Empty;
+			}
+
+			ImGui.Begin(PanelName);
+
+			DrawTreePane();
+			DrawSplitter();
+			DrawThumbnailPane();
+
+			ImGui.End();
+		}
+
+		private void DrawTreePane()
+		{
+			ImGui.BeginChild("LeftPanel", new Vector2(leftPanelWidth, 0), true);
+			DrawNavTree();
+			ImGui.EndChild();
+		}
+
+		private void DrawThumbnailPane()
+		{
+			ImGui.SameLine();
+			ImGui.BeginChild("RightPanel", new Vector2(0, 0), true);
+			contentThumbnailView.Draw();
+			ImGui.EndChild();
+		}
+
+		private void DrawSplitter()
+		{
+			ImGui.SameLine();
+
+			Vector2 splitterPos = ImGui.GetCursorScreenPos();
+			ImGui.GetWindowDrawList().AddRectFilled(splitterPos,
+				new Vector2(splitterPos.X + splitterThickness, splitterPos.Y + ImGui.GetWindowHeight()),
+				ImGui.GetColorU32(ImGuiCol.Button));
+
+			ImGui.SetCursorScreenPos(splitterPos);
+			ImGui.InvisibleButton("##splitter", new Vector2(splitterThickness, ImGui.GetWindowHeight()));
+
+			if (ImGui.IsItemActive() && ImGui.IsMouseDragging(0))
+			{
+				leftPanelWidth += ImGui.GetIO().MouseDelta.X;
+				isDragging = true;
+			}
+			else if (!ImGui.IsMouseDragging(0) && isDragging)
+			{
+				isDragging = false;
+			}
+
+			leftPanelWidth = Math.Max(50, leftPanelWidth);
+			leftPanelWidth = Math.Min(ImGui.GetWindowWidth() - 50, leftPanelWidth);
+		}
+
+		private void DrawLeftPanel()
+		{
+			ImGui.BeginChild("LeftPanel", new Vector2(leftPanelWidth, 0), true);
+			DrawNavTree();
+			ImGui.EndChild();
+		}
+
+		private void DrawRightPanel()
+		{
+			ImGui.SameLine();
+			ImGui.BeginChild("RightPanel", new Vector2(0, 0), false);
+			contentThumbnailView.Draw();
+			ImGui.EndChild();
+		}
+
+		private void DrawNavTree()
+		{
+			for (int i = 0; i < 10; i++)
+			{
+				ImGui.Text("Test");
+			}
 		}
 
 		public static bool IsHigherUpInTheDirectory(string? path1, string? path2)

@@ -120,8 +120,7 @@ public class ImGuiLoggerWindow : ILogSink, IPanel
 		var dataCount = data.Count();
 		ImGui.SameLine();
 		ImGui.Text($"Count: {dataCount} / {logQueue.Count}");
-		ImGui.BeginChild("LogScrollingRegion", new Vector2(-scrollWidth, -ImGui.GetFrameHeightWithSpacing()), false,
-			ImGuiWindowFlags.NoScrollbar);
+		ImGui.BeginChild("LogScrollingRegion", new Vector2(-scrollWidth, -ImGui.GetFrameHeightWithSpacing()));
 		var height = GetLogMessageHeight("Test");
 		var availableHeight = ImGui.GetContentRegionAvail().Y;
 		var elementsToShow = (int) (availableHeight / height);
