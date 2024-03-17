@@ -9,9 +9,10 @@ namespace Editor.Controls
 		public string PanelName { get; set; } = "Content Browser";
 		private string? currentPath;
 		private readonly ContentThumbnailView contentThumbnailView;
-		private float leftPanelWidth = 150;
+		private float leftPanelWidth = 500;
 		private int splitterThickness = 10;
 		private bool isDragging;
+		private float minimumWidth = 100;
 
 		public ContentBrowser()
 		{
@@ -42,7 +43,7 @@ namespace Editor.Controls
 
 		private void DrawTreePane()
 		{
-			ImGui.BeginChild("LeftPanel", new Vector2(leftPanelWidth, 0), true);
+			ImGui.BeginChild("LeftPanel", new Vector2(leftPanelWidth, 0), false);
 			DrawNavTree();
 			ImGui.EndChild();
 		}
@@ -50,7 +51,7 @@ namespace Editor.Controls
 		private void DrawThumbnailPane()
 		{
 			ImGui.SameLine();
-			ImGui.BeginChild("RightPanel", new Vector2(0, 0), true);
+			ImGui.BeginChild("RightPanel", new Vector2(0, 0), false);
 			contentThumbnailView.Draw();
 			ImGui.EndChild();
 		}
@@ -77,23 +78,8 @@ namespace Editor.Controls
 				isDragging = false;
 			}
 
-			leftPanelWidth = Math.Max(50, leftPanelWidth);
-			leftPanelWidth = Math.Min(ImGui.GetWindowWidth() - 50, leftPanelWidth);
-		}
-
-		private void DrawLeftPanel()
-		{
-			ImGui.BeginChild("LeftPanel", new Vector2(leftPanelWidth, 0), true);
-			DrawNavTree();
-			ImGui.EndChild();
-		}
-
-		private void DrawRightPanel()
-		{
-			ImGui.SameLine();
-			ImGui.BeginChild("RightPanel", new Vector2(0, 0), false);
-			contentThumbnailView.Draw();
-			ImGui.EndChild();
+			leftPanelWidth = Math.Max(leftPanelWidth, minimumWidth);
+			leftPanelWidth = Math.Min(leftPanelWidth, ImGui.GetWindowWidth() - (minimumWidth*2));
 		}
 
 		private void DrawNavTree()

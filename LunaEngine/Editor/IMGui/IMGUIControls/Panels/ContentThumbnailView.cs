@@ -32,7 +32,7 @@ public class ContentThumbnailView
 
 	private void DrawNav()
 	{
-		ImGui.Text("Thumbnail size");
+		ImGui.Text("Thumbnail size:");
 		ImGui.SetNextItemWidth(150);
 		ImGui.SameLine();
 		ImGui.SliderInt("##sizeSlider", ref size, 50, 500);
