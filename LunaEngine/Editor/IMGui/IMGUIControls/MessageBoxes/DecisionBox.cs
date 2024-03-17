@@ -8,21 +8,28 @@ public class DecisionBox
 	private static bool isVisible = false;
 	private static string message = string.Empty;
 	private static Action onConfirm = () => { };
+	private static Action onReject = () => { };
 	private static Action onCancel = () => { };
+	private static bool showCancel;
 
-	public static void Show(string message, Action onConfirm, Action onCancel)
+	public static void Show(string message, Action onConfirm, Action onReject, bool showCancel = false,
+		Action? onCancel = null)
 	{
 		DecisionBox.message = message;
 		DecisionBox.onConfirm = onConfirm;
-		DecisionBox.onCancel = onCancel;
+		DecisionBox.onCancel = onCancel ?? (() => { });
+		DecisionBox.onReject = onReject;
+		DecisionBox.showCancel = showCancel;
 		isVisible = true;
 	}
+
 	public static void Show(string message, Action onConfirm)
 	{
 		DecisionBox.message = message;
 		DecisionBox.onConfirm = onConfirm;
 		isVisible = true;
 	}
+
 	public static void Show(string message)
 	{
 		DecisionBox.message = message;
@@ -48,9 +55,20 @@ public class DecisionBox
 
 			if (ImGui.Button("No"))
 			{
-				onCancel?.Invoke();
+				onReject?.Invoke();
 				isVisible = false;
 				Close();
+			}
+
+			if (showCancel)
+			{
+				ImGui.SameLine();
+				if (ImGui.Button("Cancel"))
+				{
+					onCancel?.Invoke();
+					isVisible = false;
+					Close();
+				}
 			}
 
 			ImGui.EndPopup();
@@ -67,5 +85,6 @@ public class DecisionBox
 		ImGui.CloseCurrentPopup();
 		onConfirm = () => { };
 		onCancel = () => { };
+		onReject = () => { };
 	}
 }

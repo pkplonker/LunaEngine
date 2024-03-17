@@ -58,17 +58,22 @@ namespace Editor
 
 		private void OnClose()
 		{
-			window.IsClosing = false;
-			DecisionBox.Show("Save and close?", () =>
+			void Close()
 			{
-				ProjectManager.ActiveProject?.Save();
-				EditorImGuiController.SaveScene();
-				ResourceManager.Instance.Save();
 				Logger.Flush();
 				imGuiController?.Close();
 				renderer?.Close();
 				window.IsClosing = true;
-			});
+			}
+
+			window.IsClosing = false;
+			DecisionBox.Show("Save Project?", () =>
+			{
+				ProjectManager.ActiveProject?.Save();
+				EditorImGuiController.SaveScene();
+				ResourceManager.Instance.Save();
+				Close();
+			}, () => Close(), showCancel: true);
 		}
 
 		public void Start()
@@ -134,8 +139,7 @@ namespace Editor
 				{
 					if (inputState == IInputController.InputState.Pressed && key == IInputController.Key.Escape)
 					{
-						DecisionBox.Show("Are you sure you want to do close?",
-							() => { window.Close(); });
+						OnClose();
 						return true;
 					}
 
