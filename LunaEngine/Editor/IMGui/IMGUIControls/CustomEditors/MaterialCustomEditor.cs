@@ -30,7 +30,7 @@ public class MaterialCustomEditor : BaseCustomEditor
 		else
 		{
 			interceptStrategy.DrawEmpty(++depth, CustomEditorBase.GenerateName<Material>(memberInfo), propertyDrawer,
-				memberInfo, component);
+				memberInfo, component,() => DropTarget<Material>(component, memberInfo));
 		}
 	}
 }

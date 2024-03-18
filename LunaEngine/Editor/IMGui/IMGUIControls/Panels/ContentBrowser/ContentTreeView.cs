@@ -5,9 +5,9 @@ namespace Editor.Controls
 {
 	public class ContentTreeView
 	{
-		private readonly ContentBrowser contentBrowser;
+		private readonly IContentBrowser contentBrowser;
 
-		public ContentTreeView(ContentBrowser contentBrowser)
+		public ContentTreeView(IContentBrowser contentBrowser)
 
 		{
 			ArgumentNullException.ThrowIfNull(contentBrowser);

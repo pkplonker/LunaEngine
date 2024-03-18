@@ -24,10 +24,11 @@ public class Material : IMaterial
 	[ResourceGuid(typeof(Shader))]
 	public Guid ShaderGUID { get; set; }
 
+
 	[Inspectable]
 	[ResourceGuid(typeof(Texture))]
 	public Guid AlbedoGUID { get; set; }
-	
+
 	[Inspectable]
 	[ResourceGuid(typeof(Texture))]
 	public Guid NormalGUID { get; set; }

@@ -5,7 +5,7 @@ namespace Engine;
 
 [Inspectable(false)]
 [Serializable]
-public class GameObject
+public class GameObject : IInspectable
 {
 	public string Name = "DEFAULT_NAME";
 	private HashSet<IComponent> components = new();
@@ -13,7 +13,7 @@ public class GameObject
 	[Serializable(false)]
 	public Transform Transform { get; private set; }
 
-	public bool Enabled = true;
+	public bool Enabled { get; set; } = true;
 
 	public GameObject()
 	{

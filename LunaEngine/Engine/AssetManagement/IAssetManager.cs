@@ -18,4 +18,5 @@ public interface IAssetManager
 	void ReloadAll();
 
 	Metadata? GetMetadata(Guid guid);
+	bool TryGetResourceByGuid(Guid guid, out IResource? result);
 }

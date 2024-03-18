@@ -2,7 +2,7 @@
 
 namespace Engine;
 
-public interface ITexture : IResource
+public interface ITexture : IResource, IInspectable
 {
 	uint Width { get; }
 	uint Height { get; }

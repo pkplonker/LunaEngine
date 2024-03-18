@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
+using Editor.IMGUIControls;
 using Editor.Properties;
 using Engine;
 using Engine.Logging;
@@ -9,24 +10,24 @@ using Texture = Engine.Texture;
 namespace Editor.Controls;
 
 [CustomEditor(typeof(Engine.Texture))]
-public class TextureCustomEditor : ICustomEditor
+public class TextureCustomEditor : BaseCustomEditor
 {
 	private static PropertyDrawer? propertyDrawer;
 	private static IPropertyDrawInterceptStrategy? interceptStrategy;
 
-	public void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, IRenderer renderer, int depth)
+	public override void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, IRenderer renderer, int depth)
 	{
 		TextureCustomEditor.propertyDrawer ??= new PropertyDrawer(renderer);
 		TextureCustomEditor.interceptStrategy ??= new TexturePropertyDrawIntercept(component, memberInfo);
 		if (propertyValue != null)
 		{
-			TextureCustomEditor.propertyDrawer.DrawObject(propertyValue, depth, TextureCustomEditor.interceptStrategy,
-				CustomEditorBase.GenerateName<Texture>(memberInfo));
+			propertyDrawer.DrawObject(propertyValue, depth, interceptStrategy,
+				CustomEditorBase.GenerateName<Texture>(memberInfo), () => DropTarget<Texture>(component, memberInfo));
 		}
 		else
 		{
 			interceptStrategy.DrawEmpty(++depth, CustomEditorBase.GenerateName<Texture>(memberInfo), propertyDrawer,
-				memberInfo, component);
+				memberInfo, component,() => DropTarget<Texture>(component, memberInfo));
 		}
 	}
 }

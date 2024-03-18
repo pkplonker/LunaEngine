@@ -22,9 +22,9 @@ public class HierarchyPanel : IPanel
 
 	public void Draw(IRenderer renderer)
 	{
-		if (inputController.IsKeyHeld(IInputController.Key.F2))
+		if (inputController.IsKeyHeld(IInputController.Key.F2) && controller.SelectedObject is GameObject go)
 		{
-			renamingHelper.RequestRename(controller.SelectedGameObject);
+			renamingHelper.RequestRename(go);
 		}
 
 		ImGui.Begin(PanelName);
@@ -108,7 +108,7 @@ public class HierarchyPanel : IPanel
 	{
 		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags.OpenOnArrow |
 		                           ImGuiTreeNodeFlags.SpanAvailWidth;
-		var selected = go == controller.SelectedGameObject;
+		var selected = go == controller.SelectedObject;
 		if (selected)
 		{
 			flags |= ImGuiTreeNodeFlags.Selected;
@@ -159,6 +159,6 @@ public class HierarchyPanel : IPanel
 
 	private void HandleGameObjectSelection(GameObject go)
 	{
-		controller.SelectedGameObject = go;
+		controller.SelectedObject = go;
 	}
 }

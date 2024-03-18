@@ -21,9 +21,8 @@ public class ObjectPreviewPanel : IPanel
 		scene = new Scene("Objet Preview Scene");
 		editorViewport = new EditorViewport();
 		materialSphere = new GameObject();
-		materialSphere.AddComponent<RotateComponent>();
-		// materialSphere.AddComponent<MeshFilter>()
-		// 	?.AddMesh(ResourceManager.GetMesh(@"Resources/models/TestSphere.obj".MakeAbsolute()));
+		materialSphere.AddComponent<MeshRenderer>();
+	
 		scene.ActiveCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, 1024 / (float) 1024);
 		renderer.AddScene(scene, new Vector2D<uint>((uint) 0, (uint) 0), out var rt, true);
 

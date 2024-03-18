@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using Editor.Properties;
 using Engine;
+using Engine.Logging;
 using ImGuiNET;
 
 namespace Editor.IMGUIControls;
@@ -15,6 +16,7 @@ public abstract class BaseCustomEditor : ICustomEditor
 		if (component == null || memberInfo == null) return;
 		if (ImGui.BeginDragDropTarget())
 		{
+			Logger.Info($"hit {component}");
 			var payload = ImGui.AcceptDragDropPayload("Metadata");
 			if (payload.NativePtr != (void*) IntPtr.Zero)
 			{

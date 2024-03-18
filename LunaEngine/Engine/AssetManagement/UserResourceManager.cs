@@ -313,6 +313,63 @@ public class UserResourceManager : IAssetManager
 		return md;
 	}
 
+	public bool TryGetResourceByGuid(Guid guid, out IResource? result)
+	{
+		result = null;
+
+		if (!metadatas.TryGetValue(guid, out var metadata))
+		{
+			return false;
+		}
+
+		switch (metadata.MetadataType)
+		{
+			case MetadataType.Texture:
+				if (textures.TryGetValue(guid, out var texture))
+				{
+					result = texture;
+				}
+
+				break;
+
+			case MetadataType.Material:
+				if (materials.TryGetValue(guid, out var material))
+				{
+					result = material;
+				}
+
+				break;
+
+			case MetadataType.Shader:
+				if (shaders.TryGetValue(guid, out var shader))
+				{
+					result = shader;
+				}
+
+				break;
+
+			case MetadataType.Mesh:
+				if (meshes.TryGetValue(guid, out var mesh))
+				{
+					result = mesh;
+				}
+
+				break;
+
+			default:
+				Logger.Warning($"Unsupported resource type for GUID: {guid}");
+				return false;
+		}
+
+		if (result == null)
+		{
+			Logger.Warning($"Resource not found for GUID: {guid}");
+			return false;
+		}
+
+		return true;
+	}
+
 	private void Save(IResource? resource)
 	{
 		if (resource == null) return;

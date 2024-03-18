@@ -29,7 +29,7 @@ public class ShaderCustomEditor : BaseCustomEditor
 		else
 		{
 			interceptStrategy.DrawEmpty(++depth, CustomEditorBase.GenerateName<Shader>(memberInfo),
-				propertyDrawer, memberInfo, component);
+				propertyDrawer, memberInfo, component,() => DropTarget<Shader>(component, memberInfo));
 		}
 	}
 

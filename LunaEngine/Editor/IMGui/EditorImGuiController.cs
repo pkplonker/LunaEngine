@@ -21,7 +21,7 @@ using Texture = Engine.Texture;
 
 namespace Editor;
 
-public class EditorImGuiController : IDisposable
+public class EditorImGuiController : IDisposable, ISelectableObjectController
 {
 	private readonly IRenderer renderer;
 	private ImGuiController imGuiController;
@@ -29,8 +29,8 @@ public class EditorImGuiController : IDisposable
 	private Dictionary<IPanel, bool> controls = new();
 	private readonly IEditorCamera editorCamera;
 	private const string iniSaveLocation = "imgui.ini";
-	public event Action<GameObject?> GameObjectSelectionChanged;
-	private GameObject? selectedGameObject;
+	public event Action<IInspectable?> GameObjectSelectionChanged;
+	private IInspectable? selectedGameObject;
 	private readonly IInputController inputController;
 	private SettingsPanel settingsPanel;
 	private bool openSettings;
@@ -39,7 +39,7 @@ public class EditorImGuiController : IDisposable
 	private CreateProjectWindow createProjectWindow;
 	private const string EDITOR_CATEGORY = "EditorPanels";
 
-	public GameObject? SelectedGameObject
+	public IInspectable? SelectedObject
 	{
 		get => selectedGameObject;
 		set
@@ -47,7 +47,7 @@ public class EditorImGuiController : IDisposable
 			if (value != selectedGameObject)
 			{
 				selectedGameObject = value;
-				GameObjectSelectionChanged?.Invoke(SelectedGameObject);
+				GameObjectSelectionChanged?.Invoke(SelectedObject);
 			}
 		}
 	}
@@ -86,7 +86,7 @@ public class EditorImGuiController : IDisposable
 		controls.Add(new ImGuiLoggerWindow(), true);
 		controls.Add(new MetadataPanel(), true);
 		controls.Add(new ProjectPanel(inputController), true);
-		controls.Add(new ContentBrowser(), true);
+		controls.Add(new ContentBrowser(this), true);
 
 		foreach (var control in controls)
 		{

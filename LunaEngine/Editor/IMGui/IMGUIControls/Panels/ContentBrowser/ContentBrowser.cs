@@ -4,8 +4,9 @@ using System.Numerics;
 
 namespace Editor.Controls
 {
-	public class ContentBrowser : IPanel
+	public class ContentBrowser : IPanel, IContentBrowser
 	{
+		private readonly ISelectableObjectController iSelectableObjectController;
 		public string PanelName { get; set; } = "Content Browser";
 		public string? CurrentPath { get; set; } = string.Empty;
 		private readonly ContentThumbnailView contentThumbnailView;
@@ -16,9 +17,10 @@ namespace Editor.Controls
 		private bool isDragging;
 		private float minimumWidth = 100;
 
-		public ContentBrowser()
+		public ContentBrowser(ISelectableObjectController iSelectableObjectController)
 		{
-			contentThumbnailView = new ContentThumbnailView(this);
+			this.iSelectableObjectController = iSelectableObjectController;
+			contentThumbnailView = new ContentThumbnailView(this,iSelectableObjectController);
 			contentTreeView = new ContentTreeView(this);
 
 			ProjectManager.ProjectChanged += OnProjectChanged;

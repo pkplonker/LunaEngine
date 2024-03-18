@@ -2,7 +2,7 @@
 
 namespace Engine;
 
-public interface IShader : IResource
+public interface IShader : IResource, IInspectable
 {
 	string ShaderPath { get; }
 	void Use();

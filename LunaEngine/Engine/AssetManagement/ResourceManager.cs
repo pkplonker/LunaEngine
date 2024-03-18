@@ -100,6 +100,19 @@ public class ResourceManager : IAssetManager
 		return false;
 	}
 
+	public bool TryGetResourceByGuid(Guid guid, out IResource? result)
+	{
+		result = default;
+
+		if (assetManager.TryGetResourceByGuid(guid, out IResource? resource))
+		{
+			result = resource;
+			return true;
+		}
+
+		return false;
+	}
+
 	public bool AddMetaData(Metadata metadata) => assetManager?.AddMetaData(metadata) ?? false;
 
 	public IEnumerable<Metadata> GetMetadata(MetadataType? filterType = null) =>

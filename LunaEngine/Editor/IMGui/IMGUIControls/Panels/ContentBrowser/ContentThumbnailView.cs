@@ -7,18 +7,20 @@ namespace Editor.Controls;
 
 public class ContentThumbnailView
 {
-	private ContentBrowser contentBrowser;
+	private IContentBrowser contentBrowser;
+	private readonly ISelectableObjectController iSelectableObjectController;
 	private const float ORIGINAL_PADDING = 30;
 	private Vector2 imageSize => new(size, size);
 	private int size = ORIGINAL_SIZE;
 	private const int ORIGINAL_SIZE = 200;
 	private float padding => ORIGINAL_PADDING / ((float) ORIGINAL_SIZE / size);
 
-	public ContentThumbnailView(ContentBrowser contentBrowser)
+	public ContentThumbnailView(IContentBrowser contentBrowser, ISelectableObjectController iSelectableObjectController)
 	{
 		ArgumentNullException.ThrowIfNull(contentBrowser);
 
 		this.contentBrowser = contentBrowser;
+		this.iSelectableObjectController = iSelectableObjectController;
 	}
 
 	public void Draw()
@@ -104,6 +106,18 @@ public class ContentThumbnailView
 			    IconLoader.LoadIcon(FileExtensions.MakeAbsolute(GetIcon(metadata))), imageSize))
 		{
 			Logger.Info($"Selected {path.MakeProjectRelative()}");
+
+			// if (ResourceManager.Instance.TryGetResourceByGuid(guid, out var resource))
+			// {
+			// 	if (resource is IInspectable inspectable)
+			// 	{
+			// 		iSelectableObjectController.SelectedObject = inspectable;
+			// 	}
+			// 	else
+			// 	{
+			// 		iSelectableObjectController.SelectedObject = null;
+			// 	}
+			// }
 		}
 
 		if (metadata != null && ImGui.BeginDragDropSource(ImGuiDragDropFlags.None))
