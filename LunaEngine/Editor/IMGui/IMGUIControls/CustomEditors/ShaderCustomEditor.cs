@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Numerics;
+using Editor.IMGUIControls;
 using Editor.Properties;
 using Engine;
 using Engine.Logging;
@@ -10,19 +11,19 @@ using Shader = Engine.Shader;
 namespace Editor.Controls;
 
 [CustomEditor(typeof(Engine.Shader))]
-public class ShaderCustomEditor : ICustomEditor
+public class ShaderCustomEditor : BaseCustomEditor
 {
 	private static PropertyDrawer? propertyDrawer;
 	private static IPropertyDrawInterceptStrategy? interceptStrategy;
 
-	public void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, IRenderer renderer, int depth)
+	public override void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, IRenderer renderer, int depth)
 	{
 		propertyDrawer ??= new PropertyDrawer(renderer);
 		interceptStrategy ??= new ShaderPropertyDrawIntercept();
 		if (propertyValue != null)
 		{
 			propertyDrawer.DrawObject(propertyValue, depth, interceptStrategy,
-				CustomEditorBase.GenerateName<Shader>(memberInfo));
+				CustomEditorBase.GenerateName<Shader>(memberInfo), () => DropTarget<Shader>(component, memberInfo));
 		}
 		else
 		{
@@ -38,12 +39,6 @@ public class ShaderCustomEditor : ICustomEditor
 			if (memberInfo.Name == "ShaderPath")
 			{
 				ImGui.Text($"{memberInfo.Name.GetFormattedName()} : {((string) memberInfo?.GetValue(component)).MakeProjectRelative()}");
-				ImGui.SameLine();
-				if (ImGui.Button($"Replace##{memberInfo.Name}"))
-				{
-					ReplaceShader(memberInfo);
-				}
-
 				return true;
 			}
 

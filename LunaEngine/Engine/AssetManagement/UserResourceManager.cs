@@ -67,9 +67,9 @@ public class UserResourceManager : IAssetManager
 		return paths;
 	}
 
-	public bool TryGetResourceByGuid<T>(Guid guid, out T? result) where T : class
+	public bool TryGetResourceByGuid<T>(Guid guid, out T result) where T : class, IResource
 	{
-		result = null;
+		result = default(T);
 
 		if (!metadatas.TryGetValue(guid, out var metadata))
 		{
@@ -222,6 +222,33 @@ public class UserResourceManager : IAssetManager
 	public void Save()
 	{
 		materials.WhereNotNull().Foreach(x => Save(x.Value));
+	}
+
+	public Metadata? GetMetadata(string path)
+	{
+		var relative = Path.GetRelativePath(ProjectManager.ActiveProject.Directory, path);
+
+		foreach (var md in metadatas.Values)
+		{
+			if (md.Path == relative)
+			{
+				return md;
+			}
+		}
+
+		return null;
+	}
+
+	public bool GetMetadata(Guid guid, out Metadata? metadata)
+	{
+		metadata = null;
+		if (metadatas.TryGetValue(guid, out var md))
+		{
+			metadata = md;
+			return true;
+		}
+
+		return false;
 	}
 
 	private void Save(IResource? resource)

@@ -84,12 +84,20 @@ public class ResourceManager : IAssetManager
 	public IEnumerable<string> GetFilesFromFolder(string? path, IEnumerable<string> ext = null) =>
 		assetManager.GetFilesFromFolder(path, ext);
 
-	public bool TryGetResourceByGuid<T>(Guid guid, out T? result) where T : class
+	public bool TryGetResourceByGuid<T>(Guid guid, out T result) where T : class, IResource
 	{
-		T? r = null;
-		var res = assetManager?.TryGetResourceByGuid<T>(guid, out r) ?? false;
-		result = r ?? null;
-		return res;
+		result = default;
+
+		if (assetManager.TryGetResourceByGuid<T>(guid, out var resource))
+		{
+			if (resource is T)
+			{
+				result = resource;
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public bool AddMetaData(Metadata metadata) => assetManager?.AddMetaData(metadata) ?? false;
@@ -103,4 +111,20 @@ public class ResourceManager : IAssetManager
 	public Metadata? GetResourceByName(string name) => assetManager?.GetResourceByName(name);
 
 	public void Save() => assetManager.Save();
+
+	public Metadata? GetMetadata(string path) => assetManager?.GetMetadata(path);
+
+	public bool GuidIsType<T>(Guid guid) where T : class, IResource => TryGetResourceByGuid<T>(guid, out var _);
+
+	public bool GetMetadata(Guid guid, out Metadata? metadata)
+	{
+		metadata = null;
+		if (assetManager?.GetMetadata(guid, out var md) ?? false)
+		{
+			metadata = md;
+			return true;
+		}
+
+		return false;
+	}
 }

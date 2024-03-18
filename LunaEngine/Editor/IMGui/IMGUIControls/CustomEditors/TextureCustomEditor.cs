@@ -1,12 +1,9 @@
-﻿using System.Linq.Expressions;
-using System.Numerics;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
 using Editor.Properties;
 using Engine;
 using Engine.Logging;
 using ImGuiNET;
-using Silk.NET.Core;
-using Silk.NET.OpenGL;
-using StbImageSharp;
 using Texture = Engine.Texture;
 
 namespace Editor.Controls;
@@ -20,7 +17,7 @@ public class TextureCustomEditor : ICustomEditor
 	public void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, IRenderer renderer, int depth)
 	{
 		TextureCustomEditor.propertyDrawer ??= new PropertyDrawer(renderer);
-		TextureCustomEditor.interceptStrategy ??= new TexturePropertyDrawIntercept();
+		TextureCustomEditor.interceptStrategy ??= new TexturePropertyDrawIntercept(component, memberInfo);
 		if (propertyValue != null)
 		{
 			TextureCustomEditor.propertyDrawer.DrawObject(propertyValue, depth, TextureCustomEditor.interceptStrategy,
@@ -37,6 +34,14 @@ public class TextureCustomEditor : ICustomEditor
 public class TexturePropertyDrawIntercept : IPropertyDrawInterceptStrategy
 {
 	Vector2 imageSize = new(175, 175);
+	private object owner;
+	private IMemberAdapter ownerMemberInfo;
+
+	public TexturePropertyDrawIntercept(object component, IMemberAdapter? memberInfo)
+	{
+		this.owner = component;
+		this.ownerMemberInfo = memberInfo;
+	}
 
 	public bool Draw(object component, IMemberAdapter memberInfo, IRenderer renderer)
 	{
@@ -52,7 +57,7 @@ public class TexturePropertyDrawIntercept : IPropertyDrawInterceptStrategy
 
 				IntPtr texturePtr = new IntPtr(textureId);
 
-				ImGui.Image(texturePtr, imageSize);
+				DrawTexture(ownerMemberInfo, owner, texturePtr);
 
 				ImGui.Text($"{tex.Width} x {tex.Height}");
 
@@ -74,9 +79,37 @@ public class TexturePropertyDrawIntercept : IPropertyDrawInterceptStrategy
 		return false;
 	}
 
+	private void DrawTexture(IMemberAdapter? memberInfo, object component, IntPtr texturePtr)
+	{
+		if (ImGui.ImageButton("Select Texture", texturePtr, imageSize))
+		{
+			Logger.Info("Pressed select texture");
+		}
+
+		HandleDragDrop(memberInfo, component);
+	}
+
+	private static unsafe void HandleDragDrop(IMemberAdapter? memberInfo, object component)
+	{
+		if (ImGui.BeginDragDropTarget())
+		{
+			var payload = ImGui.AcceptDragDropPayload("Metadata");
+			if (payload.NativePtr != (void*) IntPtr.Zero)
+			{
+				var guidPtr = ImGui.AcceptDragDropPayload("Metadata").Data;
+				Guid guid = Marshal.PtrToStructure<Guid>(guidPtr);
+				if (ResourceManager.Instance.GuidIsType<Texture>(guid))
+				{
+					memberInfo?.SetValue(component, guid);
+				}
+			}
+
+			ImGui.EndDragDropTarget();
+		}
+	}
+
 	public void DrawEmptyContent(IMemberAdapter? memberInfo, object component)
 	{
-		if (ImGui.ImageButton("Select Texture", IconLoader.LoadIcon(@"resources/icons/AddTexture.png".MakeAbsolute()),
-			    imageSize)) { }
+		DrawTexture(memberInfo, component, IconLoader.LoadIcon(@"resources/icons/AddTexture.png".MakeAbsolute()));
 	}
 }

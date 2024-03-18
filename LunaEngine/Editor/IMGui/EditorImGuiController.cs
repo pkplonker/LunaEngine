@@ -84,6 +84,7 @@ public class EditorImGuiController : IDisposable
 		controls.Add(new ImGuiLoggerWindow(), true);
 		controls.Add(new MetadataPanel(), true);
 		controls.Add(new ProjectPanel(inputController), true);
+		controls.Add(new ContentBrowser(), true);
 
 		foreach (var control in controls)
 		{

@@ -17,15 +17,15 @@ public class PropertyDrawer : IPropertyDrawer
 	}
 
 	public void DrawObject(object component, int depth, IPropertyDrawInterceptStrategy? interceptStrategy,
-		string? name = null)
+		string? name = null, Action handleDragDrop = null)
 	{
 		var type = component.GetType();
 		CreateNestedHeader(depth, name ?? type.Name,
-			() => ProcessProps(component, type, depth, interceptStrategy));
+			() => ProcessProps(component, type, depth, interceptStrategy), handleDragDrop);
 	}
 
 	public void CreateNestedHeader(int depth,
-		string? name, Action content)
+		string? name, Action content, Action handleDragDrop = null)
 	{
 		if (depth > 0)
 		{
@@ -44,6 +44,8 @@ public class PropertyDrawer : IPropertyDrawer
 
 		if (ImGui.CollapsingHeader(name, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.Framed))
 		{
+			handleDragDrop?.Invoke();
+
 			content?.Invoke();
 		}
 
@@ -165,7 +167,7 @@ public class PropertyDrawer : IPropertyDrawer
 	}
 
 	private bool ProcessResourceGuidAttribute<T>(object? component, IMemberAdapter memberInfo, int depth,
-		IPropertyDrawInterceptStrategy? interceptStrategy, Type type) where T : class
+		IPropertyDrawInterceptStrategy? interceptStrategy, Type type) where T : class, IResource
 	{
 		ResourceManager.Instance.TryGetResourceByGuid<T>((Guid) memberInfo.GetValue(component),
 			out var obj);
