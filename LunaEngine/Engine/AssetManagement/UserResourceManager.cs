@@ -239,6 +239,18 @@ public class UserResourceManager : IAssetManager
 		return null;
 	}
 
+	public bool GetMetadata(Guid guid, out Metadata? metadata)
+	{
+		metadata = null;
+		if (metadatas.TryGetValue(guid, out var md))
+		{
+			metadata = md;
+			return true;
+		}
+
+		return false;
+	}
+
 	private void Save(IResource? resource)
 	{
 		if (resource == null) return;

@@ -114,8 +114,17 @@ public class ResourceManager : IAssetManager
 
 	public Metadata? GetMetadata(string path) => assetManager?.GetMetadata(path);
 
-	public bool GuidIsType<T>(Guid guid) where T : class, IResource
+	public bool GuidIsType<T>(Guid guid) where T : class, IResource => TryGetResourceByGuid<T>(guid, out var _);
+
+	public bool GetMetadata(Guid guid, out Metadata? metadata)
 	{
-		return TryGetResourceByGuid<T>(guid, out var _);
+		metadata = null;
+		if (assetManager?.GetMetadata(guid, out var md) ?? false)
+		{
+			metadata = md;
+			return true;
+		}
+
+		return false;
 	}
 }

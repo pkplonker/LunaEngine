@@ -39,12 +39,6 @@ public class ShaderCustomEditor : BaseCustomEditor
 			if (memberInfo.Name == "ShaderPath")
 			{
 				ImGui.Text($"{memberInfo.Name.GetFormattedName()} : {((string) memberInfo?.GetValue(component)).MakeProjectRelative()}");
-				ImGui.SameLine();
-				if (ImGui.Button($"Replace##{memberInfo.Name}"))
-				{
-					ReplaceShader(memberInfo);
-				}
-
 				return true;
 			}
 

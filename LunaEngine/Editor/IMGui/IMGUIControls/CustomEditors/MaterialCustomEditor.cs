@@ -39,6 +39,24 @@ public class MaterialPropertyDrawIntercept : IPropertyDrawInterceptStrategy
 {
 	public bool Draw(object component, IMemberAdapter memberInfo, IRenderer renderer)
 	{
+		if (memberInfo.Name == "GUID")
+		{
+			try
+			{
+				if (ResourceManager.Instance.GetMetadata((Guid) memberInfo.GetValue(component), out var metadata))
+				{
+					ImGui.Text("Material Path");
+					ImGui.SameLine();
+					ImGui.Text(metadata.Path);
+					return true;
+				}
+			}
+			catch (Exception e)
+			{
+				Logger.Warning($"Failed to convert guid for UI {e}");
+			}
+		}
+
 		return false;
 	}
 

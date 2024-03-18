@@ -31,7 +31,7 @@ namespace Editor.Controls
 				bool isCurrentPath = contentBrowser.CurrentPath.StartsWith(directory.FullName);
 				bool nodeOpen = false;
 
-				ImGuiTreeNodeFlags nodeFlags = isCurrentPath ? ImGuiTreeNodeFlags.DefaultOpen : ImGuiTreeNodeFlags.None;
+				ImGuiTreeNodeFlags nodeFlags = isCurrentPath ? ImGuiTreeNodeFlags.DefaultOpen  : ImGuiTreeNodeFlags.None;
 
 				if (isDirectoryEmpty)
 				{
