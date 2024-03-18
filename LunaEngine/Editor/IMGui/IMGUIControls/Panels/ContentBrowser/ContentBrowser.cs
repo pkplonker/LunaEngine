@@ -22,6 +22,10 @@ namespace Editor.Controls
 			contentTreeView = new ContentTreeView(this);
 
 			ProjectManager.ProjectChanged += OnProjectChanged;
+			if (string.IsNullOrEmpty(CurrentPath))
+			{
+				CurrentPath = ProjectManager.ActiveProject?.Directory ?? string.Empty;
+			}
 		}
 
 		private void OnProjectChanged(IProject? obj)

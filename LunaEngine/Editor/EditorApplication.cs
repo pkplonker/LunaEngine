@@ -147,10 +147,8 @@ namespace Editor
 				});
 
 				editorCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, 16f / 9f);
-
 				imGuiController = new EditorImGuiController(renderer.Gl, window, inputContext, renderer, editorCamera,
 					inputController);
-
 				// hack
 				SceneController.OnActiveSceneChanged += (newScene, oldScene) =>
 				{
@@ -168,6 +166,7 @@ namespace Editor
 				ProjectManager.LoadProject(
 					@"S:\Users\pkplo\OneDrive\Desktop\LunaTestProject\LunaTestProject.lunaproject");
 #endif
+
 				try
 				{
 					window.SetWindowIcon(

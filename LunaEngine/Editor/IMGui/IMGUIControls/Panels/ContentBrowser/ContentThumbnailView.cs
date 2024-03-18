@@ -19,10 +19,6 @@ public class ContentThumbnailView
 		ArgumentNullException.ThrowIfNull(contentBrowser);
 
 		this.contentBrowser = contentBrowser;
-		if (string.IsNullOrEmpty(contentBrowser.CurrentPath))
-		{
-			contentBrowser.CurrentPath = ProjectManager.ActiveProject?.Directory ?? string.Empty;
-		}
 	}
 
 	public void Draw()
