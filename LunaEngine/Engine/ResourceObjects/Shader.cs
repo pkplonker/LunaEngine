@@ -15,7 +15,6 @@ public class Shader : IDisposable, IShader
 	[Serializable(false)]
 	public string ShaderPath { get; private set; }
 
-	[Inspectable(false)]
 	[Serializable(true)]
 	public Guid GUID { get; private set; } = Guid.NewGuid();
 

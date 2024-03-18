@@ -105,11 +105,9 @@ public static class GameObjectFactory
 
 		var mf = go.AddComponent<MeshFilter>();
 		var mr = go.AddComponent<MeshRenderer>();
-		Material? material = null;
-		Mesh? mesh = null;
 
 		if (ResourceManager.Instance.TryGetResourceByGuid(materialMetadata.GUID,
-			    out material))
+			    out Material? material))
 		{
 			if (material != null)
 			{
@@ -124,7 +122,7 @@ public static class GameObjectFactory
 		}
 
 		if (ResourceManager.Instance.TryGetResourceByGuid(meshMetaData.GUID,
-			    out mesh))
+			    out Mesh? mesh))
 		{
 			if (mesh != null)
 			{

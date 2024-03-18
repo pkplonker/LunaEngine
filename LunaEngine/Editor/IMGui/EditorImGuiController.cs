@@ -12,10 +12,12 @@ using Silk.NET.Windowing;
 using Debug = System.Diagnostics.Debug;
 using File = System.IO.File;
 using Material = Engine.Material;
+using Mesh = Engine.Mesh;
 using Metadata = Engine.Metadata;
 using ProgressBar = Editor.Controls.ProgressBar;
 using Scene = Engine.Scene;
 using Shader = Engine.Shader;
+using Texture = Engine.Texture;
 
 namespace Editor;
 
@@ -242,21 +244,41 @@ public class EditorImGuiController : IDisposable
 						}
 					}
 
-					if (ImGui.MenuItem("Show progress"))
-					{
-						ProgressBar.Show("Test Title");
-					}
-
-					if (ImGui.MenuItem("CancelProgress"))
-					{
-						ProgressBar.Close();
-					}
-
 					ImGui.EndMenu();
 				}
 
-				if (ImGui.BeginMenu("Metadata"))
+				if (ImGui.BeginMenu("Resources"))
 				{
+					if (ImGui.BeginMenu("Reload Resources"))
+					{
+						if (ImGui.MenuItem("All"))
+						{
+							ResourceManager.Instance.ReloadAll();
+						}
+
+						if (ImGui.MenuItem("Shaders"))
+						{
+							ResourceManager.Instance.ReleaseAll<Shader>();
+						}
+
+						if (ImGui.MenuItem("Mesh"))
+						{
+							ResourceManager.Instance.ReleaseAll<Mesh>();
+						}
+
+						if (ImGui.MenuItem("Texture"))
+						{
+							ResourceManager.Instance.ReleaseAll<Texture>();
+						}
+
+						if (ImGui.MenuItem("Material"))
+						{
+							ResourceManager.Instance.ReleaseAll<Material>();
+						}
+
+						ImGui.EndMenu();
+					}
+
 					if (ImGui.MenuItem("Clear Metadata"))
 					{
 						try

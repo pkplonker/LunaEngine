@@ -94,10 +94,9 @@ public abstract class Metadata
 		var json = File.ReadAllText(path);
 		var jObject = JObject.Parse(json);
 
-		// Assuming "Type" is the enum property name in JSON
 		if (!Enum.TryParse<MetadataType>(jObject["MetadataType"]?.ToString(), out var metadataType))
 		{
-			return null; // Or handle unknown/invalid type
+			return null;
 		}
 
 		switch (metadataType)
@@ -111,7 +110,7 @@ public abstract class Metadata
 			case MetadataType.Mesh:
 				return JsonConvert.DeserializeObject<MeshMetadata>(json);
 			default:
-				return null; // Or handle unknown type
+				return null;
 		}
 	}
 }
