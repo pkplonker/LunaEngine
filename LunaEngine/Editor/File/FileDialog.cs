@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using Engine;
 using Engine.Logging;
 
@@ -66,5 +67,16 @@ public static class FileDialog
 		int result = paths.Count(FileImporter.Import);
 
 		Logger.Info($"Imported {result}/{paths.Count()} assets");
+	}
+	public static void OpenFileWithDefaultApp(string filePath)
+	{
+		try
+		{
+			Process.Start(new ProcessStartInfo(filePath) { UseShellExecute = true });
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine("An error occurred: " + ex.Message);
+		}
 	}
 }

@@ -95,8 +95,9 @@ public class ContentThumbnailView
 
 	private void DrawMetaData(string path)
 	{
-		var metadata = Metadata.CreateMetadataFromMetadataFile(path);
-
+		var name = Path.GetFileNameWithoutExtension(path);
+		var guid = new Guid(name);
+		var metadata = ResourceManager.Instance.GetMetadata(guid);
 		ImGui.BeginGroup();
 
 		if (metadata != null && ImGui.ImageButton($"{path}",

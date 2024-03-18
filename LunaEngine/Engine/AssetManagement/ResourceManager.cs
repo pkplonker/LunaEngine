@@ -84,7 +84,7 @@ public class ResourceManager : IAssetManager
 	public IEnumerable<string> GetFilesFromFolder(string? path, IEnumerable<string> ext = null) =>
 		assetManager.GetFilesFromFolder(path, ext);
 
-	public bool TryGetResourceByGuid<T>(Guid guid, out T result) where T : class, IResource
+	public bool TryGetResourceByGuid<T>(Guid guid, out T result) where T : class?, IResource?
 	{
 		result = default;
 
@@ -127,4 +127,10 @@ public class ResourceManager : IAssetManager
 
 		return false;
 	}
+
+	public void ReleaseResource<T>(Guid guid) where T : class, IResource => assetManager?.ReleaseResource<T>(guid);
+	public void ReleaseAll<T>() where T : class, IResource => assetManager?.ReleaseAll<T>();
+	public void ReloadAll() => assetManager?.ReloadAll();
+
+	public Metadata? GetMetadata(Guid guid) => assetManager?.GetMetadata(guid);
 }

@@ -251,6 +251,68 @@ public class UserResourceManager : IAssetManager
 		return false;
 	}
 
+	public void ReleaseResource<T>(Guid guid) where T : class, IResource
+	{
+		if (typeof(T) == typeof(Material))
+		{
+			materials.Remove(guid, out _);
+		}
+		else if (typeof(T) == typeof(Texture))
+		{
+			textures.Remove(guid, out _);
+		}
+		else if (typeof(T) == typeof(Shader))
+		{
+			shaders.Remove(guid, out _);
+		}
+		else if (typeof(T) == typeof(Mesh))
+		{
+			meshes.Remove(guid, out _);
+		}
+		else
+		{
+			Logger.Warning($"ReleaseResource: Unsupported resource type {typeof(T)}");
+		}
+	}
+
+	public void ReleaseAll<T>() where T : class, IResource
+	{
+		if (typeof(T) == typeof(Material))
+		{
+			materials.Clear();
+		}
+		else if (typeof(T) == typeof(Texture))
+		{
+			textures.Clear();
+		}
+		else if (typeof(T) == typeof(Shader))
+		{
+			shaders.Clear();
+		}
+		else if (typeof(T) == typeof(Mesh))
+		{
+			meshes.Clear();
+		}
+		else
+		{
+			Logger.Warning($"ReleaseResource: Unsupported resource type {typeof(T)}");
+		}
+	}
+
+	public void ReloadAll()
+	{
+		ReleaseAll<Mesh>();
+		ReleaseAll<Shader>();
+		ReleaseAll<Material>();
+		ReleaseAll<Texture>();
+	}
+
+	public Metadata? GetMetadata(Guid guid)
+	{
+		metadatas.TryGetValue(guid, out var md);
+		return md;
+	}
+
 	private void Save(IResource? resource)
 	{
 		if (resource == null) return;
