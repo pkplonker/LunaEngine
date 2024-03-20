@@ -19,4 +19,5 @@ public interface IAssetManager
 
 	Metadata? GetMetadata(Guid guid);
 	bool TryGetResourceByGuid(Guid guid, out IResource? result);
+	Type? GetTypeFromGuid(Guid guid);
 }

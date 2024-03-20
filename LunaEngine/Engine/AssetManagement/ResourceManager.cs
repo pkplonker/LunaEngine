@@ -146,4 +146,6 @@ public class ResourceManager : IAssetManager
 	public void ReloadAll() => assetManager?.ReloadAll();
 
 	public Metadata? GetMetadata(Guid guid) => assetManager?.GetMetadata(guid);
+
+	public Type? GetTypeFromGuid(Guid guid) => assetManager?.GetTypeFromGuid(guid);
 }

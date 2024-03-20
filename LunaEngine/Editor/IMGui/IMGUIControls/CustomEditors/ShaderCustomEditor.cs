@@ -1,56 +1,41 @@
-﻿using System.Linq.Expressions;
-using System.Numerics;
-using Editor.IMGUIControls;
+﻿using Editor.IMGUIControls;
 using Editor.Properties;
 using Engine;
 using Engine.Logging;
 using ImGuiNET;
-using Silk.NET.OpenGL;
 using Shader = Engine.Shader;
-using Texture = Engine.Texture;
 
 namespace Editor.Controls;
 
 [CustomEditor(typeof(Engine.Shader))]
 public class ShaderCustomEditor : BaseCustomEditor
 {
-	private static PropertyDrawer? propertyDrawer;
-
 	public override void Draw(object component, object owningObject, IMemberAdapter memberInfoToSetObjectOnOwner,
 		IRenderer renderer, int depth = 0)
 	{
-		if (component == owningObject)
-		{
-			Logger.Error("er");
-		}
-
-		propertyDrawer ??= new PropertyDrawer(renderer);
-		if (component != null)
-		{
-			propertyDrawer.CreateNestedHeader(depth,
-				CustomEditorBase.GenerateName<Shader>(memberInfoToSetObjectOnOwner),
-				() => DrawInternal(component as Shader, owningObject, memberInfoToSetObjectOnOwner),
-				() => DropTarget<Shader>(owningObject, memberInfoToSetObjectOnOwner));
-		}
-		else DrawEmpty();
+		Draw<Shader>(component, owningObject, memberInfoToSetObjectOnOwner,
+			renderer, depth);
 	}
 
-	private void DrawInternal(Shader? component, object owningObject, IMemberAdapter memberInfoToSetObjectOnOwner)
+	protected override void DropProps(object component, IMemberAdapter memberInfoToSetObjectOnOwner,
+		object owningObject,
+		int depth = 0)
 	{
-		if (!string.IsNullOrEmpty(component.ShaderPath))
+		if (component is not Shader shader) return;
+		if (!string.IsNullOrEmpty(shader.ShaderPath))
 		{
 			ImGui.Text(
-				$"{nameof(component.ShaderPath).GetFormattedName()} : {component.ShaderPath.MakeProjectRelative()}");
-			if (ImGui.Button("Edit"))
+				$"{nameof(shader.ShaderPath).GetFormattedName()} : {shader.ShaderPath.MakeProjectRelative()}");
+			if (ImGui.Button("Edit##shader"))
 			{
-				FileDialog.OpenFileWithDefaultApp(component.ShaderPath.MakeAbsolute());
+				FileDialog.OpenFileWithDefaultApp(shader.ShaderPath.MakeAbsolute());
 			}
 
 			ImGui.SameLine();
 
-			if (ImGui.Button("Remove"))
+			if (ImGui.Button("Remove##shader"))
 			{
-				memberInfoToSetObjectOnOwner.SetValue(owningObject,Guid.Empty);
+				memberInfoToSetObjectOnOwner.SetValue(owningObject, Guid.Empty);
 			}
 
 			ImGui.SameLine();
@@ -58,12 +43,7 @@ public class ShaderCustomEditor : BaseCustomEditor
 
 		if (ImGui.Button("Reload"))
 		{
-			ResourceManager.Instance.ReleaseResource<Shader>(component.GUID);
+			ResourceManager.Instance.ReleaseResource<Shader>(shader.GUID);
 		}
-	}
-
-	private void DrawEmpty()
-	{
-		//ImGui.Text("Empty Shader");
 	}
 }

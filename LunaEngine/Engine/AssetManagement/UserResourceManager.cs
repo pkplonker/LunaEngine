@@ -370,6 +370,12 @@ public class UserResourceManager : IAssetManager
 		return true;
 	}
 
+	public Type? GetTypeFromGuid(Guid guid)
+	{
+		metadatas.TryGetValue(guid, out var md);
+		return md?.MetadataTypeAsType;
+	}
+
 	private void Save(IResource? resource)
 	{
 		if (resource == null) return;
