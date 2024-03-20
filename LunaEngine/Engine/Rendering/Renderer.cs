@@ -166,8 +166,6 @@ public class Renderer : IRenderer
 
 	public void UseShader(IShader? shader)
 	{
-		if (shader == null) return;
-
 		if (lastShader != shader)
 		{
 			ShadersUsed++;
@@ -178,13 +176,37 @@ public class Renderer : IRenderer
 
 	public void UseMaterial(IMaterial material, RenderPassData data, Matrix4x4 modelMatrix)
 	{
-		if (material == null || material.ShaderGUID == null) return;
+		if (material == null || material.ShaderGUID == null)
+		{
+			UseDefaultShader(data, modelMatrix);
+			return;
+		}
+
 		var shaderGuid = material.ShaderGUID;
 		if (ResourceManager.Instance.TryGetResourceByGuid<Shader>(shaderGuid, out var shader))
 		{
 			UseShader(shader);
 			MaterialsUsed++;
 			material.Use(this, data, modelMatrix);
+		}
+	}
+
+	private void UseDefaultShader(RenderPassData data, Matrix4x4 modelMatrix)
+	{
+		var res = ResourceManager.Instance.GetResourceByName("boing");
+		if (res != null && ResourceManager.Instance.TryGetResourceByGuid<Shader>(res.GUID, out var boing))
+		{
+			boing.Use();
+			lastShader = boing;
+			UseShader(null);
+			boing.SetUniform("uView", data.View);
+			boing.SetUniform("uProjection", data.Projection);
+			boing.SetUniform("uModel", modelMatrix);
+		}
+		else
+		{
+			Gl.UseProgram(0);
+			Logger.Warning("Unable to boing");
 		}
 	}
 
