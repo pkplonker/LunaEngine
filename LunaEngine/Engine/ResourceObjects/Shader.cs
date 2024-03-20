@@ -10,12 +10,16 @@ public class Shader : IDisposable, IShader
 {
 	private uint handle;
 	private GL gl;
+	
+	[Serializable(false)]
 	private Dictionary<string, int> uniformDict = new();
 
 	[Serializable(false)]
 	public string ShaderPath { get; private set; }
 
+	[Inspectable(false)]
 	[Serializable(true)]
+	[ResourceGuid(typeof(Shader))]
 	public Guid GUID { get; private set; } = Guid.NewGuid();
 
 	public Shader(GL gl, string shaderPath, Guid metadataGuid)

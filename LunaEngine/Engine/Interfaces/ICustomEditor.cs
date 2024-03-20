@@ -18,5 +18,6 @@ public class CustomEditorAttribute : Attribute
 
 public interface ICustomEditor
 {
-	void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, IRenderer renderer, int depth);
+	void Draw(object component, object owningObject, IMemberAdapter memberInfoToSetObjectOnOwner, IRenderer renderer,
+		int depth = 0);
 }

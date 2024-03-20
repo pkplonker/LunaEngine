@@ -32,7 +32,6 @@ public class RenamingHelper
 	{
 		if (showRenamePopup)
 		{
-			//ImGui.SetNextWindowPos(ImGui.GetMousePos());
 			ImGui.OpenPopup("Rename Object");
 			showRenamePopup = false;
 			isOpen = true;

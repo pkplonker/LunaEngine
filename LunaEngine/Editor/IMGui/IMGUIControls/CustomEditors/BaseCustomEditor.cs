@@ -8,8 +8,8 @@ namespace Editor.IMGUIControls;
 
 public abstract class BaseCustomEditor : ICustomEditor
 {
-	public abstract void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, IRenderer renderer,
-		int depth);
+	public abstract void Draw(object component, object owningObject, IMemberAdapter memberInfoToSetObjectOnOwner,
+		IRenderer renderer, int depth = 0);
 
 	protected unsafe void DropTarget<T>(object component, IMemberAdapter? memberInfo) where T : class, IResource
 	{

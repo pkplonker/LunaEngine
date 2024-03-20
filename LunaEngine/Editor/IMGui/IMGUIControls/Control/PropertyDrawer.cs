@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Numerics;
 using System.Reflection;
 using Editor.Properties;
@@ -14,14 +15,6 @@ public class PropertyDrawer : IPropertyDrawer
 	public PropertyDrawer(IRenderer renderer)
 	{
 		this.renderer = renderer;
-	}
-
-	public void DrawObject(object component, int depth, IPropertyDrawInterceptStrategy? interceptStrategy,
-		string? name = null, Action handleDragDrop = null)
-	{
-		var type = component.GetType();
-		CreateNestedHeader(depth, name ?? type.Name,
-			() => ProcessProps(component, type, depth, interceptStrategy), handleDragDrop);
 	}
 
 	public void CreateNestedHeader(int depth,
@@ -56,209 +49,105 @@ public class PropertyDrawer : IPropertyDrawer
 		}
 	}
 
-	private void ProcessProps(object component, Type type, int depth, IPropertyDrawInterceptStrategy? interceptStrategy)
+	public void DrawObject(object? component, string? name = null, int depth = 0)
+	{
+		if (component == null) return;
+		CreateNestedHeader(depth, string.IsNullOrEmpty(name) ? component.GetType().Name : name,
+			() => ProcessProps(component, ++depth));
+	}
+
+	public void ProcessProps(object component, int depth)
 	{
 		var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-		foreach (var memberInfo in type
-			         .GetProperties(flags)
-			         .Cast<MemberInfo>()
-			         .Concat(type.GetFields(flags))
-			         .Select<MemberInfo, IMemberAdapter>(memberInfo =>
-			         {
-				         return memberInfo switch
-				         {
-					         PropertyInfo prop => new PropertyAdapter(prop),
-					         FieldInfo field => new FieldAdapter(field),
-				         };
-			         }))
+		var type = component.GetType();
+
+		var members = type.GetProperties(flags).Cast<MemberInfo>()
+			.Concat(type.GetFields(flags)
+				.Where(field =>
+				{
+					if (field.Name.EndsWith("k__BackingField"))
+					{
+						return false;
+					}
+
+					var attri = field.GetCustomAttributes<InspectableAttribute>().FirstOrDefault();
+					if (attri == null)
+					{
+						return false;
+					}
+
+					return attri.Show;
+				}))
+			.Where(x =>
+			{
+				var attri = x.GetCustomAttributes<InspectableAttribute>().FirstOrDefault();
+				if (attri == null)
+				{
+					return true;
+				}
+
+				return attri.Show;
+			})
+			.Select<MemberInfo, IMemberAdapter>(memberInfo => { return CreateMemberAdapter(memberInfo); });
+
+		foreach (var memberAdapter in members)
 		{
-			ProcessMember(component, memberInfo, depth, interceptStrategy);
+			ProcessMember(component, memberAdapter, depth);
 		}
 	}
 
-	private void ProcessMember(object component, IMemberAdapter memberInfo, int depth,
-		IPropertyDrawInterceptStrategy? interceptStrategy)
+	private static IMemberAdapter CreateMemberAdapter(MemberInfo memberInfo)
 	{
-		if (interceptStrategy?.Draw(component, memberInfo, renderer) ?? false)
+		return memberInfo switch
 		{
-			return;
-		}
+			PropertyInfo prop => new PropertyAdapter(prop),
+			FieldInfo field => new FieldAdapter(field),
+			_ => throw new InvalidOperationException("Unsupported member type.")
+		};
+	}
 
-		var resourceGuidAttri = memberInfo.GetCustomAttribute<ResourceGuidAttribute>();
-		if (resourceGuidAttri != null)
+	private void ProcessMember(object component, IMemberAdapter memberInfo, int depth)
+	{
+		try
 		{
-			if (memberInfo.MemberType == typeof(Guid))
+			var value = memberInfo.GetValue(component);
+
+			if (value is IEnumerable enumerable && !(value is string))
 			{
-				switch (resourceGuidAttri.Type)
+				foreach (var item in enumerable)
 				{
-					case { } type when type == typeof(Material):
-						if (ProcessResourceGuidAttribute<Material>(component, memberInfo, depth, interceptStrategy,
-							    type)) return;
-						break;
-					case { } type when type == typeof(Shader):
-						if (ProcessResourceGuidAttribute<Shader>(component, memberInfo, depth, interceptStrategy,
-							    type)) return;
-						break;
-					case { } type when type == typeof(Texture):
-						if (ProcessResourceGuidAttribute<Texture>(component, memberInfo, depth, interceptStrategy,
-							    type)) return;
-						break;
-					case { } type when type == typeof(Mesh):
-						if (ProcessResourceGuidAttribute<Mesh>(component, memberInfo, depth, interceptStrategy,
-							    type)) return;
-						break;
-					default:
-						Logger.Warning(
-							$"Property marked with {resourceGuidAttri.Type.Name} not matched in {this.GetType()}");
-						break;
+					DrawObject(item, null, depth);
 				}
-			}
-		}
-
-		var inspectableAttribute = memberInfo.GetCustomAttribute<InspectableAttribute>();
-		if (inspectableAttribute != null && !inspectableAttribute.Show)
-		{
-			return;
-		}
-
-		if (memberInfo.GetMemberInfo() is FieldInfo && (inspectableAttribute == null || !inspectableAttribute.Show))
-		{
-			return;
-		}
-
-		if (memberInfo.GetMemberInfo() is PropertyInfo propertyInfo)
-		{
-			if (propertyInfo.GetGetMethod(true)?.IsPublic != true || (inspectableAttribute?.Show ?? true) == false)
-			{
-				return;
-			}
-		}
-
-		object propertyValue = memberInfo.GetValue(component);
-		Type? memberType = memberInfo?.MemberType ?? null;
-		var typeAttribute = memberType?.GetCustomAttribute<InspectableAttribute>();
-
-		if (propertyValue != null && typeAttribute != null)
-		{
-			if (!typeAttribute.Show) return;
-
-			if (CustomEditorLoader.TryGetEditor(memberType, out var customEditor))
-			{
-				customEditor.Draw(component, memberInfo, propertyValue, renderer, depth);
 			}
 			else
 			{
-				var upperName = CamelCaseRenamer.GetFormattedName(memberInfo.Name);
-				var shownName = upperName == memberType.Name ? upperName : $"{memberType.Name} - {upperName}";
-				DrawObject(memberInfo.GetValue(component), ++depth, interceptStrategy, shownName);
+				if (memberInfo?.MemberType == typeof(Guid))
+				{
+					var resGuid = memberInfo.GetCustomAttribute<ResourceGuidAttribute>();
+
+					if (resGuid != null)
+					{
+						ResourceManager.Instance.TryGetResourceByGuid((Guid) memberInfo.GetValue(component),
+							out var resource);
+						if (CustomEditorLoader.TryGetEditor(resGuid.ResourceGuidType, out var editor))
+						{
+							editor.Draw(resource, component, memberInfo, renderer, depth);
+						}
+					}
+					else if (CustomEditorLoader.TryGetEditor(memberInfo.GetType(), out var editor))
+					{
+						editor.Draw(memberInfo.GetValue(component), component, memberInfo, renderer);
+					}
+					else
+					{
+						ImGui.Text($"{memberInfo.Name}: {value}");
+					}
+				}
 			}
-
-			return;
-		}
-
-		try
-		{
-			DrawProperty(component, memberInfo, inspectableAttribute, propertyValue);
 		}
 		catch (Exception e)
 		{
-			Logger.Warning(e.ToString());
+			Logger.Error($"Failed {e}");
 		}
-	}
-
-	private bool ProcessResourceGuidAttribute<T>(object? component, IMemberAdapter memberInfo, int depth,
-		IPropertyDrawInterceptStrategy? interceptStrategy, Type type) where T : class, IResource
-	{
-		ResourceManager.Instance.TryGetResourceByGuid<T>((Guid) memberInfo.GetValue(component),
-			out var obj);
-
-		if (CustomEditorLoader.TryGetEditor(type, out var customEditor))
-		{
-			customEditor.Draw(component, memberInfo, obj, renderer, ++depth);
-		}
-		else
-		{
-			var upperName = CamelCaseRenamer.GetFormattedName(memberInfo.Name);
-			var shownName = upperName == type.Name ? upperName : $"{type.Name} - {upperName}";
-			DrawObject(memberInfo.GetValue(component), ++depth, interceptStrategy, shownName);
-		}
-
-		return true;
-
-		return false;
-	}
-
-	private void DrawProperty(object component, IMemberAdapter member, InspectableAttribute? attribute,
-		object? propertyValue)
-	{
-		if (member == null) return;
-		if (HasCustomEditor(component, member, attribute))
-		{
-			return;
-		}
-
-		var name = CamelCaseRenamer.GetFormattedName(attribute?.CustomName ?? member.Name);
-
-		var value = member.GetValue(component);
-
-		if (value == null)
-		{
-			ImGuiHelpers.AddProperty(member);
-			return;
-		}
-
-		var actionDescription = $"Modifying {name}";
-
-		PerformDraw(component, member, propertyValue, name, actionDescription);
-	}
-
-	private static void PerformDraw(object component, IMemberAdapter member, object? propertyValue, string name,
-		string actionDescription)
-	{
-		if (propertyValue is int intValue)
-		{
-			Func<int> getter = () => (int) member.GetValue(component);
-			Action<int> setter = (newValue) => member.SetValue(component, newValue);
-			UndoableImGui.UndoableDragInt(name, actionDescription, getter, setter);
-		}
-		else if (propertyValue is float floatValue)
-		{
-			Func<float> getter = () => (float) member.GetValue(component);
-			Action<float> setter = (newValue) => member.SetValue(component, newValue);
-			UndoableImGui.UndoableDragFloat(name, actionDescription, getter, setter);
-		}
-		else if (propertyValue is bool boolValue)
-		{
-			Func<bool> getter = () => (bool) member.GetValue(component);
-			Action<bool> setter = (newValue) => member.SetValue(component, newValue);
-			UndoableImGui.UndoableCheckbox(name, actionDescription, getter, setter);
-		}
-		else if (propertyValue is string stringValue)
-		{
-			Func<string> getter = () => (string) member.GetValue(component);
-			Action<string> setter = (newValue) => member.SetValue(component, newValue);
-			UndoableImGui.UndoableTextBox(name, actionDescription, getter, setter);
-		}
-		else if (propertyValue is Vector2 vector2Value)
-		{
-			// Example: ImGui.InputFloat2($"{member.Name}", ref vector2Value);
-		}
-		else if (propertyValue is Vector3 vector3Value)
-		{
-			// Example: ImGui.InputFloat3($"{member.Name}", ref vector3Value);
-		}
-		else if (propertyValue is Vector4 vector4Value)
-		{
-			// Example: ImGui.InputFloat4($"{member.Name}", ref vector4Value);
-		}
-		else
-		{
-			ImGui.Text($"{name} : {propertyValue}");
-		}
-	}
-
-	private bool HasCustomEditor(object component, IMemberAdapter member, InspectableAttribute? attribute)
-	{
-		return false;
 	}
 }

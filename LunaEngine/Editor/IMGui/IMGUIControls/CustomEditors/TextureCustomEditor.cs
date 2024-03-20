@@ -13,74 +13,49 @@ namespace Editor.Controls;
 public class TextureCustomEditor : BaseCustomEditor
 {
 	private static PropertyDrawer? propertyDrawer;
-	private static IPropertyDrawInterceptStrategy? interceptStrategy;
+	private static Vector2 imageSize = new(175, 175);
 
-	public override void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, IRenderer renderer, int depth)
+	public override void Draw(object component, object owningObject, IMemberAdapter memberInfoToSetObjectOnOwner,
+		IRenderer renderer, int depth = 0)
 	{
-		TextureCustomEditor.propertyDrawer ??= new PropertyDrawer(renderer);
-		TextureCustomEditor.interceptStrategy ??= new TexturePropertyDrawIntercept(component, memberInfo);
-		if (propertyValue != null)
+		propertyDrawer ??= new PropertyDrawer(renderer);
+		if (component != null)
 		{
-			propertyDrawer.DrawObject(propertyValue, depth, interceptStrategy,
-				CustomEditorBase.GenerateName<Texture>(memberInfo), () => DropTarget<Texture>(component, memberInfo));
+			propertyDrawer.CreateNestedHeader(depth,
+				CustomEditorBase.GenerateName<Texture>(memberInfoToSetObjectOnOwner),
+				() => DrawInternal(component as Texture, memberInfoToSetObjectOnOwner, owningObject),
+				() => DropTarget<Texture>(owningObject, memberInfoToSetObjectOnOwner));
 		}
 		else
 		{
-			interceptStrategy.DrawEmpty(++depth, CustomEditorBase.GenerateName<Texture>(memberInfo), propertyDrawer,
-				memberInfo, component,() => DropTarget<Texture>(component, memberInfo));
+			propertyDrawer.CreateNestedHeader(depth,
+				CustomEditorBase.GenerateName<Texture>(memberInfoToSetObjectOnOwner),
+				() => DrawEmptyContent(memberInfoToSetObjectOnOwner, owningObject),
+				() => DropTarget<Texture>(owningObject, memberInfoToSetObjectOnOwner));
 		}
 	}
-}
 
-public class TexturePropertyDrawIntercept : IPropertyDrawInterceptStrategy
-{
-	Vector2 imageSize = new(175, 175);
-	private object owner;
-	private IMemberAdapter ownerMemberInfo;
-
-	public TexturePropertyDrawIntercept(object component, IMemberAdapter? memberInfo)
+	private static void DrawInternal(Texture texture, IMemberAdapter memberInfoToSetObjectOnOwner, object owningObject)
 	{
-		this.owner = component;
-		this.ownerMemberInfo = memberInfo;
-	}
-
-	public bool Draw(object component, IMemberAdapter memberInfo, IRenderer renderer)
-	{
-		if (component is Texture tex)
+		if (ImGui.Button("Reload"))
 		{
-			if (memberInfo.Name == "textureHandle")
-			{
-				uint textureId = (uint) memberInfo.GetValue(component);
-				if (textureId == 0)
-				{
-					return true;
-				}
-
-				IntPtr texturePtr = new IntPtr(textureId);
-
-				DrawTexture(ownerMemberInfo, owner, texturePtr);
-
-				ImGui.Text($"{tex.Width} x {tex.Height}");
-
-				return true;
-			}
-
-			if (memberInfo.Name == nameof(Texture.Width) || memberInfo.Name == nameof(Texture.Height))
-			{
-				return true;
-			}
-
-			if (memberInfo.Name == nameof(Texture.Path))
-			{
-				ImGui.Text($"{memberInfo.Name} : {((string) memberInfo?.GetValue(component)).MakeProjectRelative()}");
-				return true;
-			}
+			ResourceManager.Instance.ReleaseResource<Texture>(texture.GUID);
 		}
 
-		return false;
+		var textureId = texture.TextureId;
+		if (textureId == 0)
+		{
+			return;
+		}
+
+		IntPtr texturePtr = new IntPtr(textureId);
+
+		DrawTexture(memberInfoToSetObjectOnOwner, owningObject, texturePtr);
+
+		ImGui.Text($"{texture.Width} x {texture.Height}");
 	}
 
-	private void DrawTexture(IMemberAdapter? memberInfo, object component, IntPtr texturePtr)
+	private static void DrawTexture(IMemberAdapter? memberInfo, object component, IntPtr texturePtr)
 	{
 		if (ImGui.ImageButton("Select Texture", texturePtr, imageSize))
 		{

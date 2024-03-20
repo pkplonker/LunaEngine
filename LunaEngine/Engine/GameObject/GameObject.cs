@@ -7,7 +7,9 @@ namespace Engine;
 [Serializable]
 public class GameObject : IInspectable
 {
-	public string Name = "DEFAULT_NAME";
+	public string Name { get; set; } = "DEFAULT_NAME";
+
+	[Inspectable(true)]
 	private HashSet<IComponent> components = new();
 
 	[Serializable(false)]

@@ -2,10 +2,10 @@
 
 public class ResourceGuidAttribute : Attribute
 {
-	public readonly Type Type;
+	public readonly Type ResourceGuidType;
 
-	public ResourceGuidAttribute(Type type)
+	public ResourceGuidAttribute(Type resourceGuidType)
 	{
-		this.Type = type;
+		this.ResourceGuidType = resourceGuidType;
 	}
 }

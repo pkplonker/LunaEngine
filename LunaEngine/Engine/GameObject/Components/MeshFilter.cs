@@ -8,6 +8,7 @@ public class MeshFilter : Component
 {
 	[Inspectable(false)]
 	[Serializable]
+	[ResourceGuid(typeof(Mesh))]
 	public HashSet<Guid> meshes { get; set; } = new();
 
 	public MeshFilter(GameObject gameObject) : base(gameObject) { }

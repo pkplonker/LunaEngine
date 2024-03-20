@@ -1,67 +1,67 @@
-﻿using System.Linq.Expressions;
-using System.Numerics;
-using System.Runtime.InteropServices;
-using Editor.IMGUIControls;
+﻿using Editor.IMGUIControls;
 using Editor.Properties;
 using Engine;
 using Engine.Logging;
 using ImGuiNET;
-using Silk.NET.OpenGL;
-using Texture = Engine.Texture;
 
 namespace Editor.Controls;
 
 [CustomEditor(typeof(Engine.Material))]
 public class MaterialCustomEditor : BaseCustomEditor
 {
-	private static PropertyDrawer? propertyDrawer;
-	private static IPropertyDrawInterceptStrategy? interceptStrategy;
+	private static IPropertyDrawer? propertyDrawer;
 
-	public override void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, IRenderer renderer,
-		int depth)
+	public override void Draw(object component, object owningObject, IMemberAdapter memberInfoToSetObjectOnOwner,
+		IRenderer renderer, int depth = 0)
 	{
 		propertyDrawer ??= new PropertyDrawer(renderer);
-		interceptStrategy ??= new MaterialPropertyDrawIntercept();
-		if (propertyValue != null)
+		if (component == owningObject)
 		{
-			propertyDrawer.DrawObject(propertyValue, depth, interceptStrategy,
-				CustomEditorBase.GenerateName<Material>(memberInfo), () => DropTarget<Material>(component, memberInfo));
+			Logger.Error("er");
+		}
+
+		if (component != null)
+		{
+			propertyDrawer.CreateNestedHeader(depth,
+				CustomEditorBase.GenerateName<Silk.NET.Assimp.Material>(memberInfoToSetObjectOnOwner),
+				() => DrawInternal(component as Material, depth, memberInfoToSetObjectOnOwner, owningObject),
+				() => DropTarget<Material>(owningObject, memberInfoToSetObjectOnOwner));
 		}
 		else
 		{
-			interceptStrategy.DrawEmpty(++depth, CustomEditorBase.GenerateName<Material>(memberInfo), propertyDrawer,
-				memberInfo, component,() => DropTarget<Material>(component, memberInfo));
+			propertyDrawer.CreateNestedHeader(depth,
+				CustomEditorBase.GenerateName<Silk.NET.Assimp.Material>(memberInfoToSetObjectOnOwner),
+				() => DrawEmpty(),
+				() => DropTarget<Material>(owningObject, memberInfoToSetObjectOnOwner));
+			
 		}
 	}
-}
 
-public class MaterialPropertyDrawIntercept : IPropertyDrawInterceptStrategy
-{
-	public bool Draw(object component, IMemberAdapter memberInfo, IRenderer renderer)
+	private static void DrawInternal(Material mat, int depth, IMemberAdapter memberInfoToSetObjectOnOwner,
+		object owningObject)
 	{
-		if (memberInfo.Name == "GUID")
+		try
 		{
-			try
+			if (ResourceManager.Instance.GetMetadata(mat.GUID, out var metadata))
 			{
-				if (ResourceManager.Instance.GetMetadata((Guid) memberInfo.GetValue(component), out var metadata))
-				{
-					ImGui.Text("Material Path");
-					ImGui.SameLine();
-					ImGui.Text(metadata.Path);
-					return true;
-				}
-			}
-			catch (Exception e)
-			{
-				Logger.Warning($"Failed to convert guid for UI {e}");
+				ImGui.Text($"Material Path : {metadata.Path}");
 			}
 		}
+		catch (Exception e)
+		{
+			Logger.Warning($"Failed to convert guid for UI {e}");
+		}
 
-		return false;
+		if (ImGui.Button("Remove"))
+		{
+			memberInfoToSetObjectOnOwner.SetValue(owningObject, Guid.Empty);
+		}
+
+		propertyDrawer.ProcessProps(mat, ++depth);
 	}
 
-	public void DrawEmptyContent(IMemberAdapter? memberInfo, object component)
+	private void DrawEmpty()
 	{
-		if (ImGui.Button("Select Material")) { }
+		//if (ImGui.Button("Select Material")) { }
 	}
 }

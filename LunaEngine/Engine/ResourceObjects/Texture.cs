@@ -9,6 +9,11 @@ namespace Engine;
 public class Texture : IDisposable, ITexture
 {
 	private uint textureHandle;
+
+	[Serializable(false)]
+	[Inspectable(false)]
+	public uint TextureId => textureHandle;
+
 	private GL gl;
 	public uint Width { get; private set; }
 	public uint Height { get; private set; }

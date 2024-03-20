@@ -17,10 +17,9 @@ public class MeshRenderer : Component, IRenderableComponent
 
 	public void Render(Renderer renderer, RenderPassData data)
 	{
-		if (ResourceManager.Instance.TryGetResourceByGuid<Material>(MaterialGuid, out var material))
-		{
-			renderer.UseMaterial(material, data, GameObject.Transform.ModelMatrix);
-		}
+		ResourceManager.Instance.TryGetResourceByGuid<Material>(MaterialGuid, out var material);
+
+		renderer.UseMaterial(material, data, GameObject.Transform.ModelMatrix);
 
 		var mf = GameObject.GetComponent<MeshFilter>();
 		if (mf != null)

@@ -107,17 +107,17 @@ public class ContentThumbnailView
 		{
 			Logger.Info($"Selected {path.MakeProjectRelative()}");
 
-			// if (ResourceManager.Instance.TryGetResourceByGuid(guid, out var resource))
-			// {
-			// 	if (resource is IInspectable inspectable)
-			// 	{
-			// 		iSelectableObjectController.SelectedObject = inspectable;
-			// 	}
-			// 	else
-			// 	{
-			// 		iSelectableObjectController.SelectedObject = null;
-			// 	}
-			// }
+			if (ResourceManager.Instance.TryGetResourceByGuid(guid, out var resource))
+			{
+				if (resource is IInspectable inspectable)
+				{
+					iSelectableObjectController.SelectedObject = inspectable;
+				}
+				else
+				{
+					iSelectableObjectController.SelectedObject = null;
+				}
+			}
 		}
 
 		if (metadata != null && ImGui.BeginDragDropSource(ImGuiDragDropFlags.None))

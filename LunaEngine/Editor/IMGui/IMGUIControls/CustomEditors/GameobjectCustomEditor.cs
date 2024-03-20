@@ -1,25 +1,49 @@
-﻿using Engine;
+﻿using System.Linq.Expressions;
+using System.Numerics;
+using Editor.IMGUIControls;
+using Editor.Properties;
+using Engine;
 using Engine.Logging;
 using ImGuiNET;
+using Silk.NET.OpenGL;
+using Shader = Engine.Shader;
 
 namespace Editor.Controls;
 
-public class GameObjectInspectableStrategy : IInspectableStrategy
+[CustomEditor(typeof(Engine.GameObject))]
+public class GameobjectCustomEditor : BaseCustomEditor
 {
+	private static PropertyDrawer? propertyDrawer;
+
+	public override void Draw(object component, object owningObject, IMemberAdapter memberInfoToSetObjectOnOwner,
+		IRenderer renderer, int depth = 0)
+	{
+		if (component == owningObject)
+		{
+			Logger.Error("er");
+		}
+
+		propertyDrawer ??= new PropertyDrawer(renderer);
+
+		Draw(component as GameObject);
+	}
+
 	const string ADD_COMPONENT_POPUP_NAME = "AddComponentPopup";
 
-	public void Draw(IInspectable obj, IPropertyDrawer? propertyDrawer)
+	private static void Draw(GameObject go)
 	{
-		if (obj is not GameObject go) return;
 		UndoableImGui.UndoableCheckbox("##Enabled", "GameObject Enabled Toggled", () => go.Enabled,
 			val => go.Enabled = val
 		);
 		ImGui.SameLine();
 		ImGui.Text($"{go.Name}: {go.Transform.GUID.ToString()}");
+		ImGui.SameLine();
 		if (ImGuiHelpers.CenteredButton("Add Component"))
 		{
 			ImGui.OpenPopup(ADD_COMPONENT_POPUP_NAME);
 		}
+
+		ImGuiHelpers.DrawTransform(go.Transform);
 
 		if (ImGui.BeginPopup(ADD_COMPONENT_POPUP_NAME))
 		{
@@ -44,18 +68,9 @@ public class GameObjectInspectableStrategy : IInspectableStrategy
 			ImGui.EndPopup();
 		}
 
-		ImGuiHelpers.DrawTransform(go.Transform);
-
-		foreach (var component in go.GetComponents())
+		foreach (var comp in go.GetComponents())
 		{
-			try
-			{
-				propertyDrawer.DrawObject(component, 0, null);
-			}
-			catch (Exception e)
-			{
-				Logger.Warning(e.ToString());
-			}
+			propertyDrawer.DrawObject(comp);
 		}
 	}
 }

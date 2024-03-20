@@ -7,6 +7,7 @@ using Engine.Logging;
 using ImGuiNET;
 using Silk.NET.OpenGL;
 using Shader = Engine.Shader;
+using Texture = Engine.Texture;
 
 namespace Editor.Controls;
 
@@ -14,74 +15,55 @@ namespace Editor.Controls;
 public class ShaderCustomEditor : BaseCustomEditor
 {
 	private static PropertyDrawer? propertyDrawer;
-	private static IPropertyDrawInterceptStrategy? interceptStrategy;
 
-	public override void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, IRenderer renderer,
-		int depth)
+	public override void Draw(object component, object owningObject, IMemberAdapter memberInfoToSetObjectOnOwner,
+		IRenderer renderer, int depth = 0)
 	{
-		propertyDrawer ??= new PropertyDrawer(renderer);
-		interceptStrategy ??= new ShaderPropertyDrawIntercept();
-		if (propertyValue != null)
+		if (component == owningObject)
 		{
-			propertyDrawer.DrawObject(propertyValue, depth, interceptStrategy,
-				CustomEditorBase.GenerateName<Shader>(memberInfo), () => DropTarget<Shader>(component, memberInfo));
+			Logger.Error("er");
 		}
-		else
+
+		propertyDrawer ??= new PropertyDrawer(renderer);
+		if (component != null)
 		{
-			interceptStrategy.DrawEmpty(++depth, CustomEditorBase.GenerateName<Shader>(memberInfo),
-				propertyDrawer, memberInfo, component,() => DropTarget<Shader>(component, memberInfo));
+			propertyDrawer.CreateNestedHeader(depth,
+				CustomEditorBase.GenerateName<Shader>(memberInfoToSetObjectOnOwner),
+				() => DrawInternal(component as Shader, owningObject, memberInfoToSetObjectOnOwner),
+				() => DropTarget<Shader>(owningObject, memberInfoToSetObjectOnOwner));
+		}
+		else DrawEmpty();
+	}
+
+	private void DrawInternal(Shader? component, object owningObject, IMemberAdapter memberInfoToSetObjectOnOwner)
+	{
+		if (!string.IsNullOrEmpty(component.ShaderPath))
+		{
+			ImGui.Text(
+				$"{nameof(component.ShaderPath).GetFormattedName()} : {component.ShaderPath.MakeProjectRelative()}");
+			if (ImGui.Button("Edit"))
+			{
+				FileDialog.OpenFileWithDefaultApp(component.ShaderPath.MakeAbsolute());
+			}
+
+			ImGui.SameLine();
+
+			if (ImGui.Button("Remove"))
+			{
+				memberInfoToSetObjectOnOwner.SetValue(owningObject,Guid.Empty);
+			}
+
+			ImGui.SameLine();
+		}
+
+		if (ImGui.Button("Reload"))
+		{
+			ResourceManager.Instance.ReleaseResource<Shader>(component.GUID);
 		}
 	}
 
-	public class ShaderPropertyDrawIntercept : IPropertyDrawInterceptStrategy
+	private void DrawEmpty()
 	{
-		public bool Draw(object component, IMemberAdapter memberInfo, IRenderer renderer)
-		{
-			if (memberInfo.Name == "GUID")
-			{
-				var obj = memberInfo.GetValue(component);
-				if (obj is Guid guid && ImGui.Button("Reload"))
-				{
-					
-					ResourceManager.Instance.ReleaseResource<Shader>(guid);
-				}
-				return true;
-				
-			}
-
-			if (memberInfo.Name == "ShaderPath")
-			{
-				var path = ((string) memberInfo?.GetValue(component));
-				if (!string.IsNullOrEmpty(path))
-				{
-					ImGui.Text(
-						$"{memberInfo.Name.GetFormattedName()} : {path.MakeProjectRelative()}");
-					if (ImGui.Button("Edit"))
-					{
-						FileDialog.OpenFileWithDefaultApp(path.MakeAbsolute());
-					}
-					ImGui.SameLine();
-
-					return true;
-				}
-
-				return false;
-			}
-
-			return false;
-		}
-
-		public void DrawEmptyContent(IMemberAdapter? memberInfo, object component)
-		{
-			if (ImGui.Button($"Select Shader##{memberInfo.Name}"))
-			{
-				ReplaceShader(memberInfo);
-			}
-		}
-
-		private static void ReplaceShader(IMemberAdapter memberInfo)
-		{
-			Logger.Info("Pressed");
-		}
+		//ImGui.Text("Empty Shader");
 	}
 }
