@@ -48,7 +48,8 @@ public class GameobjectCustomEditor : BaseCustomEditor
 			val => go.Enabled = val
 		);
 		ImGui.SameLine();
-		ImGui.Text($"{go.Name}: {go.Transform.GUID.ToString()}");
+		var guid = go.Transform.GUID.ToString();
+		ImGui.Text($"{go.Name}: {guid}");
 		if (ImGuiHelpers.CenteredButton("Add Component"))
 		{
 			ImGui.OpenPopup(ADD_COMPONENT_POPUP_NAME);

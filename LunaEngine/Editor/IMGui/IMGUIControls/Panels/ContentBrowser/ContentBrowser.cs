@@ -6,7 +6,6 @@ namespace Editor.Controls
 {
 	public class ContentBrowser : IPanel, IContentBrowser
 	{
-		private readonly ISelectableObjectController iSelectableObjectController;
 		public string PanelName { get; set; } = "Content Browser";
 		public string? CurrentPath { get; set; } = string.Empty;
 		private readonly ContentThumbnailView contentThumbnailView;
@@ -17,10 +16,9 @@ namespace Editor.Controls
 		private bool isDragging;
 		private float minimumWidth = 100;
 
-		public ContentBrowser(ISelectableObjectController iSelectableObjectController)
+		public ContentBrowser(Action<IInspectable> selectionAction)
 		{
-			this.iSelectableObjectController = iSelectableObjectController;
-			contentThumbnailView = new ContentThumbnailView(this,iSelectableObjectController);
+			contentThumbnailView = new ContentThumbnailView(this, selectionAction);
 			contentTreeView = new ContentTreeView(this);
 
 			ProjectManager.ProjectChanged += OnProjectChanged;

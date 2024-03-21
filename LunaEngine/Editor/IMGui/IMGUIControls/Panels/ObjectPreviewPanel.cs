@@ -14,10 +14,10 @@ public class ObjectPreviewPanel : IPanel
 	private readonly EditorViewport editorViewport;
 	private Vector2 currentSize;
 
-	public ObjectPreviewPanel(InspectorPanel inspector, IInputController inputController, IRenderer renderer)
+	public ObjectPreviewPanel(PropertiesPanel properties, IInputController inputController, IRenderer renderer)
 	{
 		this.inputController = inputController;
-		inspector.SelectionChanged += InspectorOnSelectionChanged;
+		properties.SelectionChanged += InspectorOnSelectionChanged;
 		scene = new Scene("Objet Preview Scene");
 		editorViewport = new EditorViewport();
 		materialSphere = new GameObject();

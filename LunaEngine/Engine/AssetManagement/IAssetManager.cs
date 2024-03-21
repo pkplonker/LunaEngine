@@ -13,7 +13,7 @@ public interface IAssetManager
 	void Save();
 	Metadata? GetMetadata(string filterType);
 	bool GetMetadata(Guid guid, out Metadata metadata);
-	void ReleaseResource<T>(Guid guid) where T : class, IResource;
+	void ReleaseResource(Guid guid);
 	void ReleaseAll<T>() where T : class, IResource;
 	void ReloadAll();
 

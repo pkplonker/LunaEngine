@@ -9,7 +9,6 @@ namespace Editor.Controls;
 [CustomEditor(typeof(Engine.Material))]
 public class MaterialCustomEditor : BaseCustomEditor
 {
-
 	public override void Draw(object component, object owningObject, IMemberAdapter memberInfoToSetObjectOnOwner,
 		IRenderer renderer, int depth = 0)
 	{
@@ -33,7 +32,7 @@ public class MaterialCustomEditor : BaseCustomEditor
 			Logger.Warning($"Failed to convert guid for UI {e}");
 		}
 
-		if (ImGui.Button("Remove##material"))
+		if (owningObject != null && ImGui.Button("Remove##material"))
 		{
 			memberInfoToSetObjectOnOwner.SetValue(owningObject, Guid.Empty);
 		}

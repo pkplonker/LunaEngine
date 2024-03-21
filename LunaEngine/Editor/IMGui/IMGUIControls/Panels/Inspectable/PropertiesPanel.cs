@@ -3,17 +3,17 @@ using ImGuiNET;
 
 namespace Editor.Controls;
 
-public class InspectorPanel : IPanel
+public class PropertiesPanel : IPanel
 {
 	private IPropertyDrawer? propertyDrawer;
 	private IInspectable? selected;
 	private bool newChange = false;
-	public event Action<IInspectable?> SelectionChanged;
+	public event Action<IInspectable?>? SelectionChanged;
 
-	public InspectorPanel(ISelectableObjectController controller)
+	public PropertiesPanel(ISelectableObjectController controller)
 	{
 		controller.GameObjectSelectionChanged += ControllerOnGameObjectSelectionChanged;
-		SceneController.OnActiveSceneChanged += (scene, scene1) => { selected = null; };
+		SceneController.OnActiveSceneChanged += (_, _) => { selected = null; };
 	}
 
 	private void ControllerOnGameObjectSelectionChanged(IInspectable? obj)

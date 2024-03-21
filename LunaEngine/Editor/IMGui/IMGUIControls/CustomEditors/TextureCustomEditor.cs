@@ -26,11 +26,11 @@ public class TextureCustomEditor : BaseCustomEditor
 
 		if (ImGui.Button($"Reload##{texture.GUID}"))
 		{
-			ResourceManager.Instance.ReleaseResource<Texture>(texture.GUID);
+			ResourceManager.Instance.ReleaseResource(texture.GUID);
 		}
 
 		ImGui.SameLine();
-		if (ImGui.Button($"Remove##{texture.GUID}"))
+		if (owningObject != null && ImGui.Button($"Remove##{texture.GUID}"))
 		{
 			memberInfoToSetObjectOnOwner.SetValue(owningObject, Guid.Empty);
 		}

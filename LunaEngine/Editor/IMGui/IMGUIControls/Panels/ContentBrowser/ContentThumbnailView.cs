@@ -8,19 +8,19 @@ namespace Editor.Controls;
 public class ContentThumbnailView
 {
 	private IContentBrowser contentBrowser;
-	private readonly ISelectableObjectController iSelectableObjectController;
+	private readonly Action<IInspectable?> selectionAction;
 	private const float ORIGINAL_PADDING = 30;
 	private Vector2 imageSize => new(size, size);
 	private int size = ORIGINAL_SIZE;
 	private const int ORIGINAL_SIZE = 200;
 	private float padding => ORIGINAL_PADDING / ((float) ORIGINAL_SIZE / size);
 
-	public ContentThumbnailView(IContentBrowser contentBrowser, ISelectableObjectController iSelectableObjectController)
+	public ContentThumbnailView(IContentBrowser contentBrowser, Action<IInspectable?> selectionAction)
 	{
 		ArgumentNullException.ThrowIfNull(contentBrowser);
 
 		this.contentBrowser = contentBrowser;
-		this.iSelectableObjectController = iSelectableObjectController;
+		this.selectionAction = selectionAction;
 	}
 
 	public void Draw()
@@ -109,14 +109,9 @@ public class ContentThumbnailView
 
 			if (ResourceManager.Instance.TryGetResourceByGuid(guid, out var resource))
 			{
-				if (resource is IInspectable inspectable)
-				{
-					iSelectableObjectController.SelectedObject = inspectable;
-				}
-				else
-				{
-					iSelectableObjectController.SelectedObject = null;
-				}
+				
+				selectionAction?.Invoke(resource is IInspectable inspectable ? inspectable : null);
+				
 			}
 		}
 

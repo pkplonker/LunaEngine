@@ -3,8 +3,6 @@ using Silk.NET.OpenGL;
 
 namespace Engine;
 
-
-
 [Serializable]
 public class Mesh : IDisposable, IMesh
 {
@@ -18,27 +16,36 @@ public class Mesh : IDisposable, IMesh
 	}
 
 	[Serializable(false)]
+	[Inspectable(false)]
+
 	public float[] Vertices { get; private set; }
 
 	[Serializable(false)]
+	[Inspectable(false)]
 
 	public uint[] Indices { get; private set; }
 
 	[Serializable(false)]
+	[Inspectable(false)]
 
 	public VertexArrayObject<float, uint> VAO { get; set; }
 
 	[Serializable(false)]
+	[Inspectable(false)]
 
 	public BufferObject<float> VBO { get; set; }
 
 	[Serializable(false)]
+	[Inspectable(false)]
 
 	public BufferObject<uint> EBO { get; set; }
 
+	[Serializable(false)]
+	[Inspectable(false)]
 	public GL GL { get; }
 
 	[Serializable(false)]
+	[Inspectable(false)]
 	private const int vertexSize = 14;
 
 	[Inspectable(false)]
@@ -62,7 +69,8 @@ public class Mesh : IDisposable, IMesh
 	public void Render(Renderer renderer, RenderPassData data)
 	{
 		VAO.Bind();
-		renderer.DrawElements(Silk.NET.OpenGL.PrimitiveType.Triangles, (uint) Indices.Length, DrawElementsType.UnsignedInt);
+		renderer.DrawElements(Silk.NET.OpenGL.PrimitiveType.Triangles, (uint) Indices.Length,
+			DrawElementsType.UnsignedInt);
 	}
 
 	public void Dispose()

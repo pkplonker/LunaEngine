@@ -33,7 +33,7 @@ public class ShaderCustomEditor : BaseCustomEditor
 
 			ImGui.SameLine();
 
-			if (ImGui.Button("Remove##shader"))
+			if (owningObject != null && ImGui.Button("Remove##shader"))
 			{
 				memberInfoToSetObjectOnOwner.SetValue(owningObject, Guid.Empty);
 			}
@@ -43,7 +43,7 @@ public class ShaderCustomEditor : BaseCustomEditor
 
 		if (ImGui.Button("Reload"))
 		{
-			ResourceManager.Instance.ReleaseResource<Shader>(shader.GUID);
+			ResourceManager.Instance.ReleaseResource(shader.GUID);
 		}
 	}
 }
