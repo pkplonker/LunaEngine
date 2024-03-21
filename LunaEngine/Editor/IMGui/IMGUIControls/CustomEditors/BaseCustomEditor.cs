@@ -20,17 +20,19 @@ public abstract class BaseCustomEditor : ICustomEditor
 	{
 		propertyDrawer ??= new PropertyDrawer(renderer);
 		var dropTarget = () => DropTarget<T>(owningObject, memberInfoToSetObjectOnOwner);
-		if (component != null)
+		var test = new List<ContextMenuItem>() {new ContextMenuItem("Test", () => Logger.Info("Testing"))};
+		if (component is T comp)
 		{
 			propertyDrawer.CreateNestedHeader(depth,
 				CustomEditorBase.GenerateName<T>(memberInfoToSetObjectOnOwner) ?? component.GetType().Name,
-				() => DropProps(component as T, memberInfoToSetObjectOnOwner, owningObject, depth), dropTarget);
+				() => DropProps(comp, memberInfoToSetObjectOnOwner, owningObject, depth),
+				test, dropTarget);
 		}
 		else
 		{
 			propertyDrawer.CreateNestedHeader(depth,
 				CustomEditorBase.GenerateName<T>(memberInfoToSetObjectOnOwner),
-				() => DrawEmptyContent(memberInfoToSetObjectOnOwner, dropTarget), dropTarget);
+				() => DrawEmptyContent(memberInfoToSetObjectOnOwner, dropTarget), test, dropTarget);
 		}
 	}
 

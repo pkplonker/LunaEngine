@@ -18,7 +18,7 @@ public class PropertyDrawer : IPropertyDrawer
 	}
 
 	public void CreateNestedHeader(int depth,
-		string? name, Action content, Action handleDragDrop = null)
+		string? name, Action content, IEnumerable<ContextMenuItem> contextMenuItems, Action? handleDragDrop = null)
 	{
 		if (depth > 0)
 		{
@@ -37,6 +37,19 @@ public class PropertyDrawer : IPropertyDrawer
 
 		if (ImGui.CollapsingHeader(name, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.Framed))
 		{
+			if (contextMenuItems != null && ImGui.BeginPopupContextItem("context_menu"))
+			{
+				foreach (var menuItem in contextMenuItems)
+				{
+					if (ImGui.MenuItem($"{menuItem?.Name}##"))
+					{
+						menuItem?.Action?.Invoke();
+					}
+				}
+
+				ImGui.EndPopup();
+			}
+
 			handleDragDrop?.Invoke();
 
 			content?.Invoke();
@@ -53,7 +66,7 @@ public class PropertyDrawer : IPropertyDrawer
 	{
 		if (component == null) return;
 		CreateNestedHeader(depth, string.IsNullOrEmpty(name) ? component.GetType().Name : name,
-			() => ProcessProps(component, ++depth));
+			() => ProcessProps(component, ++depth), null);
 	}
 
 	public void ProcessProps(object component, int depth)
