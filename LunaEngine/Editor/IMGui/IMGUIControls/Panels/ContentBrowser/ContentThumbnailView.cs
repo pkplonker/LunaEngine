@@ -156,5 +156,5 @@ public class ContentThumbnailView
 		ImGui.EndGroup();
 	}
 
-	private static string GetIcon(Metadata? metadata) => @"resources/icons/AddTexture.png";
+	private static string? GetIcon(IMetadata? metadata) => @"resources/icons/AddTexture.png";
 }

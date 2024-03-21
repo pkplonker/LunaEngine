@@ -95,8 +95,8 @@ public static class GameObjectFactory
 		go.Name = $"{defaultName} ({maxNumber + 1})";
 	}
 
-	private static void CreateMesh(GameObject go, Metadata? materialMetadata, Metadata? meshMetaData,
-		Metadata? shaderMetadata)
+	private static void CreateMesh(GameObject go, IMetadata? materialMetadata, IMetadata? meshMetaData,
+		IMetadata? shaderMetadata)
 	{
 		if (materialMetadata == null || meshMetaData == null || shaderMetadata == null)
 		{

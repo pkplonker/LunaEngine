@@ -5,19 +5,19 @@ public interface IAssetManager
 	void LoadMetadata(string? directory);
 	IEnumerable<string> GetFilesFromFolder(string? path, IEnumerable<string> ext = null);
 	bool TryGetResourceByGuid<T>(Guid guid, out T result) where T : class, IResource;
-	bool AddMetaData(Metadata metadata);
-	IEnumerable<Metadata> GetMetadata(MetadataType? filterType = null);
+	bool AddMetaData(IMetadata metadata);
+	IEnumerable<IMetadata> GetMetadata(MetadataType? filterType = null);
 	bool MetadataExistsWithPath(string path);
 	void ClearMetadatas();
-	Metadata? GetResourceByName(string name);
+	IMetadata? GetResourceByName(string name);
 	void Save();
-	Metadata? GetMetadata(string filterType);
-	bool GetMetadata(Guid guid, out Metadata metadata);
+	IMetadata? GetMetadata(string filterType);
+	bool GetMetadata(Guid guid, out IMetadata metadata);
 	void ReleaseResource(Guid guid);
 	void ReleaseAll<T>() where T : class, IResource;
 	void ReloadAll();
 
-	Metadata? GetMetadata(Guid guid);
+	IMetadata? GetMetadata(Guid guid);
 	bool TryGetResourceByGuid(Guid guid, out IResource? result);
 	Type? GetTypeFromGuid(Guid guid);
 }

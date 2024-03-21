@@ -8,7 +8,7 @@ namespace Engine;
 public class UserResourceManager : IAssetManager
 {
 	protected ConcurrentDictionary<Guid, IResource?> resources = new();
-	protected ConcurrentDictionary<Guid, Metadata> metadatas = new();
+	protected ConcurrentDictionary<Guid, IMetadata> metadatas = new();
 
 	protected GL gl;
 
@@ -91,10 +91,10 @@ public class UserResourceManager : IAssetManager
 		return TryLoadResource(guid, metadata, out result);
 	}
 
-	private bool TryLoadResource(Guid guid, Metadata metadata, out IResource? result)
+	private bool TryLoadResource(Guid guid, IMetadata metadata, out IResource? result)
 	{
 		result = null;
-		Func<Metadata, IResource> loaderFunction;
+		Func<IMetadata, IResource> loaderFunction;
 
 		switch (metadata.MetadataType)
 		{
@@ -128,7 +128,7 @@ public class UserResourceManager : IAssetManager
 		return result != null;
 	}
 
-	private Texture? LoadTexture(Metadata metadata)
+	private Texture? LoadTexture(IMetadata metadata)
 	{
 		try
 		{
@@ -141,7 +141,7 @@ public class UserResourceManager : IAssetManager
 		}
 	}
 
-	private Material? LoadMaterial(Metadata metadata)
+	private Material? LoadMaterial(IMetadata metadata)
 	{
 		try
 		{
@@ -154,7 +154,7 @@ public class UserResourceManager : IAssetManager
 		}
 	}
 
-	private Shader? LoadShader(Metadata metadata)
+	private Shader? LoadShader(IMetadata metadata)
 	{
 		try
 		{
@@ -167,7 +167,7 @@ public class UserResourceManager : IAssetManager
 		}
 	}
 
-	private Mesh? LoadMesh(Metadata metadata)
+	private Mesh? LoadMesh(IMetadata metadata)
 	{
 		try
 		{
@@ -180,7 +180,7 @@ public class UserResourceManager : IAssetManager
 		}
 	}
 
-	public bool AddMetaData(Metadata metadata)
+	public bool AddMetaData(IMetadata metadata)
 	{
 		if (metadatas.TryAdd(metadata.GUID, metadata))
 		{
@@ -191,7 +191,7 @@ public class UserResourceManager : IAssetManager
 		return false;
 	}
 
-	public IEnumerable<Metadata> GetMetadata(MetadataType? filterType = null) =>
+	public IEnumerable<IMetadata> GetMetadata(MetadataType? filterType = null) =>
 		metadatas.Values.Where(metadata => filterType == null || metadata.MetadataType == filterType);
 
 	public bool MetadataExistsWithPath(string path) =>
@@ -202,7 +202,7 @@ public class UserResourceManager : IAssetManager
 		metadatas.Clear();
 	}
 
-	public Metadata? GetResourceByName(string name) =>
+	public IMetadata? GetResourceByName(string name) =>
 		metadatas.FirstOrDefault(x => x.Value.Path.Contains(name, StringComparison.OrdinalIgnoreCase)).Value;
 
 	public void Save()
@@ -210,7 +210,7 @@ public class UserResourceManager : IAssetManager
 		resources.WhereNotNull().Foreach(x => Save(x.Value));
 	}
 
-	public Metadata? GetMetadata(string path)
+	public IMetadata? GetMetadata(string path)
 	{
 		var relative = Path.GetRelativePath(ProjectManager.ActiveProject.Directory, path);
 
@@ -225,7 +225,7 @@ public class UserResourceManager : IAssetManager
 		return null;
 	}
 
-	public bool GetMetadata(Guid guid, out Metadata? metadata)
+	public bool GetMetadata(Guid guid, out IMetadata? metadata)
 	{
 		metadata = null;
 		if (metadatas.TryGetValue(guid, out var md))
@@ -257,7 +257,7 @@ public class UserResourceManager : IAssetManager
 		resources.Clear();
 	}
 
-	public Metadata? GetMetadata(Guid guid)
+	public IMetadata? GetMetadata(Guid guid)
 	{
 		metadatas.TryGetValue(guid, out var md);
 		return md;

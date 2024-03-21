@@ -18,12 +18,20 @@ public class MeshCustomEditor : BaseCustomEditor
 	}
 
 	protected override void DropProps(object component, IMemberAdapter memberInfoToSetObjectOnOwner,
-		object owningObject,
-		int depth = 0)
+		object owningObject, int depth = 0)
 	{
 		if (component is not Mesh mesh) return;
 
-		ImGui.Text(
-			$"{nameof(mesh.GUID)}");
+		ImGui.Text($"GUID: {mesh.GUID}");
+		ResourceManager.Instance.GetMetadata(mesh.GUID, out var metadata);
+		if (metadata != null)
+		{
+			ImGui.Text($"Path: {metadata.Path}");
+			ImGui.SameLine();
+			if (ImGui.Button("Edit##mesh"))
+			{
+				FileDialog.OpenFileWithDefaultApp(metadata.AbsolutePath);
+			}
+		}
 	}
 }

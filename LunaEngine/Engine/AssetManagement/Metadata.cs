@@ -12,7 +12,7 @@ public enum MetadataType
 	Mesh
 }
 
-public abstract class Metadata
+public abstract class Metadata : IMetadata
 {
 	public Metadata() { }
 
@@ -22,6 +22,7 @@ public abstract class Metadata
 	public int MetaDataVersion { get; set; } = 1;
 	public MetadataType MetadataType { get; set; }
 	public string Name => System.IO.Path.GetFileName(Path);
+	public string? AbsolutePath => Path?.MakeProjectAbsolute();
 
 	public Type? MetadataTypeAsType => MetadataType switch
 	{
@@ -32,7 +33,8 @@ public abstract class Metadata
 		_ => throw new ArgumentOutOfRangeException(nameof(MetadataType), $"Unsupported metadata type: {MetadataType}")
 	};
 
-	public static Metadata Create(Type? type, string path)
+
+	public static IMetadata Create(Type? type, string path)
 	{
 		ArgumentNullException.ThrowIfNull(type);
 
@@ -93,7 +95,7 @@ public abstract class Metadata
 		}
 	}
 
-	public static Metadata? CreateMetadataFromMetadataFile(string path)
+	public static IMetadata? CreateMetadataFromMetadataFile(string path)
 	{
 		if (string.IsNullOrEmpty(path) || !File.Exists(path))
 		{

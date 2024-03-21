@@ -54,7 +54,7 @@ public static class FileTypeExtensions
 		return Enumerable.Empty<string>();
 	}
 
-	private static void LoadExtensionsFromFile(string filePath)
+	private static void LoadExtensionsFromFile(string? filePath)
 	{
 		if (!File.Exists(filePath))
 			throw new FileNotFoundException($"The file {filePath} was not found.");

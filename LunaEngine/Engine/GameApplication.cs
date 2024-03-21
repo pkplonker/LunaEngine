@@ -46,7 +46,7 @@ namespace GameCore
 			window.VSync = false;
 		}
 
-		private RawImage LoadIcon(string filePath)
+		private RawImage LoadIcon(string? filePath)
 		{
 			byte[] imageData = File.ReadAllBytes(filePath);
 			var imageResult = ImageResult.FromMemory(imageData, ColorComponents.RedGreenBlueAlpha);

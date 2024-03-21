@@ -31,7 +31,7 @@ public class ResourceManager : IAssetManager
 			return;
 		}
 
-		string sourceDirectory = "resources/coreassets/".MakeAbsolute();
+		string? sourceDirectory = "resources/coreassets/".MakeAbsolute();
 		string targetDirectory = obj.CoreAssetsDirectory;
 
 		try
@@ -47,7 +47,7 @@ public class ResourceManager : IAssetManager
 		FileImporter.ImportAllFromDirectory(obj.AssetsDirectory);
 	}
 
-	private static void CopyDirectory(string sourceDir, string targetDir)
+	private static void CopyDirectory(string? sourceDir, string targetDir)
 	{
 		if (!Directory.Exists(targetDir))
 		{
@@ -113,23 +113,23 @@ public class ResourceManager : IAssetManager
 		return false;
 	}
 
-	public bool AddMetaData(Metadata metadata) => assetManager?.AddMetaData(metadata) ?? false;
+	public bool AddMetaData(IMetadata metadata) => assetManager?.AddMetaData(metadata) ?? false;
 
-	public IEnumerable<Metadata> GetMetadata(MetadataType? filterType = null) =>
-		assetManager?.GetMetadata(filterType) ?? Enumerable.Empty<Metadata>();
+	public IEnumerable<IMetadata> GetMetadata(MetadataType? filterType = null) =>
+		assetManager?.GetMetadata(filterType) ?? Enumerable.Empty<IMetadata>();
 
 	public bool MetadataExistsWithPath(string path) => assetManager.MetadataExistsWithPath(path);
 
 	public void ClearMetadatas() => assetManager?.ClearMetadatas();
-	public Metadata? GetResourceByName(string name) => assetManager?.GetResourceByName(name);
+	public IMetadata? GetResourceByName(string name) => assetManager?.GetResourceByName(name);
 
 	public void Save() => assetManager.Save();
 
-	public Metadata? GetMetadata(string path) => assetManager?.GetMetadata(path);
+	public IMetadata? GetMetadata(string path) => assetManager?.GetMetadata(path);
 
 	public bool GuidIsType<T>(Guid guid) where T : class, IResource => TryGetResourceByGuid<T>(guid, out var _);
 
-	public bool GetMetadata(Guid guid, out Metadata? metadata)
+	public bool GetMetadata(Guid guid, out IMetadata? metadata)
 	{
 		metadata = null;
 		if (assetManager?.GetMetadata(guid, out var md) ?? false)
@@ -145,7 +145,7 @@ public class ResourceManager : IAssetManager
 	public void ReleaseAll<T>() where T : class, IResource => assetManager?.ReleaseAll<T>();
 	public void ReloadAll() => assetManager?.ReloadAll();
 
-	public Metadata? GetMetadata(Guid guid) => assetManager?.GetMetadata(guid);
+	public IMetadata? GetMetadata(Guid guid) => assetManager?.GetMetadata(guid);
 
 	public Type? GetTypeFromGuid(Guid guid) => assetManager?.GetTypeFromGuid(guid);
 }

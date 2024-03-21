@@ -10,14 +10,14 @@ namespace Editor
     public class IconLoader
     {
         private static GL gl;
-        private static Dictionary<string, uint> textureCache = new Dictionary<string, uint>();
+        private static Dictionary<string?, uint> textureCache = new Dictionary<string?, uint>();
 
         public static void Init(GL glContext)
         {
             IconLoader.gl = glContext;
         }
 
-        public static unsafe IntPtr LoadIcon(string path)
+        public static unsafe IntPtr LoadIcon(string? path)
         {
             ArgumentNullException.ThrowIfNull(gl);
 
@@ -63,7 +63,7 @@ namespace Editor
             gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 8);
         }
 
-        public static void DeleteTexture(string path)
+        public static void DeleteTexture(string? path)
         {
             if (textureCache.TryGetValue(path, out uint textureHandle))
             {

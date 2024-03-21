@@ -26,7 +26,7 @@ public static class FileExtensions
 		return absolutePath ?? string.Empty;
 	}
 
-	public static string MakeAbsolute(this string path)
+	public static string? MakeAbsolute(this string? path)
 	{
 		if (string.IsNullOrWhiteSpace(path))
 		{

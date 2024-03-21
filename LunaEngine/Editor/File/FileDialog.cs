@@ -68,7 +68,7 @@ public static class FileDialog
 
 		Logger.Info($"Imported {result}/{paths.Count()} assets");
 	}
-	public static void OpenFileWithDefaultApp(string filePath)
+	public static void OpenFileWithDefaultApp(string? filePath)
 	{
 		try
 		{
