@@ -176,7 +176,7 @@ public class Renderer : IRenderer
 
 	public void UseMaterial(IMaterial material, RenderPassData data, Matrix4x4 modelMatrix)
 	{
-		if (material == null || material.ShaderGUID == null)
+		if (material == null || material.ShaderGUID == null || material.ShaderGUID == Guid.Empty)
 		{
 			UseDefaultShader(data, modelMatrix);
 			return;
