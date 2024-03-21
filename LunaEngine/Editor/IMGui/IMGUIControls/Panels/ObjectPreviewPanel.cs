@@ -8,7 +8,9 @@ namespace Editor.Controls;
 public class ObjectPreviewPanel : IPanel
 {
 	private Scene scene;
-	private GameObject materialSphere;
+	private GameObject? ms;
+	private GameObject? MaterialSphere => ms ??= GameObjectFactory.CreatePrimitive(scene, PrimitiveType.Sphere);
+
 	private Vector2 previousSize;
 	private readonly IInputController inputController;
 	private readonly EditorViewport editorViewport;
@@ -20,15 +22,12 @@ public class ObjectPreviewPanel : IPanel
 		properties.SelectionChanged += InspectorOnSelectionChanged;
 		scene = new Scene("Objet Preview Scene");
 		editorViewport = new EditorViewport();
-		materialSphere = new GameObject();
-		materialSphere.AddComponent<MeshRenderer>();
-	
+
 		scene.ActiveCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, 1024 / (float) 1024);
 		renderer.AddScene(scene, new Vector2D<uint>((uint) 0, (uint) 0), out var rt, true);
-
 	}
 
-	private void InspectorOnSelectionChanged(object obj)
+	private void InspectorOnSelectionChanged(IInspectable? obj)
 	{
 		scene.Clear();
 		switch (obj)
@@ -52,9 +51,9 @@ public class ObjectPreviewPanel : IPanel
 
 				break;
 			case Material material:
-				materialSphere.Transform.SetParent(scene);
-				materialSphere.GetComponent<MeshRenderer>().MaterialGuid = material.GUID;
-				
+				MaterialSphere.Transform.SetParent(scene);
+				MaterialSphere.GetComponent<MeshRenderer>().MaterialGuid = material.GUID;
+
 				break;
 			default:
 				// Handle default case
@@ -66,7 +65,7 @@ public class ObjectPreviewPanel : IPanel
 
 	public void Draw(IRenderer renderer)
 	{
-		editorViewport.Update(PanelName,scene.ActiveCamera as IEditorCamera, scene, inputController,renderer,ref currentSize);
+		editorViewport.Update(PanelName, scene.ActiveCamera as IEditorCamera, scene, inputController, renderer,
+			ref currentSize);
 	}
-
 }

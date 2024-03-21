@@ -166,7 +166,6 @@ namespace Editor
 				ProjectManager.LoadProject(
 					@"S:\Users\pkplo\OneDrive\Desktop\LunaTestProject\LunaTestProject.lunaproject");
 #endif
-
 				try
 				{
 					window.SetWindowIcon(
