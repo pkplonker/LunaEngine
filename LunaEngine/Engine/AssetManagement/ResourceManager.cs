@@ -141,9 +141,11 @@ public class ResourceManager : IAssetManager
 		return false;
 	}
 
-	public void ReleaseResource<T>(Guid guid) where T : class, IResource => assetManager?.ReleaseResource<T>(guid);
+	public void ReleaseResource(Guid guid) => assetManager?.ReleaseResource(guid);
 	public void ReleaseAll<T>() where T : class, IResource => assetManager?.ReleaseAll<T>();
 	public void ReloadAll() => assetManager?.ReloadAll();
 
 	public Metadata? GetMetadata(Guid guid) => assetManager?.GetMetadata(guid);
+
+	public Type? GetTypeFromGuid(Guid guid) => assetManager?.GetTypeFromGuid(guid);
 }

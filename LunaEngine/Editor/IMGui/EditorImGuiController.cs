@@ -30,7 +30,7 @@ public class EditorImGuiController : IDisposable, ISelectableObjectController
 	private readonly IEditorCamera editorCamera;
 	private const string iniSaveLocation = "imgui.ini";
 	public event Action<IInspectable?> GameObjectSelectionChanged;
-	private IInspectable? selectedGameObject;
+	private IInspectable? selectedObject;
 	private readonly IInputController inputController;
 	private SettingsPanel settingsPanel;
 	private bool openSettings;
@@ -41,12 +41,12 @@ public class EditorImGuiController : IDisposable, ISelectableObjectController
 
 	public IInspectable? SelectedObject
 	{
-		get => selectedGameObject;
+		get => selectedObject;
 		set
 		{
-			if (value != selectedGameObject)
+			if (value != selectedObject)
 			{
-				selectedGameObject = value;
+				selectedObject = value;
 				GameObjectSelectionChanged?.Invoke(SelectedObject);
 			}
 		}
@@ -80,13 +80,13 @@ public class EditorImGuiController : IDisposable, ISelectableObjectController
 		controls.Add(new EditorCameraPanel(editorCamera), true);
 		controls.Add(new UndoRedoPanel(inputController), true);
 		controls.Add(new HierarchyPanel(this, inputController), true);
-		var inspector = new InspectorPanel(this);
+		var inspector = new PropertiesPanel(this);
 		controls.Add(inspector, true);
 		controls.Add(new ObjectPreviewPanel(inspector, inputController, renderer), true);
 		controls.Add(new ImGuiLoggerWindow(), true);
 		controls.Add(new MetadataPanel(), true);
 		controls.Add(new ProjectPanel(inputController), true);
-		controls.Add(new ContentBrowser(this), true);
+		controls.Add(new ContentBrowser(selectable => SelectedObject = selectable), true);
 
 		foreach (var control in controls)
 		{

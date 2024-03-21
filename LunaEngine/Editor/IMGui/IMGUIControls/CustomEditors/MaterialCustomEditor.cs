@@ -1,67 +1,42 @@
-﻿using System.Linq.Expressions;
-using System.Numerics;
-using System.Runtime.InteropServices;
-using Editor.IMGUIControls;
+﻿using Editor.IMGUIControls;
 using Editor.Properties;
 using Engine;
 using Engine.Logging;
 using ImGuiNET;
-using Silk.NET.OpenGL;
-using Texture = Engine.Texture;
 
 namespace Editor.Controls;
 
 [CustomEditor(typeof(Engine.Material))]
 public class MaterialCustomEditor : BaseCustomEditor
 {
-	private static PropertyDrawer? propertyDrawer;
-	private static IPropertyDrawInterceptStrategy? interceptStrategy;
-
-	public override void Draw(object component, IMemberAdapter? memberInfo, object propertyValue, IRenderer renderer,
-		int depth)
+	public override void Draw(object component, object owningObject, IMemberAdapter memberInfoToSetObjectOnOwner,
+		IRenderer renderer, int depth = 0)
 	{
-		propertyDrawer ??= new PropertyDrawer(renderer);
-		interceptStrategy ??= new MaterialPropertyDrawIntercept();
-		if (propertyValue != null)
-		{
-			propertyDrawer.DrawObject(propertyValue, depth, interceptStrategy,
-				CustomEditorBase.GenerateName<Material>(memberInfo), () => DropTarget<Material>(component, memberInfo));
-		}
-		else
-		{
-			interceptStrategy.DrawEmpty(++depth, CustomEditorBase.GenerateName<Material>(memberInfo), propertyDrawer,
-				memberInfo, component,() => DropTarget<Material>(component, memberInfo));
-		}
-	}
-}
-
-public class MaterialPropertyDrawIntercept : IPropertyDrawInterceptStrategy
-{
-	public bool Draw(object component, IMemberAdapter memberInfo, IRenderer renderer)
-	{
-		if (memberInfo.Name == "GUID")
-		{
-			try
-			{
-				if (ResourceManager.Instance.GetMetadata((Guid) memberInfo.GetValue(component), out var metadata))
-				{
-					ImGui.Text("Material Path");
-					ImGui.SameLine();
-					ImGui.Text(metadata.Path);
-					return true;
-				}
-			}
-			catch (Exception e)
-			{
-				Logger.Warning($"Failed to convert guid for UI {e}");
-			}
-		}
-
-		return false;
+		Draw<Material>(component, owningObject, memberInfoToSetObjectOnOwner,
+			renderer, depth);
 	}
 
-	public void DrawEmptyContent(IMemberAdapter? memberInfo, object component)
+	protected override void DropProps(object component, IMemberAdapter memberInfoToSetObjectOnOwner,
+		object owningObject, int depth)
 	{
-		if (ImGui.Button("Select Material")) { }
+		if (component is not Material mat) return;
+		try
+		{
+			if (ResourceManager.Instance.GetMetadata(mat.GUID, out var metadata))
+			{
+				ImGui.Text($"Material Path : {metadata.Path}");
+			}
+		}
+		catch (Exception e)
+		{
+			Logger.Warning($"Failed to convert guid for UI {e}");
+		}
+
+		if (owningObject != null && ImGui.Button("Remove##material"))
+		{
+			memberInfoToSetObjectOnOwner.SetValue(owningObject, Guid.Empty);
+		}
+
+		propertyDrawer.ProcessProps(mat, ++depth);
 	}
 }

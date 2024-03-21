@@ -1,6 +1,6 @@
 ﻿namespace Engine;
 
-public interface IResource
+public interface IResource : IInspectable
 {
 	Guid GUID { get; }
 }

@@ -21,10 +21,11 @@ public class RenamingHelper
 	{
 		if (objectToRename == null) return;
 		this.objectToRename = new WeakReference<GameObject>(objectToRename);
-		string name = objectToRename.Name;
-		byte[] nameBytes = System.Text.Encoding.UTF8.GetBytes(name);
+		Array.Clear(renameBuffer, 0, renameBuffer.Length);
+		byte[] nameBytes = System.Text.Encoding.UTF8.GetBytes(objectToRename.Name);
 		Array.Copy(nameBytes, renameBuffer, Math.Min(RENAME_BUFFER_SIZE - 1, nameBytes.Length));
 		renameBuffer[RENAME_BUFFER_SIZE - 1] = 0;
+
 		showRenamePopup = true;
 	}
 
@@ -32,7 +33,6 @@ public class RenamingHelper
 	{
 		if (showRenamePopup)
 		{
-			//ImGui.SetNextWindowPos(ImGui.GetMousePos());
 			ImGui.OpenPopup("Rename Object");
 			showRenamePopup = false;
 			isOpen = true;

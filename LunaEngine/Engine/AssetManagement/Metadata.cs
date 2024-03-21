@@ -23,6 +23,15 @@ public abstract class Metadata
 	public MetadataType MetadataType { get; set; }
 	public string Name => System.IO.Path.GetFileName(Path);
 
+	public Type? MetadataTypeAsType => MetadataType switch
+	{
+		MetadataType.Texture => typeof(Texture),
+		MetadataType.Material => typeof(Material),
+		MetadataType.Shader => typeof(Shader),
+		MetadataType.Mesh => typeof(Mesh),
+		_ => throw new ArgumentOutOfRangeException(nameof(MetadataType), $"Unsupported metadata type: {MetadataType}")
+	};
+
 	public static Metadata Create(Type? type, string path)
 	{
 		ArgumentNullException.ThrowIfNull(type);

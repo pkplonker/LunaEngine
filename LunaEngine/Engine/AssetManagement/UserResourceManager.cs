@@ -7,10 +7,7 @@ namespace Engine;
 
 public class UserResourceManager : IAssetManager
 {
-	protected ConcurrentDictionary<Guid, Mesh?> meshes = new();
-	protected ConcurrentDictionary<Guid, Shader?> shaders = new();
-	protected ConcurrentDictionary<Guid, Texture?> textures = new();
-	protected ConcurrentDictionary<Guid, Material?> materials = new();
+	protected ConcurrentDictionary<Guid, IResource?> resources = new();
 	protected ConcurrentDictionary<Guid, Metadata> metadatas = new();
 
 	protected GL gl;
@@ -76,69 +73,58 @@ public class UserResourceManager : IAssetManager
 			return false;
 		}
 
+		var res = TryLoadResource(guid, metadata, out var resource);
+		res &= resource?.GetType() == typeof(T);
+		result = resource as T;
+		return res;
+	}
+
+	public bool TryGetResourceByGuid(Guid guid, out IResource? result)
+	{
+		result = null;
+
+		if (!metadatas.TryGetValue(guid, out var metadata))
+		{
+			return false;
+		}
+
+		return TryLoadResource(guid, metadata, out result);
+	}
+
+	private bool TryLoadResource(Guid guid, Metadata metadata, out IResource? result)
+	{
+		result = null;
+		Func<Metadata, IResource> loaderFunction;
+
 		switch (metadata.MetadataType)
 		{
 			case MetadataType.Texture:
-				Texture? texture = null;
-				if (typeof(T) == typeof(Texture) && !textures.TryGetValue(guid, out texture))
-				{
-					texture = LoadTexture(metadata) as Texture;
-					if (texture != null)
-					{
-						textures[guid] = texture;
-					}
-				}
-
-				result = texture as T;
+				loaderFunction = LoadTexture;
 				break;
-
 			case MetadataType.Material:
-				Material? material = null;
-				if (typeof(T) == typeof(Material) && !materials.TryGetValue(guid, out material))
-				{
-					material = LoadMaterial(metadata) as Material;
-					if (material != null)
-					{
-						materials[guid] = material;
-					}
-				}
-
-				result = material as T;
+				loaderFunction = LoadMaterial;
 				break;
-
 			case MetadataType.Shader:
-				Shader? shader = null;
-				if (typeof(T) == typeof(Shader) && !shaders.TryGetValue(guid, out shader))
-				{
-					shader = LoadShader(metadata) as Shader;
-					if (shader != null)
-					{
-						shaders[guid] = shader;
-					}
-				}
-
-				result = shader as T;
+				loaderFunction = LoadShader;
 				break;
-
 			case MetadataType.Mesh:
-				Mesh? mesh = null;
-				if (typeof(T) == typeof(Mesh) && !meshes.TryGetValue(guid, out mesh))
-				{
-					mesh = LoadMesh(metadata) as Mesh;
-					if (mesh != null)
-					{
-						meshes[guid] = mesh;
-					}
-				}
-
-				result = mesh as T;
+				loaderFunction = LoadMesh;
 				break;
-
 			default:
 				Logger.Warning($"Trying to request invalid resource type from guid");
 				return false;
 		}
 
+		if (!resources.TryGetValue(guid, out var resource))
+		{
+			resource = loaderFunction(metadata);
+			if (resource != null)
+			{
+				resources[guid] = resource;
+			}
+		}
+
+		result = resource;
 		return result != null;
 	}
 
@@ -221,7 +207,7 @@ public class UserResourceManager : IAssetManager
 
 	public void Save()
 	{
-		materials.WhereNotNull().Foreach(x => Save(x.Value));
+		resources.WhereNotNull().Foreach(x => Save(x.Value));
 	}
 
 	public Metadata? GetMetadata(string path)
@@ -250,61 +236,25 @@ public class UserResourceManager : IAssetManager
 
 		return false;
 	}
+	
 
-	public void ReleaseResource<T>(Guid guid) where T : class, IResource
+	public void ReleaseResource(Guid guid)
 	{
-		if (typeof(T) == typeof(Material))
-		{
-			materials.Remove(guid, out _);
-		}
-		else if (typeof(T) == typeof(Texture))
-		{
-			textures.Remove(guid, out _);
-		}
-		else if (typeof(T) == typeof(Shader))
-		{
-			shaders.Remove(guid, out _);
-		}
-		else if (typeof(T) == typeof(Mesh))
-		{
-			meshes.Remove(guid, out _);
-		}
-		else
-		{
-			Logger.Warning($"ReleaseResource: Unsupported resource type {typeof(T)}");
-		}
+		resources.Remove(guid, out _);
 	}
 
 	public void ReleaseAll<T>() where T : class, IResource
 	{
-		if (typeof(T) == typeof(Material))
+		var itemsToRemove = resources.Where(x => x is T).ToList();
+		foreach (var item in itemsToRemove)
 		{
-			materials.Clear();
-		}
-		else if (typeof(T) == typeof(Texture))
-		{
-			textures.Clear();
-		}
-		else if (typeof(T) == typeof(Shader))
-		{
-			shaders.Clear();
-		}
-		else if (typeof(T) == typeof(Mesh))
-		{
-			meshes.Clear();
-		}
-		else
-		{
-			Logger.Warning($"ReleaseResource: Unsupported resource type {typeof(T)}");
+			resources.Remove(item.Key, out _);
 		}
 	}
 
 	public void ReloadAll()
 	{
-		ReleaseAll<Mesh>();
-		ReleaseAll<Shader>();
-		ReleaseAll<Material>();
-		ReleaseAll<Texture>();
+		resources.Clear();
 	}
 
 	public Metadata? GetMetadata(Guid guid)
@@ -313,61 +263,10 @@ public class UserResourceManager : IAssetManager
 		return md;
 	}
 
-	public bool TryGetResourceByGuid(Guid guid, out IResource? result)
+	public Type? GetTypeFromGuid(Guid guid)
 	{
-		result = null;
-
-		if (!metadatas.TryGetValue(guid, out var metadata))
-		{
-			return false;
-		}
-
-		switch (metadata.MetadataType)
-		{
-			case MetadataType.Texture:
-				if (textures.TryGetValue(guid, out var texture))
-				{
-					result = texture;
-				}
-
-				break;
-
-			case MetadataType.Material:
-				if (materials.TryGetValue(guid, out var material))
-				{
-					result = material;
-				}
-
-				break;
-
-			case MetadataType.Shader:
-				if (shaders.TryGetValue(guid, out var shader))
-				{
-					result = shader;
-				}
-
-				break;
-
-			case MetadataType.Mesh:
-				if (meshes.TryGetValue(guid, out var mesh))
-				{
-					result = mesh;
-				}
-
-				break;
-
-			default:
-				Logger.Warning($"Unsupported resource type for GUID: {guid}");
-				return false;
-		}
-
-		if (result == null)
-		{
-			Logger.Warning($"Resource not found for GUID: {guid}");
-			return false;
-		}
-
-		return true;
+		metadatas.TryGetValue(guid, out var md);
+		return md?.MetadataTypeAsType;
 	}
 
 	private void Save(IResource? resource)

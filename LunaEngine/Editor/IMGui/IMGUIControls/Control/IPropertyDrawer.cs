@@ -1,7 +1,12 @@
-﻿namespace Editor.Controls;
+﻿using Engine;
+
+namespace Editor.Controls;
 
 public interface IPropertyDrawer
 {
-	void DrawObject(object component, int depth, IPropertyDrawInterceptStrategy? interceptStrategy, string? name = null,
-		Action handleDragDrop = null);
+	void DrawObject(object component, string? name = null, int depth = 0);
+	void ProcessProps(object component, int depth = 0);
+
+	public void CreateNestedHeader(int depth,
+		string? name, Action content, IEnumerable<ContextMenuItem> contextMenuItems, Action? handleDragDrop = null);
 }
