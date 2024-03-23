@@ -12,7 +12,7 @@ public class EditorViewport
 	private float aspectRatio;
 
 	private const string VIEWPORT_ASPECTRATIO = "ViewportAspectRatio";
-
+	public event Action<bool> IsActive; 
 	private readonly Dictionary<string, float> aspectRatios = new()
 	{
 		{"16:9(HD/QHD/4K)", 16f / 9f}, {"16:10", 16f / 10f}, {"4:3", 1920.0f / 1080.0f}, {"32:9", 32.0f / 9.0f}
@@ -64,14 +64,17 @@ public class EditorViewport
 
 		float usedHeight = ImGui.GetCursorPosY();
 		Vector2 size = ImGui.GetContentRegionAvail();
+		bool isActive = false;
 		if (ImGui.IsWindowFocused() || (ImGui.IsWindowHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Right)))
 		{
 			ImGui.SetWindowFocus();
 			camera.SetActive(true, inputController);
+			IsActive?.Invoke(true);
 		}
 		else
 		{
 			camera.SetActive(false, inputController);
+			IsActive?.Invoke(false);
 		}
 
 		if (scene != null)
@@ -95,6 +98,7 @@ public class EditorViewport
 		}
 
 		ImGui.End();
+		
 	}
 
 	private Vector2D<float> HandleResize(IEditorCamera camera, IScene scene, IRenderer renderer, Vector2 size)

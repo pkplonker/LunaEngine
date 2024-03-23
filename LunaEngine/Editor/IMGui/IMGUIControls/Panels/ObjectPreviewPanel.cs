@@ -15,6 +15,9 @@ public class ObjectPreviewPanel : IPanel
 	private readonly IInputController inputController;
 	private readonly EditorViewport editorViewport;
 	private Vector2 currentSize;
+	private bool subscribed = false;
+	private GameObject? activeGameObject = null;
+	private const string settingsCategory = "Object Preview";
 
 	public ObjectPreviewPanel(PropertiesPanel properties, IInputController inputController, IRenderer renderer)
 	{
@@ -22,14 +25,51 @@ public class ObjectPreviewPanel : IPanel
 		properties.SelectionChanged += InspectorOnSelectionChanged;
 		scene = new Scene("Objet Preview Scene");
 		editorViewport = new EditorViewport();
-
-		scene.ActiveCamera = new MoveableEditorCamera(Vector3.UnitZ * 6, 1024 / (float) 1024);
+		editorViewport.IsActive += OnIsActive;
+		scene.ActiveCamera = new EditorCamera(Vector3.UnitZ * 6, 1024 / (float) 1024);
 		renderer.AddScene(scene, new Vector2D<uint>((uint) 0, (uint) 0), out var rt, true);
+	}
+
+	private void OnIsActive(bool isActive)
+	{
+		if (isActive && !subscribed)
+		{
+			inputController.SubscribeToKeyEvent(HandleKeyPress);
+			inputController.SubscribeToMouseMoveEvent(HandleMouseMove);
+			subscribed = true;
+		}
+		else
+		{
+			subscribed = false;
+			inputController.UnsubscribeToKeyEvent(HandleKeyPress);
+			inputController.UnsubscribeToMouseMoveEvent(HandleMouseMove);
+		}
+	}
+
+	private bool HandleMouseMove(Vector2 arg)
+	{
+		if (inputController.IsMouseHeld(IInputController.MouseButton.Right))
+		{
+			float mouseSensitivityX = EditorSettings.GetSetting("Viewport Mouse Sensitivity X", settingsCategory, true, 0.3f);
+			float mouseSensitivityY = EditorSettings.GetSetting("Viewport Mouse Sensitivity Y", settingsCategory, true, 0.5f);
+			var mouseDelta = arg;
+			activeGameObject?.Transform.Rotate(-mouseDelta.X * mouseSensitivityX * Time.DeltaTime,
+				mouseDelta.Y * mouseSensitivityY * Time.DeltaTime);
+			return true;
+		}
+
+		return false;
+	}
+
+	private bool HandleKeyPress(IInputController.Key arg1, IInputController.InputState arg2)
+	{
+		return false;
 	}
 
 	private void InspectorOnSelectionChanged(IInspectable? obj)
 	{
 		scene.Clear();
+		activeGameObject = null;
 		switch (obj)
 		{
 			case GameObject gameObject:
@@ -49,11 +89,12 @@ public class ObjectPreviewPanel : IPanel
 					mr.Clone(dmr);
 				}
 
+				activeGameObject = dummyGo;
 				break;
 			case Material material:
 				MaterialSphere.Transform.SetParent(scene);
 				MaterialSphere.GetComponent<MeshRenderer>().MaterialGuid = material.GUID;
-
+				activeGameObject = MaterialSphere;
 				break;
 			default:
 				// Handle default case
