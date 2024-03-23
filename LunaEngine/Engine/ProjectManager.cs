@@ -88,7 +88,7 @@ public static class ProjectManager
 				ActiveProject = project;
 				if (!string.IsNullOrEmpty(project.ScenePath))
 				{
-					var scene = new SceneDeserializer(project.ScenePath).Deserialize();
+					var scene = new SceneDeserializer(project.ScenePath.MakeProjectAbsolute()).Deserialize();
 					SceneController.ActiveScene = scene;
 				}
 			}
@@ -100,5 +100,11 @@ public static class ProjectManager
 			Logger.Error($"Failed to load project from path {path}: {ex.Message}");
 			return null;
 		}
+	}
+
+	public static void Save()
+	{
+		ActiveProject.ScenePath = SceneController.ActiveScene.Path;
+		ActiveProject?.Save();
 	}
 }

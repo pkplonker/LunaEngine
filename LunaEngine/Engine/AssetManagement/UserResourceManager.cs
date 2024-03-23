@@ -271,11 +271,11 @@ public class UserResourceManager : IAssetManager
 
 	private void Save(IResource? resource)
 	{
-		if (resource == null) return;
-		var guid = resource.GUID;
-		if (metadatas.TryGetValue(guid, out var metadata))
-		{
-			ObjectSerializer.Serialize(resource, metadata.Path.MakeProjectAbsolute());
-		}
+		// if (resource == null) return;
+		// var guid = resource.GUID;
+		// if (metadatas.TryGetValue(guid, out var metadata))
+		// {
+		// 	ObjectSerializer.Serialize(resource, metadata.Path.MakeProjectAbsolute());
+		// }
 	}
 }

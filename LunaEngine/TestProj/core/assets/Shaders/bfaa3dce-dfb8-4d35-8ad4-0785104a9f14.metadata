@@ -1,0 +1,9 @@
+{
+  "Path": "core\\assets\\Shaders\\PBR.glsl",
+  "GUID": "bfaa3dce-dfb8-4d35-8ad4-0785104a9f14",
+  "MetaDataVersion": 1,
+  "MetadataType": 2,
+  "Name": "PBR.glsl",
+  "AbsolutePath": "S:\\Users\\pkplo\\OneDrive\\Documents\\C#\\LunaEngine\\LunaEngine\\TestProj\\core\\assets\\Shaders\\PBR.glsl",
+  "MetadataTypeAsType": "Engine.Shader, Engine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+}

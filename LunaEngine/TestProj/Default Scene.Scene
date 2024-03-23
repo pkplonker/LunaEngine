@@ -1,0 +1,37 @@
+{
+  "New Cube (1)": {
+    "transform": {
+      "ChildrenGuids": [],
+      "GUID": "38aea07d-d56f-459a-bd68-138e2520aee5",
+      "Position": {
+        "X": 0.0,
+        "Y": 0.0,
+        "Z": 0.0
+      },
+      "Scale": {
+        "X": 1.0,
+        "Y": 1.0,
+        "Z": 1.0
+      },
+      "Rotation": {
+        "X": 0.0,
+        "Y": 0.0,
+        "Z": 0.0,
+        "W": 1.0,
+        "IsIdentity": true
+      }
+    },
+    "Name": "New Cube (1)",
+    "Enabled": true,
+    "components": {
+      "Engine.MeshFilter, Engine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": {
+        "meshes": [
+          "c3d678ea-25f2-4ef7-82c4-e06483f9323c"
+        ]
+      },
+      "Engine.MeshRenderer, Engine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": {
+        "MaterialGuid": "9b15ce0f-978b-43ff-a42d-0f5530f45efa"
+      }
+    }
+  }
+}

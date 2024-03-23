@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Engine.Logging;
+using Newtonsoft.Json;
 
 namespace Engine;
 
@@ -28,13 +29,7 @@ public class Project : IProject
 	public string ScenePath
 	{
 		get => scenePath;
-		set
-		{
-			if (value != scenePath)
-			{
-				scenePath = value;
-			}
-		}
+		set => scenePath = value;
 	}
 
 	public Project(string projectFilePath, string name, string assetsDirectory, string coreAssetsDirectory)

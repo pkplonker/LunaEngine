@@ -69,7 +69,7 @@ namespace Editor
 			window.IsClosing = false;
 			DecisionBox.Show("Save Project?", () =>
 			{
-				ProjectManager.ActiveProject?.Save();
+				ProjectManager.Save();
 				EditorImGuiController.SaveScene();
 				ResourceManager.Instance.Save();
 				Close();
@@ -164,7 +164,7 @@ namespace Editor
 
 #if DEVELOP
 				ProjectManager.LoadProject(
-					@"S:\Users\pkplo\OneDrive\Desktop\LunaTestProject\LunaTestProject.lunaproject");
+					@"S:\Users\pkplo\OneDrive\Documents\C#\LunaEngine\LunaEngine\TestProj\testproj.lunaproject");
 #endif
 				try
 				{

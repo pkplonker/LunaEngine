@@ -1,0 +1,9 @@
+{
+  "Path": "core\\assets\\Models\\TestCube.obj",
+  "GUID": "c3d678ea-25f2-4ef7-82c4-e06483f9323c",
+  "MetaDataVersion": 1,
+  "MetadataType": 3,
+  "Name": "TestCube.obj",
+  "AbsolutePath": "S:\\Users\\pkplo\\OneDrive\\Documents\\C#\\LunaEngine\\LunaEngine\\TestProj\\core\\assets\\Models\\TestCube.obj",
+  "MetadataTypeAsType": "Engine.Mesh, Engine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+}

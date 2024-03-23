@@ -8,4 +8,5 @@ public interface IProject
 	string AssetsDirectory { get; set; }
 	string CoreAssetsDirectory { get; set; }
 	void Save();
+	public string ScenePath { get; set; }
 }

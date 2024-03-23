@@ -1,0 +1,9 @@
+{
+  "Path": "core\\assets\\Models\\TestSphere.obj",
+  "GUID": "b3edb709-a03c-4438-ad81-cc8ed698215e",
+  "MetaDataVersion": 1,
+  "MetadataType": 3,
+  "Name": "TestSphere.obj",
+  "AbsolutePath": "S:\\Users\\pkplo\\OneDrive\\Documents\\C#\\LunaEngine\\LunaEngine\\TestProj\\core\\assets\\Models\\TestSphere.obj",
+  "MetadataTypeAsType": "Engine.Mesh, Engine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+}

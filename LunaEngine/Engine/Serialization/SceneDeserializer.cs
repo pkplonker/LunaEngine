@@ -46,6 +46,7 @@ namespace Engine
 				try
 				{
 					scene.Name = Path.GetFileNameWithoutExtension(this.absolutePath);
+					scene.Path = absolutePath.MakeProjectRelative();
 				}
 				catch (Exception e)
 				{

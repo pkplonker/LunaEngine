@@ -1,0 +1,9 @@
+{
+  "Path": "core\\assets\\Shaders\\Boing.glsl",
+  "GUID": "fa47e4e3-929f-461a-bdac-6768fce6f2bb",
+  "MetaDataVersion": 1,
+  "MetadataType": 2,
+  "Name": "Boing.glsl",
+  "AbsolutePath": "S:\\Users\\pkplo\\OneDrive\\Documents\\C#\\LunaEngine\\LunaEngine\\TestProj\\core\\assets\\Shaders\\Boing.glsl",
+  "MetadataTypeAsType": "Engine.Shader, Engine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+}
